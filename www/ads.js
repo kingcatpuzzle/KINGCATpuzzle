@@ -13,10 +13,9 @@ async function init() {
 }
 init();
 
-// バナーの表示状態を管理するフラグ
 let bannerShown = false;
 
-// バナー表示・消去の制御関数
+// バナー表示・消去
 async function showBanner(show) {
   if (show && !bannerShown) {
     await AdMob.showBanner({
@@ -32,15 +31,31 @@ async function showBanner(show) {
   }
 }
 
-// ゲームからの合図を受け取る受け皿
+// インタースティシャル全画面広告
+async function showInterstitial() {
+  try {
+    await AdMob.prepareInterstitial({
+      adId: INTERSTITIAL_ID,
+      isTesting: TESTING,
+    });
+    await AdMob.showInterstitial();
+  } catch (e) {
+    console.error('Interstitial Error:', e);
+  }
+  // 広告が出せなくても閉じた後でも、必ずゲームへ進む処理を呼ぶ
+  if (window.KingCats && typeof window.KingCats.adClosed === 'function') {
+    window.KingCats.adClosed();
+  }
+}
+
+// ゲームからの呼び出し受信用
 window.native = async function(action, options = {}) {
   try {
     if (action === 'showBanner' || action === 'banner') {
       const show = options.show !== undefined ? options.show : true;
       await showBanner(show);
     } else if (action === 'showInterstitial') {
-      await AdMob.prepareInterstitial({ adId: INTERSTITIAL_ID, isTesting: TESTING });
-      await AdMob.showInterstitial();
+      await showInterstitial();
     } else if (action === 'showRewarded') {
       await AdMob.prepareRewardVideoAd({ adId: REWARDED_ID, isTesting: TESTING });
       await AdMob.showRewardVideoAd();
