@@ -1,4 +1,4 @@
-import { AdMob, BannerAdPosition, BannerAdSize } from '@capacitor-community/admob';
+import { AdMob, BannerAdPosition, BannerAdSize, RewardAdPluginEvents } from '@capacitor-community/admob';
 
 // 広告ユニットID
 const BANNER_ID       = 'ca-app-pub-9887025755159214/7136735433';
@@ -13,10 +13,10 @@ async function init() {
 }
 init();
 
+// --- バナー広告 ---
 let bannerShown = false;
 
-// バナー表示・消去
-async function showBanner(show) {
+async function showBanner(show = true) {
   if (show && !bannerShown) {
     await AdMob.showBanner({
       adId: BANNER_ID,
@@ -31,7 +31,7 @@ async function showBanner(show) {
   }
 }
 
-// インタースティシャル全画面広告
+// --- インタースティシャル広告 ---
 async function showInterstitial() {
   try {
     await AdMob.prepareInterstitial({
@@ -42,13 +42,49 @@ async function showInterstitial() {
   } catch (e) {
     console.error('Interstitial Error:', e);
   }
-  // 広告が出せなくても閉じた後でも、必ずゲームへ進む処理を呼ぶ
   if (window.KingCats && typeof window.KingCats.adClosed === 'function') {
     window.KingCats.adClosed();
   }
 }
 
-// ゲームからの呼び出し受信用
+// --- リワード動画広告 ---
+let gotReward = false;
+
+// 動画を最後まで見たときだけ発火するイベント
+AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
+  gotReward = true;
+});
+
+async function showRewarded() {
+  gotReward = false;
+  try {
+    await AdMob.prepareRewardVideoAd({
+      adId: REWARDED_ID,
+      isTesting: TESTING,
+    });
+    await AdMob.showRewardVideoAd();
+  } catch (e) {
+    console.error('Rewarded Error:', e);
+    if (window.KingCats && typeof window.KingCats.adFailed === 'function') {
+      window.KingCats.adFailed();
+    }
+    return;
+  }
+
+  // 広告が閉じられた後の報酬判定
+  if (window.KingCats) {
+    if (gotReward && typeof window.KingCats.rewardEarned === 'function') {
+      window.KingCats.rewardEarned(); // 報酬付与
+    } else if (typeof window.KingCats.adClosed === 'function') {
+      window.KingCats.adClosed();     // 途中離脱（報酬なしでゲーム復帰）
+    }
+  }
+}
+
+// ゲーム本体からの呼び出し口を設定
+window.KingCatsAds = { showBanner, showInterstitial, showRewarded };
+
+// 既存合図（window.native）との互換処理
 window.native = async function(action, options = {}) {
   try {
     if (action === 'showBanner' || action === 'banner') {
@@ -57,8 +93,7 @@ window.native = async function(action, options = {}) {
     } else if (action === 'showInterstitial') {
       await showInterstitial();
     } else if (action === 'showRewarded') {
-      await AdMob.prepareRewardVideoAd({ adId: REWARDED_ID, isTesting: TESTING });
-      await AdMob.showRewardVideoAd();
+      await showRewarded();
     }
   } catch (error) {
     console.error('AdMob Error:', error);
