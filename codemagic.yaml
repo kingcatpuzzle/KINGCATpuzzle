@@ -3,37 +3,52 @@ workflows:
     name: iOS TestFlight Build
     max_build_duration: 120
     instance_type: mac_mini_m1
+
+    integrations:
+      app_store_connect: Codemagic
+
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.reo.kingcat  # ※自分のBundle ID（例: com.reo.kingcats または com.reo.kingcat）に変更
+        bundle_identifier: com.reo.kingcat
       vars:
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
-      node: 20
+      node: 22
       xcode: latest
-      cocoapods: default
+
     scripts:
-      - name: Install dependencies
+      - name: Install npm dependencies
         script: |
-          npm install
-      - name: Build Web App & Capacitor Sync
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Verify native project
+        script: |
+          if [ ! -d "ios/App" ]; then echo "ERROR: ios/ がありません。"; exit 1; fi
+
+      - name: Capacitor sync
         script: |
           npx cap sync ios
-      - name: CocoaPods install
+
+      - name: Set build number
         script: |
-          cd ios/App && pod install
-      - name: Set up code signing settings
+          cd ios/App
+          agvtool new-version -all $(($BUILD_NUMBER + 1))
+
+      - name: Set up code signing
         script: |
           xcode-project use-profiles
-      - name: Build iOS App (.ipa)
+
+      - name: Build .ipa
         script: |
           xcode-project build-ipa \
-            --workspace "$XCODE_WORKSPACE" \
+            --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
+
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+
     publishing:
       app_store_connect:
         auth: integration
