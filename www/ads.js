@@ -1,14 +1,19 @@
-import { AdMob, BannerAdPosition, BannerAdSize, RewardAdPluginEvents } from '@capacitor-community/admob';
+// import文を使わず、Capacitorプラグインを直接取得
+const AdMob = window.Capacitor?.Plugins?.AdMob;
 
 // 開発・TestFlight検証中は true（App Store公開時に false へ変更）
 const TESTING = true;
 
-// 広告ユニットID（TESTINGがtrueの時はGoogle公式テストID、falseの時は本番IDを使用）
+// 広告ユニットID（TESTINGがtrueの時はGoogle公式テストIDを使用）
 const BANNER_ID       = TESTING ? 'ca-app-pub-3940256099942544/2934735716' : 'ca-app-pub-9887025755159214/7136735433';
 const INTERSTITIAL_ID = TESTING ? 'ca-app-pub-3940256099942544/4411468910' : 'ca-app-pub-9887025755159214/1884408756';
 const REWARDED_ID     = TESTING ? 'ca-app-pub-3940256099942544/1712485313' : 'ca-app-pub-9887025755159214/6123036666';
 
 async function init() {
+  if (!AdMob) {
+    console.error('AdMobプラグインが見つかりません');
+    return;
+  }
   try {
     // iOSの追跡許諾（ATT）ダイアログを表示
     await AdMob.requestTrackingAuthorization();
@@ -22,17 +27,24 @@ async function init() {
     console.error('AdMob Init Error:', e);
   }
 }
-init();
+
+// 画面読み込み完了時に初期化を実行
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
 
 // --- バナー広告 ---
 let bannerShown = false;
 
 async function showBanner(show = true) {
+  if (!AdMob) return;
   if (show && !bannerShown) {
     await AdMob.showBanner({
       adId: BANNER_ID,
-      adSize: BannerAdSize.ADAPTIVE_BANNER,
-      position: BannerAdPosition.BOTTOM_CENTER,
+      adSize: 'ADAPTIVE_BANNER',
+      position: 'BOTTOM_CENTER',
       isTesting: TESTING,
     });
     bannerShown = true;
@@ -44,6 +56,7 @@ async function showBanner(show = true) {
 
 // --- インタースティシャル広告 ---
 async function showInterstitial() {
+  if (!AdMob) return;
   try {
     await AdMob.prepareInterstitial({
       adId: INTERSTITIAL_ID,
@@ -61,12 +74,15 @@ async function showInterstitial() {
 // --- リワード動画広告 ---
 let gotReward = false;
 
-// 動画を最後まで見たときだけ発火するイベント
-AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
-  gotReward = true;
-});
+if (AdMob) {
+  // 動画を最後まで見たときだけ発火するイベント
+  AdMob.addListener('rewarded', () => {
+    gotReward = true;
+  });
+}
 
 async function showRewarded() {
+  if (!AdMob) return;
   gotReward = false;
   try {
     await AdMob.prepareRewardVideoAd({
