@@ -1,15 +1,26 @@
 import { AdMob, BannerAdPosition, BannerAdSize, RewardAdPluginEvents } from '@capacitor-community/admob';
 
-// 広告ユニットID
-const BANNER_ID       = 'ca-app-pub-9887025755159214/7136735433';
-const INTERSTITIAL_ID = 'ca-app-pub-9887025755159214/1884408756';
-const REWARDED_ID     = 'ca-app-pub-9887025755159214/6123036666';
-
-// 開発中は true
+// 開発・TestFlight検証中は true（App Store公開時に false へ変更）
 const TESTING = true;
 
+// 広告ユニットID（TESTINGがtrueの時はGoogle公式テストID、falseの時は本番IDを使用）
+const BANNER_ID       = TESTING ? 'ca-app-pub-3940256099942544/2934735716' : 'ca-app-pub-9887025755159214/7136735433';
+const INTERSTITIAL_ID = TESTING ? 'ca-app-pub-3940256099942544/4411468910' : 'ca-app-pub-9887025755159214/1884408756';
+const REWARDED_ID     = TESTING ? 'ca-app-pub-3940256099942544/1712485313' : 'ca-app-pub-9887025755159214/6123036666';
+
 async function init() {
-  await AdMob.initialize({ initializeForTesting: TESTING });
+  try {
+    // iOSの追跡許諾（ATT）ダイアログを表示
+    await AdMob.requestTrackingAuthorization();
+    
+    // AdMob初期化
+    await AdMob.initialize({
+      initializeForTesting: TESTING,
+      testingDevices: ['0F45FC0C-DDA5-4170-8DD8-2C6BDA702240'],
+    });
+  } catch (e) {
+    console.error('AdMob Init Error:', e);
+  }
 }
 init();
 
