@@ -53,6 +53,15 @@ body.playing #bgFX .b2{background:var(--pty2,#ff5fd0)}
 body.playing #bgFX .blob{opacity:.26}
 #starfield{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5}
 /* ---- purchased themes. Switched on and off in メニュー →「テーマ」 ---- */
+body[data-theme="hoshi"] #bgFX{background:radial-gradient(ellipse at 50% -12%,#2a2f78 0%,transparent 62%),
+ linear-gradient(180deg,#03040f,#0c1030 55%,#020309)}
+body[data-theme="hoshi"] #starfield{opacity:1}
+body[data-theme="hotaru"] #bgFX{background:radial-gradient(ellipse at 50% -12%,#1f5a44 0%,transparent 62%),
+ linear-gradient(180deg,#020b08,#0a2a22 55%,#010604)}
+body[data-theme="hotaru"] #starfield{opacity:.35}
+body[data-theme="yuki"] #bgFX{background:radial-gradient(ellipse at 50% -12%,#5a78a8 0%,transparent 62%),
+ linear-gradient(180deg,#0a1220,#1d2b44 55%,#070c16)}
+body[data-theme="yuki"] #starfield{opacity:.3}
 body[data-theme="wa"] #bgFX{background:radial-gradient(ellipse at 50% -12%,#6b5228 0%,transparent 62%),
  linear-gradient(180deg,#181205,#2f2413 55%,#120d04)}
 body[data-theme="wa"] #bgFX .b1{background:#e8c98a}
@@ -99,6 +108,64 @@ body[data-theme="sora"] #starfield{opacity:.25}
 #topTitle .t1{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #topTitle .t2{font-size:10.5px;color:var(--lo);font-weight:700}
 #topRight{display:flex;gap:6px}
+/* the player's icon and frame, on every screen */
+#topAva{width:42px;height:42px;flex:none;padding:0;border:0;background:none;border-radius:50%;
+ cursor:pointer;-webkit-tap-highlight-color:transparent}
+#topAva canvas{width:42px;height:42px;display:block}
+#topAva:active{transform:scale(.94)}
+#topAva:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+/* home: ranking card with the neighbours above and below */
+.rkCard{border-radius:20px;padding:13px 13px 10px;margin-bottom:13px;cursor:pointer;
+ background:linear-gradient(150deg,rgba(84,233,255,.10),rgba(255,95,208,.06) 60%,rgba(255,255,255,.02)),var(--glass);
+ border:1px solid rgba(255,255,255,.13);box-shadow:var(--lift)}
+.rkHead{display:flex;align-items:center;gap:12px}
+.rkAva{width:92px;height:92px;flex:none;padding:0;border:0;background:none;border-radius:50%;cursor:pointer;
+ -webkit-tap-highlight-color:transparent}
+.rkAva canvas{width:92px;height:92px;display:block}
+.rkAva:active{transform:scale(.96)}
+.rkInfo{flex:1;min-width:0}
+.rkName{font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rkFrame{font-size:11px;font-weight:800;color:var(--gold);margin-top:2px}
+.rkNext{font-size:10.5px;color:var(--mid);margin-top:5px;line-height:1.45}
+.rkNext .nw{white-space:nowrap;color:var(--hi)}
+.rkBar{height:6px;border-radius:99px;background:rgba(255,255,255,.08);margin-top:5px;overflow:hidden}
+.rkBar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#c9932a,#ffd76b,#fff2c4)}
+.rkPos{flex:none;text-align:center;min-width:54px}
+.rkPos b{display:block;font-size:30px;line-height:1;font-weight:900;color:var(--hi)}
+.rkPos span{font-size:10.5px;font-weight:800;color:var(--lo)}
+.rkPos em{display:block;font-style:normal;font-size:9.5px;font-weight:800;color:var(--lo);margin-top:3px}
+.rkList{margin-top:11px;display:flex;flex-direction:column;gap:5px}
+.rkRow{display:flex;align-items:center;gap:9px;padding:6px 9px;border-radius:12px;
+ background:rgba(255,255,255,.035);border:1px solid var(--line)}
+.rkRow canvas{width:34px;height:34px;flex:none}
+.rkRow .ps{width:24px;flex:none;text-align:center;font-size:12.5px;font-weight:900;color:var(--lo)}
+.rkRow .nm{flex:1;min-width:0;font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rkRow .st{flex:none;font-size:11px;font-weight:800;color:var(--mid)}
+.rkRow .gap{flex:none;font-size:10px;font-weight:900;padding:3px 7px;border-radius:99px;white-space:nowrap}
+.rkRow.up .gap{color:#ffb4b4;background:rgba(255,122,122,.12)}
+.rkRow.dn .gap{color:#9ff0c8;background:rgba(110,231,160,.12)}
+.rkRow.me{border-color:var(--cyan);background:linear-gradient(120deg,rgba(84,233,255,.16),rgba(255,255,255,.03))}
+.rkRow.me .ps{color:var(--cyan)}
+.rkGoal{margin-top:8px;text-align:center;font-size:11px;font-weight:900;color:var(--mid);
+ padding:6px;border-radius:10px;background:rgba(255,255,255,.04)}
+.rkGoal.in{color:var(--gold);background:rgba(255,215,107,.10)}
+.rkNews{display:flex;align-items:center;gap:10px;padding:9px 10px;margin:-2px 0 11px;border-radius:14px;
+ background:rgba(255,255,255,.05);border:1px solid var(--line);animation:rkIn .5s cubic-bezier(.2,1.3,.4,1)}
+.rkNews.win{background:linear-gradient(120deg,rgba(255,215,107,.18),rgba(255,95,208,.08));border-color:rgba(255,215,107,.45)}
+.rkNews .pv{width:58px;height:58px;flex:none}
+.rkNews .tx{flex:1;min-width:0}
+.rkNews .h{font-size:12.5px;font-weight:900}
+.rkNews.win .h{color:var(--gold)}
+.rkNews .s{font-size:10.5px;color:var(--mid);margin-top:2px;line-height:1.45}
+.rkNews .bt{display:flex;flex-direction:column;gap:5px;flex:none}
+@keyframes rkIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.rkNews{animation:none}}
+.rkTop{font-size:11px;font-weight:900;color:var(--gold);text-align:center;padding:5px 0}
+.rkFoot{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--lo);font-weight:700;margin-top:9px}
+.rkFoot b{color:var(--gold);font-weight:900;flex:none}
+.rankRow .gap{flex:none;font-size:10px;font-weight:900;padding:3px 7px;border-radius:99px;white-space:nowrap}
+.rankRow .gap.up{color:#ffb4b4;background:rgba(255,122,122,.12)}
+.rankRow .gap.dn{color:#9ff0c8;background:rgba(110,231,160,.12)}
 #main{flex:1;min-height:0;position:relative}
 .screen{position:absolute;inset:0;display:none;flex-direction:column}
 .screen.on{display:flex;animation:scIn .26s cubic-bezier(.2,.9,.3,1)}
@@ -211,9 +278,28 @@ body[data-theme="sora"] #starfield{opacity:.25}
  letter-spacing:.16em;margin-bottom:9px;border:1px solid var(--line-s)}
 #rTitle{font-size:23px;font-weight:900}
 #rStars{display:flex;gap:8px;justify-content:center;margin:13px 0 2px}
-#rStars span{font-size:31px;filter:grayscale(1) brightness(.4);transform:scale(.78);
- transition:all .34s cubic-bezier(.2,1.7,.4,1)}
-#rStars span.lit{filter:none;transform:scale(1.13);text-shadow:0 0 18px rgba(255,215,107,.7)}
+/* Stars fill in: each empty outline waits, then a gold star drops into it,
+   overshoots, settles, and throws a ring of light. */
+#rStars .sl{position:relative;width:46px;height:46px;display:block}
+#rStars .sl.mid{width:58px;height:58px;margin-top:-8px}
+#rStars svg{width:100%;height:100%;display:block;overflow:visible}
+#rStars .o{fill:rgba(255,255,255,.05);stroke:rgba(255,215,107,.42);stroke-width:2.4;stroke-linejoin:round}
+#rStars .f{fill:url(#starFoil);stroke:#fff3c4;stroke-width:1.2;stroke-linejoin:round;
+ transform-origin:24px 24px;transform:scale(0) rotate(-60deg);opacity:0}
+#rStars .sl.lit .f{animation:starIn .52s cubic-bezier(.2,1.5,.35,1) forwards}
+#rStars b{position:absolute;inset:-6px;border-radius:50%;pointer-events:none;opacity:0;
+ border:2px solid rgba(255,230,150,.9);transform:scale(.4)}
+#rStars .sl.lit b{animation:starRing .6s ease-out .2s forwards}
+#rStars .sl.lit svg{animation:starGlow .9s ease-out .25s forwards}
+@keyframes starIn{0%{transform:scale(2.3) rotate(-60deg);opacity:0}
+ 55%{transform:scale(.86) rotate(6deg);opacity:1}78%{transform:scale(1.08) rotate(-2deg)}
+ 100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes starRing{0%{opacity:.95;transform:scale(.4)}100%{opacity:0;transform:scale(1.45)}}
+@keyframes starGlow{0%{filter:drop-shadow(0 0 0 rgba(255,215,107,0))}
+ 40%{filter:drop-shadow(0 0 12px rgba(255,215,107,.95))}100%{filter:drop-shadow(0 0 6px rgba(255,215,107,.55))}}
+@media (prefers-reduced-motion:reduce){
+ #rStars .sl.lit .f{animation:none;transform:none;opacity:1}
+ #rStars .sl.lit b,#rStars .sl.lit svg{animation:none}}
 #rLine{font-size:12.5px;color:var(--mid);margin:8px 0;line-height:1.8}
 #rRew{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:11px 0}
 #rBtns{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap}
@@ -370,6 +456,106 @@ body[data-theme="sora"] #starfield{opacity:.25}
 .catCard .r5{font-size:9px;color:var(--r5);letter-spacing:.06em}
 .catCard .jb{font-size:10.5px;color:var(--lo);margin-top:1px}
 .catCard .ef{font-size:11px;color:var(--mid);margin-top:4px;line-height:1.5}
+.invStrip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.ivc{text-align:center;padding:8px 4px 6px;border-radius:13px;background:var(--glass);border:1px solid var(--line)}
+.ivc b{display:block;font-size:17px;line-height:1.1}
+.ivc span{display:block;font-size:15px;font-weight:900;margin-top:2px}
+.ivc i{display:block;font-style:normal;font-size:9.5px;color:var(--lo);font-weight:800;margin-top:1px;white-space:nowrap}
+.ivc.low{border-color:rgba(255,215,107,.45)}.ivc.low i{color:var(--gold)}
+.ivc.zero{border-color:rgba(255,122,122,.5);background:linear-gradient(160deg,rgba(255,122,122,.12),var(--glass))}
+.ivc.zero i{color:#ffb4b4}
+.deal{position:relative;padding:14px 13px 12px;border-radius:18px;margin-bottom:9px;overflow:hidden;
+ background:var(--glass);border:1px solid rgba(255,255,255,.13);box-shadow:var(--lift)}
+.deal.best{border-color:rgba(255,215,107,.6);
+ background:linear-gradient(150deg,rgba(255,215,107,.16),rgba(255,95,208,.07) 60%),var(--glass)}
+.deal.hero{border-color:rgba(255,95,208,.55);
+ background:linear-gradient(150deg,rgba(255,95,208,.22),rgba(84,233,255,.10) 70%),var(--glass)}
+.deal.best::after,.deal.hero::after{content:"";position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.16) 50%,transparent 65%);
+ transform:translateX(-120%);animation:dealShine 3.6s ease-in-out infinite}
+@keyframes dealShine{0%,55%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.deal .rb{position:absolute;top:0;left:14px;padding:3px 10px;border-radius:0 0 9px 9px;font-size:10px;font-weight:900;
+ background:var(--foil);color:#3a2600}
+.deal.hero .rb{background:linear-gradient(90deg,#ff5fd0,#ff8ae0);color:#fff}
+.deal .dt{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:10px}
+.deal .dn{font-size:15px;font-weight:900}
+.deal .pc{flex:none;text-align:right;color:#ff9dc9;font-size:10.5px;font-weight:900;line-height:1}
+.deal .pc b{font-size:26px;color:#ffd76b;margin-right:2px;text-shadow:0 0 14px rgba(255,215,107,.5)}
+.deal .dic{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.deal .dgi{display:block;text-align:center;padding:7px 2px 5px;border-radius:12px;background:rgba(0,0,0,.2);border:1px solid var(--line)}
+.deal .dgi b{display:block;font-size:19px;line-height:1.1}
+.deal .dgi span{display:block;font-size:14px;font-weight:900;margin-top:1px}
+.deal .dgi i{display:block;font-style:normal;font-size:9px;color:var(--lo);font-weight:800;white-space:nowrap}
+.deal .db{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.deal .dv{font-size:10.5px;color:var(--lo);font-weight:700}
+.deal .dbtn{min-width:132px;padding:11px 16px;font-size:15px}
+.singleGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:6px}
+.single{padding:10px;border-radius:15px;background:var(--glass);border:1px solid var(--line);text-align:center}
+.single .si{font-size:22px}.single .si b{font-size:14px;margin-left:3px}
+.single .sn{font-size:12px;font-weight:900;margin-top:1px}
+.single .su{font-size:10px;color:var(--lo);font-weight:700;margin:2px 0 7px}
+.pcShow{display:flex;gap:12px;align-items:center;padding:12px;border-radius:20px;margin-bottom:9px;
+ background:radial-gradient(120% 90% at 0% 40%,color-mix(in srgb,var(--au) 26%,transparent),transparent 60%),var(--glass);
+ border:1px solid color-mix(in srgb,var(--au) 55%,transparent);box-shadow:var(--lift)}
+.pcShow .pa{flex:none;width:118px;height:118px}
+.pcShow .pa canvas{width:118px;height:118px;display:block}
+.pcShow .pg{flex:1;min-width:0}
+.pcShow .pbx{display:flex;gap:4px;flex-wrap:wrap}
+.pcShow .bx{font-size:9px;font-weight:900;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.08);color:var(--mid)}
+.pcShow .bx.r5{color:#3a2600;background:var(--foil)}
+.pcShow .pn{font-size:17px;font-weight:900;margin-top:4px}
+.pcShow .pj{font-size:10.5px;color:var(--lo)}
+.pcShow .pf{list-style:none;margin:6px 0 8px}
+.pcShow .pf li{font-size:11px;color:var(--hi);line-height:1.5;padding-left:13px;position:relative}
+.pcShow .pf li::before{content:"✦";position:absolute;left:0;color:var(--au);font-size:9px;top:2px}
+.pcShow .pf li.fx{color:var(--mid);font-size:10px}
+.pcShow .pown{font-size:11px;font-weight:900;color:var(--green)}
+.pbuy{padding:10px 12px;font-size:13.5px}
+.setShow{padding:12px;border-radius:20px;margin-bottom:9px;text-align:center;
+ background:linear-gradient(150deg,rgba(143,230,255,.14),rgba(183,155,255,.12) 50%,rgba(255,179,71,.14)),var(--glass);
+ border:1px solid rgba(255,215,107,.5)}
+.setShow .s3{display:flex;justify-content:center;gap:0;margin:-4px 0 2px}
+.setShow .s3 canvas{width:84px;height:84px}
+.setShow .s3t{display:flex;align-items:center;justify-content:center;gap:10px}
+.setShow .dn{font-size:15px;font-weight:900}
+.setShow .pc{color:#ff9dc9;font-size:10.5px;font-weight:900}
+.setShow .pc b{font-size:20px;color:#ffd76b;margin-right:2px}
+.setShow .s3d{font-size:10.5px;color:var(--lo);margin:2px 0 8px}
+#pinchC{text-align:center;max-width:370px}
+.shopGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:9px}
+.gItem{padding:10px;border-radius:16px;background:var(--glass);border:1px solid rgba(255,255,255,.12);
+ display:flex;flex-direction:column;align-items:center;text-align:center;box-shadow:var(--lift)}
+.gItem canvas{width:110px;height:110px;display:block}
+.gItem canvas.thPv{width:100%;height:auto;aspect-ratio:260/196;border-radius:12px}
+.gItem .gn{font-size:13px;font-weight:900;margin-top:4px}
+.gItem .gb{font-size:10px;font-weight:900;color:#3a2600;background:var(--foil);border-radius:99px;padding:1px 8px;margin-top:3px}
+.gItem .gd{font-size:10px;color:var(--mid);line-height:1.45;margin:4px 0 8px;flex:1}
+.gItem.own{border-color:rgba(110,231,160,.45)}
+.setShow .s3{flex-wrap:wrap;max-width:210px;margin-left:auto;margin-right:auto}
+.pkReco{display:flex;gap:10px;align-items:center;padding:10px;border-radius:16px;
+ background:linear-gradient(150deg,rgba(255,215,107,.16),rgba(255,95,208,.10)),var(--glass);border:1px solid rgba(255,215,107,.5)}
+.pkReco canvas{width:96px;height:96px;flex:none}
+.pkReco .pr{flex:1;min-width:0}
+.prT{font-size:9.5px;font-weight:900;color:#3a2600;background:var(--foil);display:inline-block;padding:1px 8px;border-radius:99px}
+.prN{font-size:14px;font-weight:900;margin-top:3px}.prN span{font-size:10px;color:var(--gold)}
+.prK{font-size:11px;color:var(--hi);line-height:1.45;margin-top:2px}.prK b{color:var(--gold)}
+.prL{font-size:10px;color:var(--lo);margin:2px 0 7px}
+.pkCos{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:14px;background:var(--glass);border:1px solid var(--line)}
+.pkCos canvas{width:60px;height:60px;flex:none}
+.pkCos .pcx{flex:1;min-width:0}
+.pkHd .pk1{font-size:26px;font-weight:900;color:#ffd76b;letter-spacing:.02em;
+ text-shadow:0 0 18px rgba(255,215,107,.45);animation:pkPulse 1.4s ease-in-out infinite}
+.pkHd .pk2{font-size:13px;color:var(--mid);margin-top:2px}
+.pkHd .pk2 b{color:#fff;font-size:17px}
+@keyframes pkPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.pkArt{width:112px;height:112px;display:block;margin:2px auto 4px}
+.pkActs{display:flex;flex-direction:column;gap:8px;text-align:left}
+.pkActs .deal{margin:0}
+#pinchC .deal .db{flex-direction:column;align-items:stretch;gap:6px}
+#pinchC .deal .dv{text-align:center}
+#pinchC .deal .dbtn{width:100%}
+.pkNo{background:none;border:0;color:var(--lo);font:inherit;font-size:12px;font-weight:800;padding:8px;cursor:pointer;text-align:center}
+@media (prefers-reduced-motion:reduce){.deal::after,.pkHd .pk1{animation:none}}
 .bundleCard{padding:14px;border-radius:18px;
  background:linear-gradient(140deg,rgba(255,215,107,.20),rgba(255,95,208,.15) 65%,rgba(21,27,48,.92));
  border:1px solid rgba(255,240,190,.34);box-shadow:var(--lift)}
@@ -508,6 +694,8 @@ body[data-theme="sora"] #starfield{opacity:.25}
 .cosCell{border-radius:14px;padding:6px 4px 7px;text-align:center;cursor:pointer;
  background:var(--glass);border:1px solid var(--line)}
 .cosCell.on{border-color:var(--gold);background:rgba(255,215,107,.12)}
+.cosCell.soon{cursor:default}
+.cosCell.soon .nm{color:var(--lo)}
 .cosCell.lock{opacity:.45;cursor:default;display:flex;flex-direction:column;
  align-items:center;justify-content:center;min-height:96px}
 .cosCell .lk{font-size:22px}
@@ -652,6 +840,7 @@ body.hasAd{--bannerH:48px}
 <div id="app">
  <div id="topBar">
   <button id="menuBtn" aria-label="メニュー"><span></span><span></span><span></span></button>
+  <button id="topAva" aria-label="プロフィール"><canvas width="96" height="96"></canvas></button>
   <div id="topTitle"><div class="t1"></div><div class="t2"></div></div>
   <div id="topRight"><div class="pill">🐟 <span id="coinV">0</span></div></div>
  </div>
@@ -665,6 +854,7 @@ body.hasAd{--bannerH:48px}
      <button class="btn gold" id="btnPlay"></button>
      <button class="btn ghost" id="btnHow"></button>
     </div></div></div>
+   <div id="rankBox"></div>
    <div id="promoBox"></div>
    <div id="dcBox"></div>
    <div id="trBox"></div>
@@ -714,8 +904,13 @@ body.hasAd{--bannerH:48px}
 <div class="ov" id="ovResult"><div class="ovc card" style="text-align:center">
  <div id="rRibbon"></div><div id="rTitle"></div>
  <div id="kingStage"></div>
- <div id="rStars"><span>★</span><span>★</span><span>★</span></div>
+ <div id="rStars"><i class="sl"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="o" d="M24 4l5.9 12.6 13.8 1.6-10.2 9.4 2.7 13.6L24 34.4l-12.2 6.8 2.7-13.6L4.3 18.2l13.8-1.6z"/><path class="f" d="M24 4l5.9 12.6 13.8 1.6-10.2 9.4 2.7 13.6L24 34.4l-12.2 6.8 2.7-13.6L4.3 18.2l13.8-1.6z"/></svg><b></b></i><i class="sl mid"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="o" d="M24 4l5.9 12.6 13.8 1.6-10.2 9.4 2.7 13.6L24 34.4l-12.2 6.8 2.7-13.6L4.3 18.2l13.8-1.6z"/><path class="f" d="M24 4l5.9 12.6 13.8 1.6-10.2 9.4 2.7 13.6L24 34.4l-12.2 6.8 2.7-13.6L4.3 18.2l13.8-1.6z"/></svg><b></b></i><i class="sl"><svg viewBox="0 0 48 48" aria-hidden="true"><path class="o" d="M24 4l5.9 12.6 13.8 1.6-10.2 9.4 2.7 13.6L24 34.4l-12.2 6.8 2.7-13.6L4.3 18.2l13.8-1.6z"/><path class="f" d="M24 4l5.9 12.6 13.8 1.6-10.2 9.4 2.7 13.6L24 34.4l-12.2 6.8 2.7-13.6L4.3 18.2l13.8-1.6z"/></svg><b></b></i></div>
  <div id="rLine"></div><div id="rRew"></div><div id="rBtns"></div></div></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <linearGradient id="starFoil" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#fff6d8"/><stop offset=".45" stop-color="#ffd76b"/>
+  <stop offset=".72" stop-color="#c9932a"/><stop offset="1" stop-color="#ffe9a8"/></linearGradient></defs></svg>
+<div class="ov" id="ovPinch"><div class="ovc card" id="pinchC" role="dialog" aria-modal="true" aria-labelledby="pkTitle"></div></div>
 
 <div class="ov" id="ovTut"><div class="ovc card" style="text-align:center">
  <div id="tArt" style="height:118px;display:flex;align-items:center;justify-content:center"></div>
@@ -891,6 +1086,8 @@ const PUBLISHER={
  termsVer:2          /* 規約を改定したら +1。同意を取り直します */
 };
 const $=i=>document.getElementById(i);
+/* inline ja/en pair for strings that have no entry in the T() dictionary */
+const JE=(ja,en)=>LANG==='en'?en:ja;
 const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!==undefined)e.innerHTML=h;return e;};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
@@ -1083,6 +1280,65 @@ const SKINS={
  cat_ame:{ja:T('雨'),  fur:'#A9BAEA',hi:'#DEE8FF',sh:'#6C80C2',ear:'#C3CFF6',eye:'#3A2E57',ir:'#AE95FF',bl:'#8E9EDA',mk:'drop', ring:'#CBD8FF',aura:'#B79BFF'},
  cat_koha:{ja:T('琥珀'),fur:'#FFC97C',hi:'#FFEBC4',sh:'#D2913A',ear:'#FFDCA8',eye:'#3A2E57',ir:'#FF7F2E',bl:'#FF9A66',mk:'gem',  ring:'#FFE3B0',aura:'#FFB347'},
 };
+/* Every partner cat has its own coat, markings and features, so no two
+   characters share art. The six KINDS above stay as they are: those are the
+   puzzle pieces, and the puzzle needs six colours that read at a glance.
+   Keys: mc marking colour, tip ear/tail tip, paw socks, tuft head fluff,
+   cheek side fluff, ir2 odd right eye. Rarity (r) and paid are filled in
+   from PARTNERS / PREMIUM further down, so the data lives in one place. */
+const coat=(ja,fur,hi,sh,ear,ir,mk,x)=>Object.assign(
+ {ja,fur,hi,sh,ear,eye:'#3A2E57',ir,bl:'#FFA9C2',mk,ring:hi},x||{});
+Object.assign(SKINS,{
+ p_mochi:    coat('モチ',    '#FFF6E8','#FFFFFF','#E9D6BE','#FFC9D8','#7FC8F8','freckle',{mc:'#FFB9A0',tuft:true}),
+ p_torakit:  coat('トラキチ','#F7A04E','#FFD2A0','#C8651C','#F6B58C','#8BD96A','tabbyM', {mc:'#B8540F'}),
+ p_kuromame: coat('クロマメ','#5A5070','#8C82A8','#383048','#C0B4EC','#FFF0B8','tux',    {mc:'#FFFFFF',paw:'#FFFFFF',eye:'#C98A1A'}),
+ p_soramame: coat('ソラマメ','#BFD6EA','#EEF6FF','#7F9FC0','#D8E8FF','#FFD36B','hachi',  {mc:'#4F76A8'}),
+ p_mikeko:   coat('ミケコ',  '#FFF2DE','#FFFFFF','#E9D2A7','#FFC2D6','#8FDCA9','calico', {cheek:true}),
+ p_momoko:   coat('モモコ',  '#FFC4D6','#FFEAF1','#EC89A7','#FFDAE4','#FF8FBC','heart',  {mc:'#FF5F8F',tuft:true,bl:'#FF7396'}),
+ p_kinako:   coat('キナコ',  '#EDD2A4','#FFF1D6','#C39A62','#F6D2B0','#7FB8FF','mask',   {mc:'#9A6A3A',tip:'#7A4E26',cheek:true}),
+ p_yozora:   coat('ヨゾラ',  '#4E548F','#7F86C8','#2F3363','#8F96D8','#FFD76B','star',   {mc:'#FFE9A8',tip:'#262A55',eye:'#1E1B3A'}),
+ p_shirayuki:coat('シラユキ','#EEF6FF','#FFFFFF','#BCD3EA','#D6E6FA','#8FE0FF','blaze',  {mc:'#C7E6FF',ir2:'#FFD76B',cheek:true}),
+ p_ruri:     coat('ルリ',    '#7792E6','#B3C6FF','#4A63B8','#B9C8FF','#FFE08A','stripe2',{mc:'#3450A8',tip:'#3450A8'}),
+ p_happa:    coat('ハッパ',  '#CFA77C','#F3D9B8','#9C7550','#F2C9A4','#8BD96A','leaf',   {mc:'#5FB85E',tuft:true}),
+ p_komorebi: coat('コモレビ','#FFD99A','#FFF4D8','#D9A85A','#FFE0B8','#6EE7A0','patch',  {mc:'#9B6A3A',cheek:true,tuft:true,aura:'#A8F0B8'}),
+ p_tsukikage:coat('ツキカゲ','#5C4B90','#8E7CC8','#3A2E66','#A898E0','#FFD76B','moon',   {mc:'#FFF3C4',ir2:'#8FE6FF',tip:'#2E2352',eye:'#1E1B3A',aura:'#C9A8FF'}),
+});
+/* paid cats: the same coats as before, plus the design details that only paid
+   cats wear — a jewelled collar, star catchlights, tail tip, themed particles */
+Object.assign(SKINS.cat_gin, {paid:true,fxp:'snow',cheek:true,tip:'#FFFFFF',collar:'#8FE6FF'});
+Object.assign(SKINS.cat_ame, {paid:true,fxp:'rain',tuft:true,tip:'#7E6CE0',collar:'#B79BFF'});
+Object.assign(SKINS.cat_koha,{paid:true,fxp:'gem', cheek:true,tuft:true,tip:'#FFF3D0',collar:'#FFB347'});
+SKINS.cat_sakura=coat('桜',  '#FFE3EC','#FFF7FA','#E7A3BA','#FFC2D6','#FF8FBC','sakura',
+ {mc:'#FF6F9A',aura:'#FFB3CF',fxp:'petal', tuft:true,cheek:true,tip:'#FF8FB5',collar:'#FF6F9A',bl:'#FF8FB0'});
+SKINS.cat_homura=coat('焔',  '#FF9A5A','#FFD1A6','#D9602A','#FFB48A','#FFE08A','flame',
+ {mc:'#FFE08A',aura:'#FF8A3D',fxp:'ember', tuft:true,tip:'#FFE08A',collar:'#FF5A3D',eye:'#3A1E12'});
+SKINS.cat_aurora=coat('極光','#A6E6E2','#E6FFFD','#5FA9B8','#C9F2F0','#C9A8FF','aurora',
+ {mc:'#C9A8FF',aura:'#8FFFE0',fxp:'aurora',cheek:true,ir2:'#8FFFD0',tip:'#C9A8FF',collar:'#C9A8FF'});
+/* Ranking rivals: eighteen names, eighteen looks. A board shows nine at once
+   and names never repeat on a board, so faces never repeat either. */
+const RIVAL_COATS=[
+ ['#FFF7EA','#FFFFFF','#E7D3B9','#67CFF5','plain',  {}],
+ ['#3F3A4E','#6C6680','#28243A','#FFE08A','plain',  {eye:'#C98A1A'}],
+ ['#F9A25A','#FFD2A0','#D2711F','#7FDD9C','stripe', {}],
+ ['#FFBFD2','#FFE8F0','#EC85A3','#FF8FBC','spot',   {}],
+ ['#9AA3B5','#D5DAE6','#6E7688','#FFD36B','tux',    {mc:'#FFFFFF',paw:'#FFFFFF'}],
+ ['#F3E3C8','#FFF6E6','#CDB28A','#7FB8FF','mask',   {mc:'#6E4A2E',tip:'#5A3A22'}],
+ ['#FFFFFF','#FFFFFF','#DCD6CE','#8FDCA9','patch',  {mc:'#C8843E'}],
+ ['#F6F3EE','#FFFFFF','#D8D2CA','#8FE0FF','hachi',  {mc:'#34303F'}],
+ ['#F2B27A','#FFDDBA','#C97C3E','#8BD96A','freckle',{mc:'#B8652A',tip:'#FFF1DE',paw:'#FFF1DE'}],
+ ['#B08A68','#DEC0A2','#80603F','#FFD76B','blaze',  {mc:'#FFF1DE'}],
+ ['#B7BCC8','#E4E8F0','#858B9A','#6FD0FF','stripe2',{mc:'#5E6474'}],
+ ['#C69A6A','#EAC9A2','#946A40','#7FDD9C','tabbyM', {mc:'#6E4A26'}],
+ ['#FFF2DE','#FFFFFF','#E9D2A7','#FFB74D','calico', {tuft:true}],
+ ['#A7C8E8','#DDEEFF','#6F95BD','#FFB0C8','heart',  {mc:'#FF7AA8'}],
+ ['#8C7BB8','#BDB0E6','#5E4F8A','#FFE9A8','star',   {mc:'#FFF3C4'}],
+ ['#E9C46A','#FFF0C0','#B8923A','#6EE7A0','leaf',   {mc:'#4FA85A',cheek:true}],
+ ['#6B7FB8','#A2B3E6','#46578A','#FFD76B','moon',   {mc:'#FFF3C4'}],
+ ['#F7D4E0','#FFF0F5','#D9A0B4','#8FC4FF','plain',  {cheek:true,tuft:true,ir2:'#FFD76B'}],
+];
+RIVAL_COATS.forEach((c,i)=>{SKINS['rv'+i]=coat('',c[0],c[1],c[2],'#FFC2D6',c[3],c[4],c[5]);});
+/* canvas colours for the rarity effects; same hues as --r3 / --r4 / --r5 */
+const RARC=['','','','#c98be0','#ffd76b','#ff8ae0'];
 const INK='#2E2447';
 
 /* o:{squash,blink,mood,tilt,alpha,scale,king,glow,rays,sparkle,skin,now} */
@@ -1103,9 +1359,14 @@ function drawCat(g,cx,cy,size,kind,o){
  if(o.tilt)g.rotate(o.tilt);
  g.lineJoin='round';g.lineCap='round';
 
- if(o.glow){
-  const au=K.aura||K.ring;
-  if(o.rays){const t=(o.now||0)/2600;
+ /* Rarity effects. A partner coat knows its rarity, so every screen gets the
+    same treatment; o.plain turns them off (silhouettes, tiny icons). For
+    those coats the old per-call glow/rays/sparkle flags are ignored. */
+ const fx=(K.r&&!o.plain)?(K.paid?6:K.r):0;
+ const doGlow=fx?fx>=4:!!o.glow, doRays=fx?fx>=5:!!o.rays, doSpark=fx?fx>=5:!!o.sparkle;
+ if(doGlow){
+  const au=K.aura||(fx?RARC[Math.min(fx,5)]:K.ring);
+  if(doRays){const t=(o.now||0)/2600;
    g.save();g.globalCompositeOperation='lighter';g.globalAlpha=.15;g.rotate(t);
    for(let i=0;i<12;i++){g.rotate(Math.PI/6);
     const gr=g.createLinearGradient(0,0,0,-S*1.15);
@@ -1119,6 +1380,7 @@ function drawCat(g,cx,cy,size,kind,o){
   g.globalAlpha=.4;g.fillStyle=hg;
   g.beginPath();g.ellipse(0,0,hw*1.75,hh*1.85,0,0,7);g.fill();g.restore();}
 
+ if(fx)drawRarBack(g,K,fx,hw,hh,S,o.now||0);
  /* contact shadow — without it the cats look like stickers */
  g.save();g.globalAlpha=.22;g.fillStyle='#000';
  g.beginPath();g.ellipse(0,hh*1.08,hw*.7,hh*.15,0,0,7);g.fill();g.restore();
@@ -1133,6 +1395,9 @@ function drawCat(g,cx,cy,size,kind,o){
  g.stroke();
  g.strokeStyle=K.sh;g.lineWidth=lw*2.1;g.stroke();
  g.restore();
+ if(K.tip||K.paid){const tx=hw*1.4,ty=-hh*.16;
+  g.save();g.fillStyle=INK;g.beginPath();g.arc(tx,ty,lw*1.72,0,7);g.fill();
+  g.fillStyle=K.tip||K.aura||K.hi;g.beginPath();g.arc(tx,ty,lw*1.05,0,7);g.fill();g.restore();}
 
  /* ears — tall enough to clear the skull, rounded rather than spiky:
     spiky reads as "wild", round reads as "baby" */
@@ -1159,6 +1424,7 @@ function drawCat(g,cx,cy,size,kind,o){
   g.quadraticCurveTo(ex+s*hw*.20,-hh*1.00,ex+s*hw*.19,-hh*.62);
   g.quadraticCurveTo(ex,-hh*.44,ex-s*hw*.19,-hh*.56);
   g.closePath();g.fill();
+  if(K.tip){g.fillStyle=K.tip;g.beginPath();g.arc(tp[0],tp[1]+hh*.06,hw*.21,0,7);g.fill();}
   g.globalAlpha=.85;g.fillStyle=K.hi;
   for(let i=-1;i<2;i++){g.beginPath();
    g.ellipse(ex+i*hw*.07,-hh*.66,hw*.03,hh*.13,i*.4,0,7);g.fill();}
@@ -1167,15 +1433,27 @@ function drawCat(g,cx,cy,size,kind,o){
  /* stubby front paws poking out under the chin */
  for(const s of[-1,1]){
   g.beginPath();g.ellipse(s*hw*.4,hh*.94,hw*.24,hh*.17,0,0,7);
-  g.fillStyle=K.fur;g.fill();g.stroke();
+  g.fillStyle=K.paw||K.fur;g.fill();g.stroke();
   g.save();g.globalAlpha=.5;g.fillStyle=K.bl;
   g.beginPath();g.ellipse(s*hw*.4,hh*.96,hw*.09,hh*.07,0,0,7);g.fill();g.restore();}
 
+ /* side fluff sits behind the head so only the tufts poke out */
+ if(K.cheek){for(const s of[-1,1]){g.beginPath();
+   g.moveTo(s*hw*.84,-hh*.06);g.lineTo(s*hw*1.14,hh*.13);g.lineTo(s*hw*.96,hh*.24);
+   g.lineTo(s*hw*1.11,hh*.42);g.lineTo(s*hw*.78,hh*.54);g.closePath();
+   g.fillStyle=K.hi;g.fill();g.stroke();}}
  /* head — a top-lit gradient reads as round and soft; a flat fill reads flat */
  g.beginPath();g.ellipse(0,0,hw,hh,0,0,7);
  const fg=g.createRadialGradient(-hw*.22,-hh*.46,hh*.05,0,hh*.1,hw*1.24);
  fg.addColorStop(0,K.hi);fg.addColorStop(.5,K.fur);fg.addColorStop(1,K.sh);
  g.fillStyle=fg;g.fill();g.stroke();
+ if(K.tuft){
+  const tuft=()=>{g.beginPath();g.moveTo(-hw*.17,-hh*.93);
+   g.quadraticCurveTo(-hw*.13,-hh*1.3,hw*.02,-hh*1.33);
+   g.quadraticCurveTo(-hw*.01,-hh*1.13,hw*.11,-hh*1.18);
+   g.quadraticCurveTo(hw*.07,-hh*1.02,hw*.19,-hh*.94);};
+  g.save();tuft();g.closePath();g.fillStyle=K.fur;g.fill();
+  tuft();g.stroke();g.restore();}
 
  /* markings, clipped to the head */
  g.save();g.beginPath();g.ellipse(0,0,hw,hh,0,0,7);g.clip();
@@ -1210,12 +1488,25 @@ function drawCat(g,cx,cy,size,kind,o){
      const qx=Math.cos(a)*hw*p[2]*(i%2?.45:1.4),qy=Math.sin(a)*hh*p[2]*(i%2?1.4:.45);
      i?g.lineTo(p[0]*hw+qx,p[1]*hh+qy):g.moveTo(p[0]*hw+qx,p[1]*hh+qy);}
     g.closePath();g.fill();}}
+ drawMarks(g,K,hw,hh,lw);
  /* pale muzzle patch so the nose and mouth have somewhere to sit */
  g.globalAlpha=.5;g.fillStyle=K.hi;
  g.beginPath();g.ellipse(0,hh*.5,hw*.42,hh*.32,0,0,7);g.fill();
  g.restore();
 
 
+ /* paid cats wear a jewelled collar, sitting just under the chin */
+ if(K.paid){const y0=hh*.92;
+  g.save();g.lineCap='round';
+  g.beginPath();g.moveTo(-hw*.44,y0);g.quadraticCurveTo(0,y0+hh*.2,hw*.44,y0);
+  g.strokeStyle=INK;g.lineWidth=lw*1.7;g.stroke();
+  g.strokeStyle=K.collar||'#FFD76B';g.lineWidth=lw*.95;g.stroke();
+  const py=y0+hh*.19,pr=hw*.12;
+  g.beginPath();g.moveTo(0,py-pr);g.lineTo(pr*.82,py);g.lineTo(0,py+pr*1.2);g.lineTo(-pr*.82,py);g.closePath();
+  const pg=g.createLinearGradient(0,py-pr,0,py+pr);
+  pg.addColorStop(0,'#FFFFFF');pg.addColorStop(1,K.aura||'#FFD76B');
+  g.fillStyle=pg;g.strokeStyle=INK;g.lineWidth=lw*.6;g.fill();g.stroke();
+  g.restore();}
  /* eyes: low, huge, glossy, and far enough apart to leave room for cheeks */
  const eyY=hh*.16, eyX=hw*.44;
  const blink=o.blink===undefined?1:o.blink;
@@ -1238,7 +1529,7 @@ function drawCat(g,cx,cy,size,kind,o){
   }else{
    const rw=hw*.21,rh=hh*.3*blink;
    const eg=g.createRadialGradient(x,eyY+rh*.36,rh*.08,x,eyY,rh*1.1);
-   eg.addColorStop(0,K.ir);eg.addColorStop(.55,K.eye);eg.addColorStop(1,K.eye);
+   eg.addColorStop(0,(s>0&&K.ir2)?K.ir2:K.ir);eg.addColorStop(.55,K.eye);eg.addColorStop(1,K.eye);
    g.fillStyle=eg;
    g.beginPath();g.ellipse(x,eyY,rw,rh,0,0,7);g.fill();
    if(blink>.5){
@@ -1248,6 +1539,7 @@ function drawCat(g,cx,cy,size,kind,o){
     g.beginPath();g.arc(x-rw*.4,eyY+rh*.36,rw*.2,0,7);g.fill();
     g.globalAlpha=.45;
     g.beginPath();g.arc(x+rw*.02,eyY+rh*.6,rw*.13,0,7);g.fill();g.restore();
+    if(K.paid){g.save();g.fillStyle='#fff';star4(g,x+rw*.3,eyY-rh*.42,rw*.62);g.restore();}
    }}}
 
  /* blush — a soft gradient with NO outline, sitting outside the eyes */
@@ -1299,9 +1591,10 @@ function drawCat(g,cx,cy,size,kind,o){
  g.restore();
 
  if(o.cos){const CC=COSBY(o.cos);
-  drawCos(g,CC?CC.art:o.cos,hw,hh,S,lw,K,CC);}
+  drawCos(g,CC?CC.art:o.cos,hw,hh,S,lw,K,CC);
+  if(CC&&CC.fx&&!o.plain)drawCosFx(g,CC.fx,hw,hh,S,o.now||0);}
  if(o.king)drawCrown(g,0,-hh*1.62,S*.44,lw);
- if(o.sparkle){const t=(o.now||0)/620;
+ if(doSpark){const t=(o.now||0)/620;
   g.save();g.globalAlpha=.9;g.fillStyle='#fff';
   for(let i=0;i<3;i++){
    const a=t+i*2.1,rr=hw*(1.15+.12*Math.sin(t*1.7+i));
@@ -1312,6 +1605,162 @@ function drawCat(g,cx,cy,size,kind,o){
    g.quadraticCurveTo(sx,sy,sx,sy+k);g.quadraticCurveTo(sx,sy,sx-k,sy);
    g.quadraticCurveTo(sx,sy,sx,sy-k);g.fill();}
   g.restore();}
+ if(fx)drawRarFront(g,K,fx,hw,hh,S,o.now||0);
+ g.restore();
+}
+function hexA(h,a){
+ const n=parseInt(String(h).slice(1),16);
+ if(isNaN(n))return 'rgba(255,255,255,'+a+')';
+ return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+/* Markings added for the partner and rival coats. Drawn inside the head clip;
+   each branch saves and restores so nothing leaks into the muzzle patch. */
+function drawMarks(g,K,hw,hh,lw){
+ const MC=K.mc||K.sh, m=K.mk;
+ g.save();g.fillStyle=MC;g.strokeStyle=MC;
+ if(m==='freckle'){g.globalAlpha=.7;
+  for(const s of[-1,1])for(const d of[[.58,.34],[.72,.26],[.68,.44]]){
+   g.beginPath();g.arc(s*hw*d[0],hh*d[1],hw*.045,0,7);g.fill();}}
+ else if(m==='tux'){g.globalAlpha=.95;
+  g.beginPath();g.moveTo(-hw*.62,hh*1.05);g.lineTo(-hw*.2,hh*.02);
+  g.quadraticCurveTo(0,-hh*.16,hw*.2,hh*.02);g.lineTo(hw*.62,hh*1.05);g.closePath();g.fill();}
+ else if(m==='hachi'){g.globalAlpha=.92;
+  g.beginPath();g.moveTo(-hw*1.1,-hh*1.1);g.lineTo(hw*1.1,-hh*1.1);g.lineTo(hw*1.1,hh*.3);
+  g.lineTo(hw*.36,hh*.3);g.lineTo(0,-hh*.56);g.lineTo(-hw*.36,hh*.3);g.lineTo(-hw*1.1,hh*.3);
+  g.closePath();g.fill();}
+ else if(m==='mask'){g.globalAlpha=.42;
+  g.beginPath();g.ellipse(0,hh*.3,hw*.64,hh*.56,0,0,7);g.fill();}
+ else if(m==='patch'){g.globalAlpha=.85;
+  g.beginPath();g.ellipse(hw*.44,hh*.1,hw*.33,hh*.37,.2,0,7);g.fill();
+  g.globalAlpha=.7;g.beginPath();g.arc(-hw*.58,-hh*.56,hw*.2,0,7);g.fill();}
+ else if(m==='tabbyM'){g.globalAlpha=.85;g.lineWidth=lw*1.1;g.lineCap='round';g.lineJoin='round';
+  g.beginPath();g.moveTo(-hw*.32,-hh*.42);g.lineTo(-hw*.18,-hh*.74);g.lineTo(0,-hh*.5);
+  g.lineTo(hw*.18,-hh*.74);g.lineTo(hw*.32,-hh*.42);g.stroke();
+  for(const s of[-1,1])for(let i=0;i<2;i++){g.beginPath();
+   g.moveTo(s*hw*1.0,-hh*.1+i*hh*.22);g.lineTo(s*hw*.7,-hh*.02+i*hh*.22);g.stroke();}}
+ else if(m==='star'){star4(g,0,-hh*.56,hw*.2);
+  g.globalAlpha=.8;star4(g,-hw*.5,-hh*.38,hw*.08);star4(g,hw*.46,-hh*.62,hw*.07);}
+ else if(m==='moon'){const cx=0,cy=-hh*.55,r=hw*.2;
+  g.beginPath();g.rect(-hw*2,-hh*2,hw*4,hh*4);g.moveTo(cx+r*.5+r*.86,cy-r*.2);
+  g.arc(cx+r*.5,cy-r*.2,r*.86,0,Math.PI*2,true);g.clip('evenodd');
+  g.beginPath();g.arc(cx,cy,r,0,7);g.fill();}
+ else if(m==='heart'){const y=-hh*.56,k=hw*.17;
+  g.beginPath();g.moveTo(0,y+k*.9);
+  g.bezierCurveTo(-k*1.4,y+k*.05,-k*.75,y-k*1.0,0,y-k*.3);
+  g.bezierCurveTo(k*.75,y-k*1.0,k*1.4,y+k*.05,0,y+k*.9);g.fill();}
+ else if(m==='leaf'){g.save();g.translate(0,-hh*.58);g.rotate(.55);
+  g.beginPath();g.ellipse(0,0,hw*.1,hh*.2,0,0,7);g.fill();
+  g.globalAlpha=.55;g.strokeStyle='#ffffff';g.lineWidth=lw*.45;
+  g.beginPath();g.moveTo(0,-hh*.16);g.lineTo(0,hh*.16);g.stroke();g.restore();}
+ else if(m==='blaze'){g.globalAlpha=.9;
+  g.beginPath();g.moveTo(-hw*.07,-hh*1.05);g.lineTo(hw*.07,-hh*1.05);
+  g.lineTo(hw*.22,hh*.2);g.lineTo(-hw*.22,hh*.2);g.closePath();g.fill();}
+ else if(m==='stripe2'){g.globalAlpha=.8;g.lineWidth=lw*1.3;g.lineCap='round';
+  for(const s of[-1,1])for(let i=0;i<3;i++){g.beginPath();
+   g.moveTo(s*hw*1.0,-hh*.2+i*hh*.2);g.lineTo(s*hw*.66,-hh*.12+i*hh*.2);g.stroke();}
+  for(const s of[-1,1]){g.beginPath();g.moveTo(s*hw*.12,-hh*.95);g.lineTo(s*hw*.1,-hh*.62);g.stroke();}}
+ else if(m==='sakura'){const cy=-hh*.56,r=hw*.075;
+  for(let i=0;i<5;i++){const a=i*Math.PI*2/5-Math.PI/2;
+   g.beginPath();g.arc(Math.cos(a)*r*1.3,cy+Math.sin(a)*r*1.3,r,0,7);g.fill();}
+  g.fillStyle='#FFE08A';g.beginPath();g.arc(0,cy,r*.6,0,7);g.fill();}
+ else if(m==='flame'){const y=-hh*.5,k=hw*.2;
+  g.beginPath();g.moveTo(0,y-k*1.4);g.quadraticCurveTo(k*.9,y-k*.2,k*.5,y+k*.6);
+  g.quadraticCurveTo(0,y+k*.9,-k*.5,y+k*.6);g.quadraticCurveTo(-k*.9,y-k*.2,0,y-k*1.4);g.fill();
+  g.fillStyle='#FFF3C4';g.beginPath();g.ellipse(0,y+k*.25,k*.25,k*.45,0,0,7);g.fill();}
+ else if(m==='aurora'){g.globalAlpha=.6;g.lineWidth=lw*1.2;g.lineCap='round';
+  ['#C9A8FF','#8FFFD0','#8FC4FF'].forEach((c,i)=>{g.strokeStyle=c;const y=-hh*(.78-i*.14);
+   g.beginPath();g.moveTo(-hw*.7,y);g.bezierCurveTo(-hw*.3,y-hh*.12,hw*.2,y+hh*.12,hw*.7,y-hh*.02);g.stroke();});}
+ g.restore();
+}
+/* the half-ring around a ★5 cat; drawn in two halves so it passes behind
+   the head and in front of the paws */
+function rarOrbit(g,c,hw,hh,S,t,back){
+ const rx=hw*1.34,ry=hh*.26;
+ g.save();g.translate(0,hh*.8);g.rotate(-.1);
+ g.lineWidth=Math.max(1,S*.022);g.strokeStyle=c;g.globalAlpha=back?.35:.9;
+ g.beginPath();
+ if(back)g.ellipse(0,0,rx,ry,0,Math.PI,Math.PI*2);
+ else g.ellipse(0,0,rx,ry,0,0,Math.PI);
+ g.stroke();
+ const a=(t*1.6)%(Math.PI*2),bx=Math.cos(a)*rx,by=Math.sin(a)*ry;
+ if((by<0)===back){g.globalAlpha=back?.5:1;g.fillStyle='#fff';
+  g.beginPath();g.arc(bx,by,Math.max(1,S*.03),0,7);g.fill();}
+ g.restore();
+}
+/* ★3 a pedestal glow · ★4 plus a halo and twinkles · ★5 plus rays, sparkles
+   and a ring · paid plus a second ray fan, a prism halo, a floating halo and
+   themed particles. Each tier contains the one below it. */
+function drawRarBack(g,K,fx,hw,hh,S,now){
+ const c=K.aura||RARC[Math.min(fx,5)],t=now/1000;
+ g.save();
+ const ry=hh*1.1,rx=hw*(fx>=5?1.05:.92),rh=hh*(fx>=5?.27:.22);
+ const pg=g.createRadialGradient(0,ry,0,0,ry,rx);
+ pg.addColorStop(0,hexA(c,fx>=4?.5:.32));pg.addColorStop(1,hexA(c,0));
+ g.fillStyle=pg;g.beginPath();g.ellipse(0,ry,rx,rh,0,0,7);g.fill();
+ g.globalAlpha=fx>=4?.8:.55;g.strokeStyle=c;g.lineWidth=Math.max(1,S*.02);
+ g.beginPath();g.ellipse(0,ry,rx*.82,rh*.72,0,0,7);g.stroke();
+ g.globalAlpha=1;
+ if(fx>=5)rarOrbit(g,c,hw,hh,S,t,true);
+ if(fx>=6){
+  g.save();g.globalCompositeOperation='lighter';g.globalAlpha=.13;g.rotate(-t*.25);
+  for(let i=0;i<8;i++){g.rotate(Math.PI/4);
+   const gr=g.createLinearGradient(0,0,0,-S*1.3);
+   gr.addColorStop(0,'#ffffff');gr.addColorStop(1,'rgba(255,255,255,0)');
+   g.fillStyle=gr;g.beginPath();g.moveTo(-S*.09,0);g.lineTo(0,-S*1.3);g.lineTo(S*.09,0);g.closePath();g.fill();}
+  g.restore();
+  g.save();g.globalAlpha=.6;g.lineWidth=Math.max(1.2,S*.034);
+  const cg=g.createLinearGradient(-hw*1.4,-hh*1.5,hw*1.4,hh*1.3);
+  ['#ff8ae0','#ffd76b','#8ff0c8','#8fc4ff','#c9a8ff'].forEach((x,i,a)=>cg.addColorStop(i/(a.length-1),x));
+  g.strokeStyle=cg;g.beginPath();g.ellipse(0,-hh*.12,hw*1.42,hh*1.6,0,0,7);g.stroke();
+  g.restore();
+ }
+ g.restore();
+}
+function drawRarFront(g,K,fx,hw,hh,S,now){
+ const c=K.aura||RARC[Math.min(fx,5)],t=now/1000;
+ g.save();
+ if(fx===3){g.globalAlpha=.85;g.fillStyle=c;
+  star4(g,hw*1.02,-hh*.98,S*.035*(.75+.25*Math.sin(t*3)));}
+ if(fx===4){g.fillStyle='#fff';
+  for(const q of[[-1.06,-1.02,0],[1.14,-.36,1.7]]){
+   g.globalAlpha=.9;star4(g,hw*q[0],hh*q[1],S*.055*(.7+.3*Math.sin(t*3+q[2])));}}
+ if(fx>=5)rarOrbit(g,c,hw,hh,S,t,false);
+ if(fx>=6){
+  /* halo floating above the ears */
+  g.save();g.globalCompositeOperation='lighter';
+  g.strokeStyle='#FFE9A8';g.lineWidth=Math.max(1.2,S*.03);g.globalAlpha=.95;
+  g.beginPath();g.ellipse(0,-hh*2.02,hw*.42,hh*.11,0,0,7);g.stroke();
+  g.strokeStyle=hexA(c,.6);g.lineWidth=Math.max(2,S*.06);g.globalAlpha=.5;g.stroke();
+  g.restore();
+  /* themed particles rising through the cat */
+  for(let i=0;i<7;i++){
+   const ph=(t*.32+i/7)%1, x=Math.sin(i*2.4+t*.7)*hw*1.35, y=hh*1.15-ph*hh*3.0;
+   const k=S*.045*(.7+.3*Math.sin(i*1.3)), al=Math.sin(ph*Math.PI);
+   g.globalAlpha=al*.95;
+   if(K.fxp==='snow'){g.strokeStyle='#ffffff';g.lineWidth=Math.max(1,S*.012);
+    for(let j=0;j<3;j++){const a=j*Math.PI/3;g.beginPath();
+     g.moveTo(x-Math.cos(a)*k,y-Math.sin(a)*k);g.lineTo(x+Math.cos(a)*k,y+Math.sin(a)*k);g.stroke();}}
+   else if(K.fxp==='rain'){g.fillStyle=c;g.beginPath();
+    g.moveTo(x,y-k*1.2);g.quadraticCurveTo(x+k*.8,y+k*.2,x,y+k*.8);
+    g.quadraticCurveTo(x-k*.8,y+k*.2,x,y-k*1.2);g.fill();}
+   else if(K.fxp==='petal'){g.save();g.translate(x,y);g.rotate(t*1.5+i);
+    g.fillStyle='#FFB3CF';g.beginPath();g.ellipse(0,0,k*.95,k*.55,0,0,7);g.fill();
+    g.globalAlpha=al*.55;g.fillStyle='#fff';g.beginPath();g.ellipse(-k*.2,-k*.12,k*.32,k*.15,0,0,7);g.fill();g.restore();}
+   else if(K.fxp==='ember'){const er=g.createRadialGradient(x,y,0,x,y,k*1.3);
+    er.addColorStop(0,'rgba(255,244,190,1)');er.addColorStop(.4,'rgba(255,146,60,.9)');er.addColorStop(1,'rgba(255,80,40,0)');
+    g.fillStyle=er;g.beginPath();g.arc(x,y,k*1.3,0,7);g.fill();}
+   else if(K.fxp==='aurora'){
+    if(i===0){g.save();g.globalCompositeOperation='lighter';g.lineCap='round';
+     ['#C9A8FF','#8FFFD0','#8FC4FF'].forEach((col,b)=>{g.globalAlpha=.32;g.strokeStyle=col;g.lineWidth=S*.035;
+      g.beginPath();for(let q=0;q<=12;q++){const xx=-hw*1.45+q*hw*2.9/12,
+       yy=-hh*(1.72-b*.14)+Math.sin(q*.8+t*1.6+b)*hh*.1;q?g.lineTo(xx,yy):g.moveTo(xx,yy);}g.stroke();});
+     g.restore();}
+    g.fillStyle=i%2?'#8FFFD0':'#C9A8FF';star4(g,x,y,k*.6);}
+   else{g.fillStyle=c;g.beginPath();
+    g.moveTo(x,y-k);g.lineTo(x+k*.7,y);g.lineTo(x,y+k);g.lineTo(x-k*.7,y);g.closePath();g.fill();
+    g.fillStyle='#fff';g.globalAlpha=al*.8;star4(g,x-k*.15,y-k*.3,k*.3);}
+  }
+ }
  g.restore();
 }
 /* Costumes are drawn, not textured: one more small routine per item and it
@@ -1440,11 +1889,78 @@ function drawCos(g,art,hw,hh,S,lw,K,C){
   g.quadraticCurveTo(0,hh*.86,-hw*.80,hh*.56);
   g.closePath();g.fill();g.stroke();
   g.fillStyle=B;star4(g,0,hh*.74,hw*.19,0);
+ }else if(art==='witchhat'){
+  g.lineWidth=lw*.55;
+  const hg=g.createLinearGradient(0,-hh*2.05,0,-hh*1.0);hg.addColorStop(0,'#7A5BE0');hg.addColorStop(1,A);
+  g.fillStyle=hg;g.beginPath();
+  g.moveTo(-hw*.5,-hh*1.06);g.quadraticCurveTo(-hw*.18,-hh*1.5,hw*.24,-hh*2.06);
+  g.quadraticCurveTo(hw*.14,-hh*1.5,hw*.5,-hh*1.06);g.closePath();g.fill();g.stroke();
+  g.fillStyle=B;g.beginPath();
+  g.moveTo(-hw*.47,-hh*1.1);g.lineTo(hw*.47,-hh*1.1);g.lineTo(hw*.43,-hh*1.24);g.lineTo(-hw*.4,-hh*1.24);g.closePath();g.fill();g.stroke();
+  g.fillStyle=A;g.beginPath();g.ellipse(0,-hh*1.03,hw*.92,hh*.15,0,0,7);g.fill();g.stroke();
+  g.save();g.beginPath();g.rect(-hw*2,-hh*3,hw*4,hh*4);
+  g.moveTo(hw*.33+hw*.1,-hh*2.1);g.arc(hw*.33,-hh*2.1,hw*.1,0,Math.PI*2,true);g.clip('evenodd');
+  g.fillStyle=B;g.beginPath();g.arc(hw*.27,-hh*2.08,hw*.11,0,7);g.fill();g.restore();
+ }else if(art==='kanzashi'){
+  g.strokeStyle=INK;g.lineWidth=lw*1.3;
+  g.beginPath();g.moveTo(hw*.12,-hh*.62);g.lineTo(hw*.92,-hh*1.14);g.stroke();
+  g.strokeStyle=B;g.lineWidth=lw*.7;g.stroke();
+  const fx0=hw*.62,fy0=-hh*.98,pr=hw*.1;
+  g.strokeStyle=INK;g.lineWidth=lw*.4;g.fillStyle=A;
+  for(let i=0;i<5;i++){const a=i*Math.PI*2/5-Math.PI/2;
+   g.beginPath();g.arc(fx0+Math.cos(a)*pr*1.15,fy0+Math.sin(a)*pr*1.15,pr,0,7);g.fill();g.stroke();}
+  g.fillStyle=B;g.beginPath();g.arc(fx0,fy0,pr*.55,0,7);g.fill();g.stroke();
+  g.strokeStyle=B;g.lineWidth=lw*.35;
+  for(const dx of[-.04,.06]){g.beginPath();g.moveTo(fx0+hw*dx,fy0+pr);g.lineTo(fx0+hw*dx*1.6,fy0+hh*.42);g.stroke();
+   g.fillStyle=A;g.beginPath();g.arc(fx0+hw*dx*1.6,fy0+hh*.44,hw*.04,0,7);g.fill();}
+ }else if(art==='tiara'){
+  const yb=x=>-hh*.9-(1-(x/(hw*.6))**2)*hh*.16;
+  g.beginPath();g.moveTo(-hw*.6,-hh*.9);g.quadraticCurveTo(0,-hh*1.22,hw*.6,-hh*.9);
+  g.strokeStyle=INK;g.lineWidth=lw*1.6;g.stroke();g.strokeStyle=A;g.lineWidth=lw*.9;g.stroke();
+  g.fillStyle=A;g.strokeStyle=INK;g.lineWidth=lw*.4;
+  for(let i=-2;i<=2;i++){const x=i*hw*.24,y=yb(x),hgt=hh*(i===0?.3:.15),w2=hw*(i===0?.11:.07);
+   g.beginPath();g.moveTo(x-w2,y);g.lineTo(x,y-hgt);g.lineTo(x+w2,y);g.closePath();g.fill();g.stroke();
+   g.fillStyle=B;g.beginPath();g.arc(x,y-hgt*.35,hw*(i===0?.05:.032),0,7);g.fill();g.fillStyle=A;}
+  g.fillStyle=B;star4(g,0,yb(0)-hh*.36,hw*.1);
  }else if(art==='halo'){
   g.save();g.globalCompositeOperation='lighter';
   g.strokeStyle=A;g.lineWidth=lw*1.4;g.shadowColor=B;g.shadowBlur=S*.16;
   g.beginPath();g.ellipse(0,-hh*1.5,hw*.44,hh*.14,0,0,7);g.stroke();g.restore();
  }
+ g.restore();
+}
+/* Movement that only the paid outfits have. */
+function drawCosFx(g,fx,hw,hh,S,now){
+ const t=(now||0)/1000;g.save();
+ if(fx==='glint'){g.fillStyle='#fff';
+  [[-.28,-1.13],[0,-1.13],[.28,-1.13],[0,-1.78]].forEach((q,i)=>{
+   const a=Math.max(0,Math.sin(t*3.2+i*1.7));g.globalAlpha=a;star4(g,hw*q[0],hh*q[1],S*.07*a+.01);});
+  g.globalCompositeOperation='lighter';g.globalAlpha=.3+.15*Math.sin(t*2);
+  const gr=g.createRadialGradient(0,-hh*1.78,0,0,-hh*1.78,S*.24);
+  gr.addColorStop(0,'rgba(255,230,150,.9)');gr.addColorStop(1,'rgba(255,230,150,0)');
+  g.fillStyle=gr;g.beginPath();g.arc(0,-hh*1.78,S*.24,0,7);g.fill();}
+ else if(fx==='feather'){
+  for(let i=0;i<4;i++){const ph=(t*.35+i/4)%1,s2=i%2?1:-1;
+   const x=s2*hw*(1.25+.2*Math.sin(t*1.5+i)),y=-hh*.5+ph*hh*1.9;
+   g.globalAlpha=Math.sin(ph*Math.PI)*.95;g.save();g.translate(x,y);g.rotate(Math.sin(t*2+i)*.7);
+   g.fillStyle='#fff';g.beginPath();g.ellipse(0,0,S*.03,S*.08,0,0,7);g.fill();
+   g.strokeStyle='rgba(140,170,225,.9)';g.lineWidth=Math.max(.5,S*.007);
+   g.beginPath();g.moveTo(0,-S*.075);g.lineTo(0,S*.075);g.stroke();g.restore();}}
+ else if(fx==='stardust'){g.fillStyle='#FFE9A8';
+  for(let i=0;i<6;i++){const ph=(t*.5+i/6)%1;
+   g.globalAlpha=(1-ph)*.95;star4(g,(i/5-.5)*hw*1.6+Math.sin(t+i)*hw*.08,hh*1.12+ph*hh*.7,S*.04*(1-ph*.5));}}
+ else if(fx==='magic'){const cx=hw*.24,cy=-hh*2.06;
+  for(let i=0;i<6;i++){const a=t*2.2+i*Math.PI/3,r=S*.14;
+   g.globalAlpha=.55+.45*Math.sin(t*4+i);g.fillStyle=i%2?'#8FE6FF':'#D8A8FF';
+   star4(g,cx+Math.cos(a)*r,cy+Math.sin(a)*r*.5,S*.032);}}
+ else if(fx==='petal'){
+  for(let i=0;i<5;i++){const ph=(t*.3+i/5)%1;
+   const x=hw*.62+Math.sin(t*1.3+i*2)*hw*.35+ph*hw*.3,y=-hh*.95+ph*hh*2.2;
+   g.globalAlpha=Math.sin(ph*Math.PI);g.save();g.translate(x,y);g.rotate(t*2+i);
+   g.fillStyle='#FFB3CF';g.beginPath();g.ellipse(0,0,S*.036,S*.022,0,0,7);g.fill();g.restore();}}
+ else if(fx==='prism'){const cols=['#FF8AE0','#FFD76B','#8FF0C8','#8FC4FF','#C9A8FF'];
+  for(let i=0;i<5;i++){const u=(t*.6+i/5)%1,xx=(u*2-1)*hw*.6,yy=-hh*.9-(1-(u*2-1)**2)*hh*.16;
+   g.globalAlpha=Math.sin(u*Math.PI);g.fillStyle=cols[i];star4(g,xx,yy-hh*.08,S*.045);}}
  g.restore();
 }
 function drawCrown(g,cx,cy,w,lw){
@@ -1531,7 +2047,23 @@ const catName=p=>(LANG==='ja'&&p&&p.jp)?p.jp:(p?p.ja:'');
 const PREMIUM=[
  {id:'cat_gin', ja:'Sterling',jp:'ギンスケ',k:3,r:5,a:'ginsuke',job:T('密偵係'), skin:'cat_gin'},
  {id:'cat_ame', ja:'Misty',   jp:'アメ',    k:5,r:5,a:'ame',    job:T('雨宿り係'),skin:'cat_ame'},
- {id:'cat_koha',ja:'Topaz',   jp:'コハク',  k:1,r:5,a:'kohaku', job:T('宝物係'),  skin:'cat_koha'}];
+ {id:'cat_koha',ja:'Topaz',   jp:'コハク',  k:1,r:5,a:'kohaku', job:T('宝物係'),  skin:'cat_koha'},
+ {id:'cat_sakura',ja:'Sakura',jp:'サクラ',  k:5,r:5,a:'sakura', job:JE('花見係','Blossom Warden'),skin:'cat_sakura'},
+ {id:'cat_homura',ja:'Ember', jp:'ホムラ',  k:1,r:5,a:'homura', job:JE('火の番係','Hearth Keeper'), skin:'cat_homura'},
+ {id:'cat_aurora',ja:'Aurora',jp:'オーロラ',k:3,r:5,a:'aurora', job:JE('星読み係','Star Reader'),   skin:'cat_aurora'}];
+/* what the shop says each paid cat carries, besides its knack */
+const PAID_LOOK={
+ cat_gin:   JE('銀の毛並み・雪の結晶が舞う','Silver coat, drifting snowflakes'),
+ cat_ame:   JE('雨色の毛並み・雨粒が舞う','Rain-grey coat, falling raindrops'),
+ cat_koha:  JE('琥珀の毛並み・宝石がきらめく','Amber coat, glinting gems'),
+ cat_sakura:JE('桜の毛並み・花びらが舞う','Blossom coat, drifting petals'),
+ cat_homura:JE('炎の毛並み・火の粉が昇る','Flame coat, rising embers'),
+ cat_aurora:JE('極光の毛並み・光の帯がゆらめく','Aurora coat, shimmering ribbons'),
+};
+/* rarity and paid flags onto each cat's coat, so drawCat can add effects
+   wherever the cat appears without every screen having to ask */
+for(const c of PARTNERS){const k=SKINS['p_'+c.id];if(k)k.r=c.r;}
+for(const c of PREMIUM){const k=SKINS[c.skin];if(k){k.r=c.r;k.paid=true;}}
 const KNACK={
  score15:{ja:T('得点 ＋15%'),score:.15},
  score30:{ja:T('得点 ＋30%'),score:.30},
@@ -1549,6 +2081,9 @@ const KNACK={
  ginsuke:{ja:T('自動巻き戻し1回 ／ 巻き戻し ＋2 ／ 煮干し ＋35%'),revive:1,undo:2,coin:.35},
  ame:{ja:T('自動巻き戻し1回 ／ 連鎖得点 ＋70% ／ 得点 ＋30%'),revive:1,chain:.70,score:.30},
  kohaku:{ja:T('開始時ヒント ／ 入れ替え ＋2 ／ 煮干し ＋60%'),firstHint:1,swap:2,coin:.60},
+ sakura:{ja:JE('自動巻き戻し1回 ／ ヒント ＋2 ／ 煮干し ＋40%','Auto-undo once / Hint +2 / Sardines +40%'),revive:1,hint:2,coin:.40},
+ homura:{ja:JE('猫パンチ ＋2 ／ 連鎖得点 ＋80% ／ 得点 ＋35%','Cat Punch +2 / Chain score +80% / Score +35%'),paw:2,chain:.80,score:.35},
+ aurora:{ja:JE('自動巻き戻し1回 ／ 入れ替え ＋1 ／ 煮干し ＋50%','Auto-undo once / Swap +1 / Sardines +50%'),revive:1,swap:1,coin:.50},
 };
 const RCOL=['','','','var(--r3)','var(--r4)','var(--r5)'];
 /* Tighter than before: a ★5 is now a real event rather than a monthly
@@ -1582,53 +2117,62 @@ const catOdds=p=>ODDS[p.r]/rarePool(p.r).length;
    cat. That is what separates them from the free per-cat outfits, which fit
    exactly one cat each. */
 const PCOS=[
- {id:'pc_crown', art:'gcrown', yen:450,
+ {id:'pc_crown', art:'gcrown', yen:480, fx:'glint',
   ja:T('王冠'),     c1:'#FFD76B',c2:'#FFF6D0',
-  d:T('宝石つきの大きな王冠。どの猫にも着せられます。')},
- {id:'pc_wing',  art:'wings',  yen:350,
+  d:JE('宝石つきの大きな王冠。宝石がきらめきます。','A big jewelled crown whose gems glint.')},
+ {id:'pc_wing',  art:'wings',  yen:400, fx:'feather',
   ja:T('天使の羽'), c1:'#FFFFFF',c2:'#BFDCFF',
-  d:T('背中にひろがる白い羽。どの猫にも着せられます。')},
- {id:'pc_cape',  art:'cape',   yen:250,
+  d:JE('背中にひろがる白い羽。羽根がふわりと舞います。','White wings; loose feathers drift down.')},
+ {id:'pc_cape',  art:'cape',   yen:320, fx:'stardust',
   ja:T('星のマント'), c1:'#7A5BE0',c2:'#FFD76B',
-  d:T('星の留め具がついた夜色のマント。どの猫にも着せられます。')},
+  d:JE('星の留め具の夜色マント。裾から星屑がこぼれます。','A night-blue cape that sheds stardust.')},
+ {id:'pc_witch', art:'witchhat', yen:400, fx:'magic',
+  ja:JE('魔法使いの帽子','Wizard Hat'), c1:'#4B2E83',c2:'#FFD76B',
+  d:JE('月の飾りのとんがり帽子。先で魔法の火花がまわります。','A pointed hat with a moon charm; sparks circle the tip.')},
+ {id:'pc_kanzashi', art:'kanzashi', yen:320, fx:'petal',
+  ja:JE('桜のかんざし','Sakura Hairpin'), c1:'#FF9DC0',c2:'#FFE08A',
+  d:JE('耳もとに桜の花。花びらがひらひら落ちます。','A blossom by the ear, dropping petals.')},
+ {id:'pc_tiara', art:'tiara', yen:480, fx:'prism',
+  ja:JE('星のティアラ','Star Tiara'), c1:'#EAF4FF',c2:'#8FE6FF',
+  d:JE('星の宝石のティアラ。虹色の光が走ります。','A star-set tiara with rainbow glints.')},
 ];
 const PCOSBY=id=>PCOS.find(c=>c.id===id);
 const anyPCos=()=>PCOS.some(c=>owns(c.id));
+/* Every product is NON-CONSUMABLE: bought once, kept for good, and brought
+   back by Restore Purchases. Nothing is used up and nothing renews. Tools
+   are never sold; they come from play, ads and the sardine exchange.
+   Prices sit on common store price points and step up with how much the
+   thing shows: a background you look at every stage, a cat that also
+   changes your score, an outfit that also multiplies sardines.
+   Legacy ids stay in the list (hidden) so older purchases still restore. */
+const BUNDLE_V1=['noads','cat_gin','cat_ame','cat_koha','th_wa','th_sora','th_yami','pc_crown','pc_wing','pc_cape'];
 const IAP=[
- {id:'adfree7', yen:300, cat:'ads',  days:7,
-  t:T('広告オフ 1週間'), d:T('7日間、バナーとステージ間の広告が消えます。自動更新はしません。')},
- {id:'adfree21',yen:800, cat:'ads',  days:21,
-  t:T('広告オフ 3週間'), d:T('21日間、広告が消えます。1週間ぶんを3回買うより 100円おトク。')},
- {id:'noads',   yen:1200, cat:'ads',
-  t:T('広告オフ 永久'),  d:T('ずっと広告が出ません。機種変更しても「購入を復元」で戻ります。')},
- {id:'starter', yen:300, cat:'pack',
-  t:T('初回パック'), d:T('巻き戻し×10・ヒント×10・猫パンチ×5・入れ替え×5。おひとり様1回限り。')},
- {id:'cat_gin', yen:400, cat:'cat',  who:'cat_gin',
-  t:(LANG==='ja'?'特別な猫「ギンスケ」':'Sterling'), d:T('銀の毛並みと専用オーラを持つ★5。ガチャからは出ません。')},
- {id:'cat_ame', yen:400, cat:'cat',  who:'cat_ame',
-  t:(LANG==='ja'?'特別な猫「アメ」':'Misty'),      d:T('雨色の毛並みと専用オーラを持つ★5。ガチャからは出ません。')},
- {id:'cat_koha',yen:400, cat:'cat',  who:'cat_koha',
-  t:(LANG==='ja'?'特別な猫「コハク」':'Topaz'),    d:T('琥珀色の毛並みと専用オーラを持つ★5。ガチャからは出ません。')},
- {id:'cats3',   yen:1000,cat:'cat',
-  t:T('特別な猫 3匹セット'), d:T('ギンスケ・アメ・コハク をまとめて。1匹ずつ買うより 200円おトク。')},
- {id:'th_wa',   yen:300, cat:'theme', t:T('テーマ「和室」'),
-  d:T('盤面と背景の見た目が変わります。買ったあとは メニュー →「テーマ」で いつでもオン／オフできます。')},
- {id:'th_sora', yen:300, cat:'theme', t:T('テーマ「青空」'),
-  d:T('盤面と背景の見た目が変わります。買ったあとは メニュー →「テーマ」で いつでもオン／オフできます。')},
- {id:'pc_crown',yen:450, cat:'pcos', t:T('着せ替え「王冠」'), d:PCOS[0].d},
- {id:'pc_wing', yen:350, cat:'pcos', t:T('着せ替え「天使の羽」'), d:PCOS[1].d},
- {id:'pc_cape', yen:250, cat:'pcos', t:T('着せ替え「星のマント」'), d:PCOS[2].d},
- {id:'coss3',   yen:700, cat:'pcos',
-  t:T('特別な着せ替え 3種セット'),
-  d:T('王冠・天使の羽・星のマントをまとめて。ばらばらより 200円おトク。')},
- {id:'th_yami',yen:300, cat:'theme',
-  t:T('テーマ「宵闇」'), d:T('紫紺と金の夜。盤面はいちばん暗く、猫の色がよく映えます。')},
- {id:'toolpack',yen:600, cat:'pack',
-  t:T('道具まとめパック'), d:T('巻き戻し×25・ヒント×20・猫パンチ×12・入れ替え×12。')},
- {id:'shardpack',yen:500,cat:'pack',
-  t:T('かけら 40個'), d:T('★4の猫と交換できる量。抽選ではなく、自分で選べます。')},
- {id:'bundle',  yen:3200,cat:'bundle',
-  t:T('全部入り'), d:T('広告オフ永久 ＋ 特別な猫3匹 ＋ テーマ3種 ＋ 特別な着せ替え3種。ばらばらに買うと4350円ぶん。')},
+ {id:'noads', yen:1200, cat:'ads',
+  t:T('広告オフ 永久'), d:T('ずっと広告が出ません。機種変更しても「購入を復元」で戻ります。')},
+ ...PREMIUM.map(p=>({id:p.id, yen:480, cat:'cat', who:p.id,
+  t:JE('特別な猫「'+p.jp+'」','Premium cat “'+p.ja+'”'),
+  d:JE('★5・ガチャからは出ません。','★5 · never in the gacha.')+' '+PAID_LOOK[p.id]})),
+ {id:'cats6', yen:1980, cat:'cat', set:()=>PREMIUM.map(p=>p.id),
+  t:JE('特別な猫 6匹セット','All six premium cats'), d:JE('6匹まとめて仲間に。','All six at once.')},
+ ...PCOS.map(c=>({id:c.id, yen:c.yen, cat:'pcos', t:JE('着せ替え「'+c.ja+'」','Outfit “'+c.ja+'”'), d:c.d})),
+ {id:'coss6', yen:1600, cat:'pcos', set:()=>PCOS.map(c=>c.id),
+  t:JE('特別な着せ替え 6種セット','All six premium outfits'), d:JE('6種まとめて。どの猫にも何度でも。','All six, for any cat.')},
+ {id:'th_wa',    yen:320, cat:'theme', t:T('テーマ「和室」'), d:JE('畳と障子の色。紅葉がはらはら舞います。','Tatami tones with falling maple leaves.')},
+ {id:'th_sora',  yen:320, cat:'theme', t:T('テーマ「青空」'), d:JE('昼の空の色。雲がゆっくり流れます。','Daytime sky with slow clouds.')},
+ {id:'th_yami',  yen:320, cat:'theme', t:T('テーマ「宵闇」'), d:JE('紫紺と金の夜。金の光の粒が昇ります。','Violet night with rising gold motes.')},
+ {id:'th_hoshi', yen:400, cat:'theme', t:JE('テーマ「星降る夜」','Theme “Starfall”'), d:JE('満天の星と、ときどき流れ星。','A sky full of stars, and now and then a shooting star.')},
+ {id:'th_hotaru',yen:400, cat:'theme', t:JE('テーマ「蛍の川」','Theme “Firefly River”'), d:JE('水辺の夜に、蛍がふわりと光ります。','A riverside night where fireflies glow.')},
+ {id:'th_yuki',  yen:400, cat:'theme', t:JE('テーマ「雪明かり」','Theme “Snowlight”'), d:JE('静かに雪が降りつもる夜。','A quiet night of falling snow.')},
+ {id:'themes6', yen:1500, cat:'theme', set:()=>THEMES.filter(t=>t.buy).map(t=>t.buy),
+  t:JE('テーマ 6種セット','All six themes'), d:JE('6種まとめて。切り替えは何度でも無料。','All six. Switch any time, free.')},
+ {id:'bundle2', yen:4900, cat:'bundle', set:()=>IAP.filter(x=>!x.set&&!x.legacy).map(x=>x.id),
+  t:T('全部入り'), d:JE('広告オフ永久 ＋ 特別な猫6匹 ＋ テーマ6種 ＋ 特別な着せ替え6種。','Remove Ads forever + 6 cats + 6 themes + 6 outfits.')},
+ /* ---- legacy, hidden: kept so existing purchases restore and stay owned ---- */
+ {id:'cats3', yen:1000,cat:'cat', legacy:true, set:()=>['cat_gin','cat_ame','cat_koha'], t:T('特別な猫 3匹セット'), d:''},
+ {id:'coss3', yen:700, cat:'pcos',legacy:true, set:()=>['pc_crown','pc_wing','pc_cape'], t:T('特別な着せ替え 3種セット'), d:''},
+ {id:'bundle',yen:3200,cat:'bundle',legacy:true, set:()=>BUNDLE_V1, t:T('全部入り'), d:''},
+ {id:'adfree7', yen:300,cat:'ads', legacy:true, days:7,  t:T('広告オフ 1週間'), d:''},
+ {id:'adfree21',yen:800,cat:'ads', legacy:true, days:21, t:T('広告オフ 3週間'), d:''},
 ];
 const IAPBY=id=>IAP.find(x=>x.id===id);
 /* ------------------------------------------------------------------ themes
@@ -1641,15 +2185,24 @@ const THEMES=[
  {id:'none', buy:null,
   ja:T('普通'),  d:T('元の宇宙色。いつでもここに戻せます。'),
   floor:'rgba(13,17,32,.92)', cA:'rgba(66,82,136,.40)', cB:'rgba(42,53,94,.40)'},
- {id:'wa',   buy:'th_wa', lux:{edge:'#d9b45c',edge2:'#fff0c8',vig:'rgba(30,18,6,.55)'},
+ {id:'wa',   buy:'th_wa', fx:'leaf', lux:{edge:'#d9b45c',edge2:'#fff0c8',vig:'rgba(30,18,6,.55)'},
   ja:T('和室'),    d:T('畳と障子の色。落ち着いた見た目になります。'),
   floor:'rgba(47,38,22,.94)', cA:'rgba(156,132,78,.46)', cB:'rgba(116,96,54,.46)'},
- {id:'yami', buy:'th_yami', lux:{edge:'#ffd76b',edge2:'#ffeaa8',vig:'rgba(8,4,22,.62)'},
+ {id:'yami', buy:'th_yami', fx:'mote', lux:{edge:'#ffd76b',edge2:'#ffeaa8',vig:'rgba(8,4,22,.62)'},
   ja:T('宵闇'),    d:T('紫紺と金。いちばん暗い盤面で、猫の色がよく出ます。'),
   floor:'rgba(18,12,34,.95)', cA:'rgba(96,72,158,.42)', cB:'rgba(64,46,112,.42)'},
- {id:'sora', buy:'th_sora', lux:{edge:'#bfe6ff',edge2:'#ffffff',vig:'rgba(6,26,46,.5)'},
+ {id:'sora', buy:'th_sora', fx:'cloud', lux:{edge:'#bfe6ff',edge2:'#ffffff',vig:'rgba(6,26,46,.5)'},
   ja:T('青空'),    d:T('昼の空と雲の色。明るく見やすい見た目です。'),
   floor:'rgba(17,45,76,.92)', cA:'rgba(104,166,220,.44)', cB:'rgba(70,124,180,.44)'},
+ {id:'hoshi', buy:'th_hoshi', fx:'star', lux:{edge:'#c9d4ff',edge2:'#ffffff',vig:'rgba(4,6,24,.6)'},
+  ja:JE('星降る夜','Starfall'), d:JE('満天の星と流れ星。','Stars and shooting stars.'),
+  floor:'rgba(10,12,34,.95)', cA:'rgba(70,78,150,.42)', cB:'rgba(46,52,108,.42)'},
+ {id:'hotaru', buy:'th_hotaru', fx:'firefly', lux:{edge:'#c8ff8a',edge2:'#f4ffd8',vig:'rgba(2,16,12,.6)'},
+  ja:JE('蛍の川','Firefly River'), d:JE('水辺の夜に蛍が光ります。','Fireflies over dark water.'),
+  floor:'rgba(8,26,24,.95)', cA:'rgba(52,112,96,.42)', cB:'rgba(34,80,70,.42)'},
+ {id:'yuki', buy:'th_yuki', fx:'snow', lux:{edge:'#e6f2ff',edge2:'#ffffff',vig:'rgba(10,18,34,.5)'},
+  ja:JE('雪明かり','Snowlight'), d:JE('静かに雪が降る夜。','A quiet snowy night.'),
+  floor:'rgba(26,36,56,.93)', cA:'rgba(120,146,186,.44)', cB:'rgba(86,108,146,.44)'},
 ];
 /* Free themes won from the sardine draw, same as costumes. Rarity decides
    how often one turns up, never how good the board looks: every theme has to
@@ -1700,11 +2253,11 @@ function setTheme(id){S.theme=id;save();applyTheme();}
 /* one place decides whether ads run, so a timed plan expiring is felt
    everywhere at once */
 function adsOff(){
- if(S.owned.noads||S.owned.bundle)return true;
+ if(owns('noads'))return true;
  return !!(S.adFreeUntil&&Date.now()<S.adFreeUntil);
 }
 function adFreeLeft(){
- if(S.owned.noads||S.owned.bundle)return -1;
+ if(owns('noads'))return -1;
  if(!S.adFreeUntil||Date.now()>=S.adFreeUntil)return 0;
  return Math.ceil((S.adFreeUntil-Date.now())/86400000);
 }
@@ -1714,26 +2267,14 @@ function grantIAP(id){
   const base=Math.max(Date.now(),S.adFreeUntil||0);
   S.adFreeUntil=base+it.days*86400000;
  }else S.owned[id]=1;
- if(id==='starter'){S.items.undo+=10;S.items.hint+=10;S.items.paw+=5;S.items.swap+=5;}
- if(id==='toolpack'){S.items.undo+=25;S.items.hint+=20;S.items.paw+=12;S.items.swap+=12;}
- if(id==='shardpack')addShard(40);
- if(id==='cats3')for(const p of PREMIUM)S.owned[p.id]=1;
- if(id==='coss3')for(const c of PCOS)S.owned[c.id]=1;
- if(id==='bundle'){
-  /* everything permanent except the three "set" SKUs, which only exist as
-     cheaper ways to buy things this already contains, and except the two
-     consumable packs, which are stock rather than an unlock */
-  for(const x of IAP)if(!x.days&&x.id!=='starter'&&x.id!=='cats3'&&x.id!=='coss3'
-   &&x.id!=='toolpack'&&x.id!=='shardpack')S.owned[x.id]=1;
-  for(const c of PCOS)S.owned[c.id]=1;}
- for(const p of PREMIUM)if(S.owned[p.id]||S.owned.bundle)S.dex[p.id]=1;
- /* Turn a freshly bought theme on straight away, then say where the switch
-    lives so it can be turned off again. */
- if(id==='th_wa'||id==='th_sora'){
-  S.theme=(id==='th_wa'?'wa':'sora');
+ if(it.set)for(const x of it.set())S.owned[x]=1;
+ for(const p of PREMIUM)if(owns(p.id))S.dex[p.id]=1;
+ /* turn a freshly bought theme on straight away, and say where the switch is */
+ const th=THEMES.find(t=>t.buy===id);
+ if(th){S.theme=th.id;
   setTimeout(()=>toast(T('テーマをオンにしました。メニュー →「テーマ」でいつでも切り替え・オフにできます。'),4200),400);}
- if(id==='bundle')setTimeout(()=>toast(T('テーマはメニュー →「テーマ」で切り替えられます。'),4200),400);
- if(PCOSBY(id)||id==='coss3'||id==='bundle')
+ if(it.set&&it.cat!=='cat')setTimeout(()=>toast(T('テーマはメニュー →「テーマ」で切り替えられます。'),4200),400);
+ if(PCOSBY(id)||id==='coss6'||id==='bundle2')
   setTimeout(()=>toast(T('特別な着せ替えは メニュー →「着せ替え」から どの猫にも着せられます。'),4200),700);
  save();applyTheme();refreshBanner();
 }
@@ -1762,9 +2303,9 @@ const GUILD_RANKS=[T('子猫隊'),T('見習い隊'),T('ひなた隊'),T('まん�
 
 const DEF=()=>({v:4,coins:120,themes:{},
  prof:{name:'',icon:'',frame:'f0',pt:0},
- rank:{period:0,base:0,pace:60,lastPos:0,wins:{},prev:null},shard:0,skip:{day:'',used:0},skipped:{},skipFails:{},stars:{},cleared:0,best:{},moves:{},
+ rank:{period:0,base:0,pace:45,lastPos:0,wins:{},prev:null,news:null},shard:0,skip:{day:'',used:0},skipped:{},skipFails:{},stars:{},cleared:0,best:{},moves:{},
  cos:{},cosOn:{},
- items:{undo:8,hint:4,paw:2,swap:2},owned:{},dex:{},equip:[],
+ items:{undo:10,hint:5,paw:3,swap:3},adItems:{day:'',n:0},owned:{},dex:{},equip:[],
  adDay:'',adUsed:0,tut:false,qDay:'',qDone:{},
  login:{day:'',streak:0},dc:{day:'',done:false},ms:{},rev:0,
  trial:{day:'',best:0,bestDay:0,paid:false,paidDay:''},adFreeUntil:0,medals:{},
@@ -1834,7 +2375,7 @@ function load(){const r=Store.get(SKEY);
     const own=COSOWNED(k);
     if(own.length)S.cosOn[k]=own[0].id;else delete S.cosOn[k];}}
   return true;}catch(e){return false;}}
-const allCats=()=>PARTNERS.concat(PREMIUM.filter(p=>S.owned[p.id]||S.owned.bundle));
+const allCats=()=>PARTNERS.concat(PREMIUM.filter(p=>owns(p.id)));
 const starTot=()=>Object.values(S.stars).reduce((a,b)=>a+b,0);
 const dexN=()=>Object.keys(S.dex).length;
 const guildLv=()=>Math.min(GUILD_RANKS.length-1,Math.floor((dexN()*2+starTot()/6)/8));
@@ -1843,7 +2384,7 @@ const slots=()=>S.cleared>=500?4:S.cleared>=200?3:S.cleared>=60?2:1;
 /* What an outfit is worth. Gacha outfits are a nudge; paid outfits are the
    reason to buy one. Both only count while that cat is actually in the
    party, so dressing a cat you never bring changes nothing. */
-const PCOS_COIN={pc_crown:2.0,pc_wing:1.5,pc_cape:1.0};   /* +200% / +150% / +100% */
+const PCOS_COIN={pc_crown:2.0,pc_wing:1.5,pc_cape:1.0,pc_witch:1.5,pc_kanzashi:1.0,pc_tiara:2.0};
 function cosBonus(catId){
  const w=cosOf(catId);
  if(!w)return 0;
@@ -1858,7 +2399,12 @@ function knacks(){const o={score:0,coin:0,chain:0,undo:0,hint:0,paw:0,swap:0,
   const k=KNACK[p.a];if(!k)continue;for(const q in o)if(k[q])o[q]+=k[q];}
  o.coin+=guildLv()*.04;o.score+=guildLv()*.04;
  return o;}
-function catSkin(p){return p&&p.skin?p.skin:null;}
+function catSkin(p){
+ if(!p)return null;
+ if(p.skin)return p.skin;
+ const k='p_'+p.id;
+ return SKINS[k]?k:null;
+}
 /* mode 'exact' pays the number given, with no party bonus applied on top.
    Used wherever the figure was ALREADY multiplied once — the "watch a video
    to double it" button, and anything the player traded for at a printed
@@ -2297,7 +2843,7 @@ function boom(x,y,kind,chain,big,cell){
   G.fx.push({k:'cat',x,y,vx:Math.cos(a)*170,vy:Math.sin(a)*240,rot:0,
    vr:(Math.random()-.5)*9,kind,t:0,life:.78,r:(cell||40)*.4});}
 }
-function popText(x,y,txt,col){G.fx.push({k:'t',x,y,txt,c:col||'#fff',t:0,life:.9});}
+function popText(x,y,txt,col,sz){G.fx.push({k:'t',x,y,txt,c:col||'#fff',t:0,life:sz?1.2:.9,sz:sz||.075});}
 function sparkle(x,y,r,c){
  G.fx.push({k:'ring',x,y,t:0,life:.34,max:r*2.2,c:c,c2:c});
  if(!S.set.fx)return;
@@ -2342,6 +2888,69 @@ function fxStep(dt){
  G.fx=G.fx.filter(f=>f.t<f.life);
  if(G.shakeT>0)G.shakeT-=dt;else G.shakeAmp=0;
  if(G.viewT<1)G.viewT=Math.min(1,G.viewT+dt*2.4);}
+/* Ambient motion for the paid themes, drawn under the cats and kept faint so
+   the board stays as readable as the free themes. Off with the effects
+   setting, unless a shop preview forces it on. */
+function themeFx(g,TH,x,y,w,h,cell,now,force){
+ if(!TH||!TH.fx||(!S.set.fx&&!force))return;
+ const t=now/1000;
+ const R=(i,k)=>{const v=Math.sin(i*127.1+k*311.7)*43758.5453;return v-Math.floor(v);};
+ g.save();g.beginPath();g.roundRect(x,y,w,h,cell*.2);g.clip();
+ if(TH.fx==='leaf'){
+  for(let i=0;i<7;i++){const ph=(t*(.05+R(i,1)*.04)+R(i,2))%1,k=cell*.13;
+   g.globalAlpha=.34;g.save();
+   g.translate(x+R(i,3)*w+Math.sin(t*.9+i)*cell*.4,y-cell*.3+ph*(h+cell*.6));g.rotate(t*(.6+R(i,4))+i);
+   g.fillStyle=i%2?'#e0823a':'#d9b45c';g.beginPath();
+   for(let j=0;j<5;j++){const a=j*Math.PI*2/5-Math.PI/2;
+    g.lineTo(Math.cos(a)*k,Math.sin(a)*k);g.lineTo(Math.cos(a+.63)*k*.45,Math.sin(a+.63)*k*.45);}
+   g.closePath();g.fill();g.restore();}}
+ else if(TH.fx==='cloud'){g.fillStyle='#ffffff';
+  for(let i=0;i<3;i++){const ph=(t*(.012+R(i,1)*.01)+R(i,2))%1;
+   const cx=x-w*.3+ph*w*1.6,cy=y+h*(.2+R(i,3)*.6),k=cell*(.5+R(i,4)*.4);
+   g.globalAlpha=.08;
+   for(const q of[[-1,0,.8],[0,-.35,1],[1,0,.75],[.45,.15,.7],[-.45,.15,.7]]){
+    g.beginPath();g.arc(cx+q[0]*k,cy+q[1]*k,k*q[2],0,7);g.fill();}}}
+ else if(TH.fx==='mote'){
+  for(let i=0;i<12;i++){const ph=(t*(.04+R(i,1)*.04)+R(i,2))%1;
+   const px=x+R(i,3)*w+Math.sin(t+i)*cell*.2,py=y+h-ph*h,k=cell*(.03+R(i,4)*.03)*3;
+   g.globalAlpha=Math.sin(ph*Math.PI)*.55;
+   const gr=g.createRadialGradient(px,py,0,px,py,k);
+   gr.addColorStop(0,'rgba(255,225,140,1)');gr.addColorStop(1,'rgba(255,225,140,0)');
+   g.fillStyle=gr;g.beginPath();g.arc(px,py,k,0,7);g.fill();}}
+ else if(TH.fx==='star'){g.fillStyle='#ffffff';
+  for(let i=0;i<16;i++){g.globalAlpha=(.5+.5*Math.sin(t*(1+R(i,1)*2)+i*3))*.42;
+   star4(g,x+R(i,2)*w,y+R(i,3)*h,cell*(.025+R(i,4)*.03));}
+  const cyc=3.2,u=(t%cyc)/cyc,n=Math.floor(t/cyc);
+  if(u<.35){const v=u/.35,sx=x+w*(.1+R(n,5)*.6)+v*w*.5,sy=y+h*(.05+R(n,6)*.3)+v*h*.35;
+   const lg=g.createLinearGradient(sx,sy,sx-w*.2,sy-h*.14);
+   lg.addColorStop(0,'rgba(255,255,255,1)');lg.addColorStop(1,'rgba(255,255,255,0)');
+   g.globalAlpha=(1-v)*.75;g.strokeStyle=lg;g.lineWidth=Math.max(1,cell*.028);g.lineCap='round';
+   g.beginPath();g.moveTo(sx,sy);g.lineTo(sx-w*.2,sy-h*.14);g.stroke();}}
+ else if(TH.fx==='firefly'){
+  for(let i=0;i<9;i++){
+   const px=x+w*(.5+.45*Math.sin(t*(.15+R(i,1)*.2)+i*2.1)),py=y+h*(.5+.42*Math.sin(t*(.12+R(i,2)*.18)+i*1.3));
+   const k=cell*.24;g.globalAlpha=Math.max(0,Math.sin(t*(1.2+R(i,3))+i*2))*.6;
+   const gr=g.createRadialGradient(px,py,0,px,py,k);
+   gr.addColorStop(0,'rgba(236,255,160,1)');gr.addColorStop(.25,'rgba(190,255,110,.6)');gr.addColorStop(1,'rgba(160,255,90,0)');
+   g.fillStyle=gr;g.beginPath();g.arc(px,py,k,0,7);g.fill();}}
+ else if(TH.fx==='snow'){g.fillStyle='#ffffff';
+  for(let i=0;i<18;i++){const ph=(t*(.06+R(i,1)*.05)+R(i,2))%1;
+   g.globalAlpha=.45;g.beginPath();
+   g.arc(x+R(i,3)*w+Math.sin(t*1.1+i)*cell*.3,y-cell*.1+ph*(h+cell*.2),cell*(.025+R(i,4)*.03),0,7);g.fill();}}
+ g.restore();
+}
+function drawThemePreview(g,W,H,t,now){
+ g.clearRect(0,0,W,H);
+ const m=W*.05,cell=(W-m*2)/4,bx=m,by=(H-cell*3)/2,bw=cell*4,bh=cell*3;
+ g.fillStyle=t.floor;g.beginPath();g.roundRect(bx,by,bw,bh,cell*.2);g.fill();
+ for(let r=0;r<3;r++)for(let c=0;c<4;c++){g.fillStyle=(r+c)%2?t.cA:t.cB;const q=cell*.035;
+  g.beginPath();g.roundRect(bx+c*cell+q,by+r*cell+q,cell-q*2,cell-q*2,cell*.16);g.fill();}
+ themeFx(g,t,bx,by,bw,bh,cell,now,true);
+ drawCat(g,bx+cell*1.5,by+cell*1.62,cell*.9,2,{now});
+ drawCat(g,bx+cell*2.5,by+cell*1.62,cell*.9,0,{king:true,now});
+ if(t.lux){g.strokeStyle=t.lux.edge;g.lineWidth=Math.max(1,W*.012);
+  g.beginPath();g.roundRect(bx,by,bw,bh,cell*.2);g.stroke();}
+}
 function star4(g,x,y,r,rot){
  g.save();g.translate(x,y);g.rotate(rot||0);g.beginPath();
  g.moveTo(0,-r);g.quadraticCurveTo(0,0,r,0);
@@ -2382,7 +2991,9 @@ function fxDraw(g){
   else if(f.k==='cat'){g.globalAlpha=Math.max(0,1-u*u);
    g.translate(f.x,f.y);g.rotate(f.rot);drawCat(g,0,0,f.r,f.kind,{mood:'happy'});}
   else{g.globalAlpha=Math.max(0,1-u*u);
-   g.font='900 '+Math.round(G.size*.075)+'px '+getComputedStyle(document.body).fontFamily;
+   /* the big words pop in from oversize, then settle */
+   if(f.sz>.1){const k=u<.18?1.6-.6*(u/.18):1;g.translate(f.x,f.y);g.scale(k,k);g.translate(-f.x,-f.y);}
+   g.font='900 '+Math.round(G.size*(f.sz||.075))+'px '+getComputedStyle(document.body).fontFamily;
    g.textAlign='center';g.lineWidth=5;g.strokeStyle=INK;
    g.strokeText(f.txt,f.x,f.y);g.fillStyle=f.c;g.fillText(f.txt,f.x,f.y);}
   g.restore();}
@@ -2395,6 +3006,7 @@ function frame(now){
  fxStep(dt);motesStep(dt,G.size||360);
  if($('scPlay').classList.contains('on')&&G.ctx)draw(now);
  if($('scHome').classList.contains('on'))drawHero(now);
+ if(!document.hidden){animAvatars(now);animLive(now);}
  requestAnimationFrame(frame);
 }
 function blendView(a,b,t){
@@ -2469,6 +3081,7 @@ function draw(now){
   const m=V.cell*.035;
   g.beginPath();g.roundRect(bx+c*V.cell+m,by+r*V.cell+m,V.cell-m*2,V.cell-m*2,V.cell*.16);g.fill();}
  themeScrim(g,bx,by,bw,bh,V.cell);
+ themeFx(g,TH,bx,by,bw,bh,V.cell,now);
  g.restore();
  drawWalls(g,bx,by,bw,bh,V.cell,wallDir,wallIn);
 
@@ -2621,7 +3234,7 @@ function push(wall){
   tip(rockBlocked(wall)?T('岩がじゃまで、その向きには押せません')
    :wall==='left'||wall==='right'?T('横に入りきりません'):T('縦に入りきりません'));
   return;}
- G.hist.push({st:bclone(G.st),ox:G.ox,oy:G.oy,score:G.score,moves:G.moves,items:{...G.items}});
+ G.hist.push({st:bclone(G.st),ox:G.ox,oy:G.oy,score:G.score,moves:G.moves,items:{...G.free}});
  if(G.hist.length>50)G.hist.shift();
  G.moves++;
  G.busy=true;G.hint=null;
@@ -2664,7 +3277,111 @@ function finishAnim(){
    setTimeout(()=>useItem('undo',true),620);
    return;}
   tip(T('この先では王様に届きません… 巻き戻しましょう'));
-  A.block();paintItems();}
+  A.block();paintItems();
+  /* only when there is no free way back: with undos in stock the tip is enough */
+  if(pinchEligible('dead'))setTimeout(()=>{
+   if(G.dead&&!G.over&&!G.busy&&!$('ovPinch').classList.contains('on'))showPinch('dead');},700);}
+}
+/* ---------------------------------------------------- failing a stage
+   On a real failure (no push left), or a dead end three cats from the king
+   with no undo in hand, the player gets a way back (their undo, or one from
+   an ad) and a recommendation: a premium cat whose knack answers exactly this
+   moment, and an outfit. Once per attempt, once every 90 seconds, not in the
+   trial or the first stages; "give up" is always one tap; prices are the shop
+   prices, with no timer. */
+let PINCH_AT=0;
+function pinchEligible(mode){
+ if(!G.st||G.trialOn||G.pinched||S.cleared<3)return false;
+ if(Date.now()-PINCH_AT<90000)return false;
+ if(mode==='dead'){const left=catsIn(G.st)-1;return itemN('undo')<=0&&left>0&&left<=3;}
+ return true;
+}
+function recoCat(){
+ const un=PREMIUM.filter(p=>!owns(p.id));if(!un.length)return null;
+ const rv=un.filter(p=>KNACK[p.a]&&KNACK[p.a].revive);
+ const pool=rv.length?rv:un;
+ return pool[(G.stage||0)%pool.length];
+}
+function recoCos(){
+ const un=PCOS.filter(c=>!owns(c.id));if(!un.length)return null;
+ return un[(G.stage||0)%un.length];
+}
+function afterCatBuy(p,mode){
+ const nm=catName(p), kn=KNACK[p.a]||{};
+ /* bought at the moment of failure, so it should help right now: take a free
+    slot, or swap into the last one (the old member goes back to the squad and
+    can be put back from 猫軍 at any time) */
+ let swapped=null;
+ if(!S.equip.includes(p.id)&&slots()>0){
+  if(S.equip.length<slots())S.equip.push(p.id);
+  else{swapped=S.equip[S.equip.length-1];S.equip[S.equip.length-1]=p.id;}
+  save();try{paintPlayParty();}catch(e){}}
+ if(swapped){const o=allCats().find(x=>x.id===swapped);
+  if(o)setTimeout(()=>toast(JE(catName(o)+'と交代しました。猫軍でいつでも戻せます','Swapped in for '+catName(o)+'. Change it back in the squad any time'),3600),900);}
+ if(S.equip.includes(p.id)&&kn.revive&&G.hist.length){
+  $('ovPinch').classList.remove('on');G.over=false;
+  tip(JE(nm+'が手を引き戻してくれた！',nm+' pulled you back!'));A.quest();flashLayer('flashCyan',280);
+  setTimeout(()=>useItem('undo',true),500);return;}
+ toast(S.equip.includes(p.id)?JE(nm+'がパーティに加わりました',nm+' joined your party')
+  :JE(nm+'が仲間になりました。猫軍でパーティに入れると特技が効きます',nm+' joined. Put them in your party to use the knack'),3600);
+ showPinch(mode);
+}
+function showPinch(mode){
+ G.pinched=true;PINCH_AT=Date.now();
+ const left=Math.max(0,catsIn(G.st)-1), ov=$('ovPinch'), box=$('pinchC');
+ box.innerHTML='';
+ const close=()=>ov.classList.remove('on');
+ const resume=()=>{close();G.over=false;paintItems();useItem('undo');};
+ const giveUp=()=>{close();if(mode==='lose'){A.lose();result(false,0,[],false,0);}};
+ box.appendChild(el('div','pkHd','<div class="pk1" id="pkTitle">'
+  +(left<=3?JE('あと一歩！','So close!'):JE('行き止まり…','Stuck…'))+'</div>'
+  +'<div class="pk2">'+JE('王様まで あと <b>'+left+'</b> 匹','<b>'+left+'</b> '+(left===1?'cat':'cats')+' left before the king')+'</div>'));
+ const acts=el('div','pkActs');
+ if(G.hist.length&&itemN('undo')>0){
+  const u=el('button','btn gold wide',JE('↩︎ 巻き戻して続ける（あと'+itemN('undo')+'）','↩︎ Undo and keep going ('+itemN('undo')+' left)'));
+  u.onclick=()=>{A.click();resume();};acts.appendChild(u);
+ }else if(G.hist.length&&adItemsLeft()>0){
+  const a=el('button','btn mag wide',JE('📺 広告で巻き戻し1回（今日あと'+adItemsLeft()+'）','📺 One undo for an ad ('+adItemsLeft()+' left today)'));
+  a.onclick=()=>{A.click();playAd(()=>{noteAdItem();G.free.undo=(G.free.undo||0)+1;resume();});};
+  acts.appendChild(a);}
+ const cat=recoCat();
+ if(cat){
+  const it=IAPBY(cat.id), kn=KNACK[cat.a]||{};
+  const c=el('div','pkReco');
+  const cv=el('canvas');cv.width=cv.height=200;c.appendChild(cv);
+  liveDraw(cv,(g,now)=>drawCat(g,98,122,124,cat.k,{skin:cat.skin,mood:'happy',now}),true);
+  const pr=el('div','pr');
+  pr.innerHTML='<div class="prT">'+JE('おすすめの仲間','Recommended')+'</div>'
+   +'<div class="prN">'+catName(cat)+' <span>★5</span></div>'
+   +'<div class="prK">'+(kn.revive
+     ?JE('付き添っていれば、こんな行き止まりを<b>自動で1回戻せます</b>','With this cat along, a dead end like this <b>undoes itself once</b>')
+     :kn.ja)+'</div>'
+   +'<div class="prL">'+PAID_LOOK[cat.id]+'</div>';
+  const bb=buyBtn(it,'gold');bb.classList.add('wide');
+  bb.textContent=JE('¥'+fmt(it.yen)+' で仲間にする','Recruit for ¥'+fmt(it.yen));
+  bb.onclick=()=>{A.click();buy(it,()=>afterCatBuy(cat,mode));};
+  pr.appendChild(bb);c.appendChild(pr);acts.appendChild(c);}
+ const cos=recoCos();
+ if(cos){
+  const it=IAPBY(cos.id), model=partyCats()[0]||cat||PARTNERS[0];
+  const r=el('div','pkCos');
+  const cv=el('canvas');cv.width=cv.height=120;r.appendChild(cv);
+  liveDraw(cv,(g,now)=>drawCat(g,58,78,68,model.k,{skin:catSkin(model),cos:cos.id,mood:'happy',now}),true);
+  const pct=Math.round((PCOS_COIN[cos.id]||0)*100);
+  r.appendChild(el('div','pcx','<div class="prN">'+cos.ja+'</div><div class="prK">'
+   +JE('パーティの猫に着せると 煮干し ＋'+pct+'%','Sardines +'+pct+'% on a party cat')+'</div>'));
+  const b2=buyBtn(it,'ghost');
+  b2.onclick=()=>{A.click();buy(it,()=>{
+   toast(T('特別な着せ替えは メニュー →「着せ替え」から どの猫にも着せられます。'),3600);showPinch(mode);});};
+  r.appendChild(b2);acts.appendChild(r);}
+ const more=el('button','btn ghost wide',JE('ショップを見る','Open the shop'));
+ more.onclick=()=>{A.click();close();G.over=false;openShop();};
+ acts.appendChild(more);
+ const no=el('button','pkNo',mode==='lose'?JE('あきらめる','Give up'):JE('とじる','Close'));
+ no.onclick=()=>{A.click();giveUp();};
+ acts.appendChild(no);
+ box.appendChild(acts);
+ ov.classList.add('on');
 }
 function shakeEl(){const s=$('stage');s.classList.remove('shk');void s.offsetWidth;s.classList.add('shk');}
 let tipT=null;
@@ -2726,22 +3443,29 @@ function askSkip(){
   +T('今日はあと <b>')+skipsLeft()+T('回</b> とばせます。'),
   T('とばす'),doSkip);
 }
+function itemN(k){
+ return ((G.free&&G.free[k])||0)+(G.noInv?0:(S.items[k]||0));
+}
+function spendItem(k){
+ if(G.free&&G.free[k]>0)G.free[k]--;
+ else if(!G.noInv&&(S.items[k]||0)>0){S.items[k]--;save();}
+}
 function useItem(k,free){
  if(G.busy&&k!=='undo')return;
  if(k==='undo'){
   if(!G.hist.length){tip(T('戻れません'));return;}
-  if(!free&&G.items.undo<=0){adFor('undo');return;}
+  if(!free&&itemN('undo')<=0){adFor('undo');return;}
   const h=G.hist.pop();
   G.st=h.st;G.ox=h.ox;G.oy=h.oy;G.score=h.score;G.moves=h.moves||0;
-  if(!free)G.items.undo--;
+  if(!free)spendItem('undo');
   G.anim=null;G.busy=false;G.over=false;G.mode=null;G.pick=[];G.hint=null;G.dead=false;
   G.view=viewFor(G.st,G.ox,G.oy);G.viewTo=G.view;G.viewT=1;
   A.click();paintHud();paintItems();return;}
  if(k==='hint'){
-  if(!free&&G.items.hint<=0){adFor('hint');return;}
+  if(!free&&itemN('hint')<=0){adFor('hint');return;}
   const d=bestWall(G.st);
   if(!d){tip(T('もう押せません'));return;}
-  if(!free)G.items.hint--;
+  if(!free)spendItem('hint');
   G.hint=d;A.click();paintItems();
   setTimeout(()=>{if(G.hint===d)G.hint=null;},4600);return;}
  /* paw and swap both take TWO taps. Removing a single cat used to be able to
@@ -2749,7 +3473,7 @@ function useItem(k,free){
     once keeps every colour reachable, and swapping never changes a count at
     all, so it is the safe tool when you have painted yourself into a corner. */
  if(k==='paw'||k==='swap'){
-  if(G.items[k]<=0){adFor(k);return;}
+  if(itemN(k)<=0){adFor(k);return;}
   G.mode=(G.mode===k)?null:k;G.pick=[];paintItems();
   tip(G.mode==='paw'?T('同じ種類の猫を2匹選んでね（王様は消せません）')
      :G.mode==='swap'?T('入れ替えたい猫を2匹選んでね')
@@ -2779,8 +3503,8 @@ function handlePick(p){
  const V=G.viewTo||G.view;
  sparkle(px(t.c+G.ox,V),py(t.r+G.oy,V),V.cell*.5,k==='paw'?'#ff5fd0':'#54e9ff');
  if(G.pick.length<2){tip(k==='paw'?T('同じ種類をあと1匹'):T('あと1匹'));return;}
- G.hist.push({st:bclone(G.st),ox:G.ox,oy:G.oy,score:G.score,moves:G.moves,items:{...G.items}});
- G.moves++;G.items[k]--;G.usedItems=(G.usedItems||0)+1;
+ G.hist.push({st:bclone(G.st),ox:G.ox,oy:G.oy,score:G.score,moves:G.moves,items:{...G.free}});
+ G.moves++;spendItem(k);G.usedItems=(G.usedItems||0)+1;
  const[a,b]=G.pick;G.pick=[];G.mode=null;
  if(k==='swap'){
   const tmp=G.st.g[a.r][a.c];G.st.g[a.r][a.c]=G.st.g[b.r][b.c];G.st.g[b.r][b.c]=tmp;
@@ -2810,10 +3534,29 @@ function handlePick(p){
  if(!anyPush(G.st))tip(T('どの向きにも押せません'));
  else if(G.dead)tip(T('この先では王様に届きません… 巻き戻しましょう'));
 }
+const ITEM_IC={undo:'↩︎',hint:'💡',paw:'🐾',swap:'🔁'};
+const itemName=k=>({undo:T('巻き戻し'),hint:T('ヒント'),paw:T('猫パンチ'),swap:T('入れ替え')}[k]);
+/* Tools from ads: five a day. Unlimited ad tools made every pack pointless
+   and turned a stuck board into a string of videos; five is enough to get
+   past a bad moment, and the shop and the sardine exchange cover the rest. */
+const AD_ITEM_CAP=10;
+function adItemsLeft(){
+ if(!S.adItems||S.adItems.day!==today())S.adItems={day:today(),n:0};
+ return Math.max(0,AD_ITEM_CAP-S.adItems.n);
+}
+function noteAdItem(){adItemsLeft();S.adItems.n++;save();}
 function adFor(k){
- const nm={undo:T('巻き戻し'),hint:T('ヒント'),paw:T('猫パンチ'),swap:T('入れ替え')}[k];
- confirmBox(nm+T('がありません'),T('広告を見ると ')+nm+T('を1つもらえます。'),
-  T('広告を見る'),()=>playAd(()=>{G.items[k]=(G.items[k]||0)+1;paintItems();tip(nm+' ＋1');}));
+ const nm=itemName(k), left=adItemsLeft();
+ if(left<=0){
+  confirmBox(nm+T('がありません'),
+   JE('今日の広告でもらえる分（'+AD_ITEM_CAP+'回）は使い切りました。<br>煮干しとの交換（ショップ）で補充できます。',
+      'You have used today’s '+AD_ITEM_CAP+' ad rewards.<br>Trade sardines for more in the shop.'),
+   JE('ショップを見る','Open the shop'),()=>openItemShop());
+  return;}
+ confirmBox(nm+T('がありません'),
+  T('広告を見ると ')+nm+T('を1つもらえます。')
+  +'<br><span style="font-size:11px;color:var(--lo)">'+JE('今日あと '+left+' 回','Left today: '+left)+'</span>',
+  T('広告を見る'),()=>playAd(()=>{noteAdItem();G.free[k]=(G.free[k]||0)+1;paintItems();tip(nm+' ＋1');}));
 }
 
 /* ---------------------------------------------------------------- start/end */
@@ -2825,11 +3568,18 @@ function startStage(n,daily,trial){
  G.score=0;G.hist=[];G.busy=false;G.over=false;G.anim=null;
  G.mode=null;G.pick=[];G.hint=null;G.fx=[];G.maxChain=0;
  const kn=knacks();
- G.items={undo:S.items.undo+kn.undo,hint:S.items.hint+kn.hint,
-  paw:S.items.paw+kn.paw,swap:S.items.swap+kn.swap};
+ /* Two pools. G.free is this stage only: what the party cats bring, plus
+    anything an ad just gave. S.items is the player's own stock and is what
+    a use actually spends, free pool first.
+    Before this, the stage started from a COPY of S.items and never wrote
+    it back, so the stock never went down: every stage began with the full
+    toolbox again, and a tool pack bought nothing a player did not already
+    have for free. */
+ G.free={undo:kn.undo||0,hint:kn.hint||0,paw:kn.paw||0,swap:kn.swap||0};
+ G.noInv=false;G.pinched=false;
  G.revive=kn.revive||0;G.pick=[];G.mode=null;G.usedItems=0;
  /* the trial is the one place the toolbox is taken away */
- if(G.trialOn){G.items={undo:0,hint:0,paw:0,swap:0};G.revive=0;}
+ if(G.trialOn){G.free={undo:0,hint:0,paw:0,swap:0};G.noInv=true;G.revive=0;}
  showScreen('scPlay');document.body.classList.add('playing');paintParty();layout();
  G.view=viewFor(G.st,0,0);G.viewTo=G.view;G.viewT=1;
  paintHud();paintItems();
@@ -2859,7 +3609,7 @@ function win(){
  A.crown();vib([0,50,80,130][st]);shake(14);flashLayer('flashGold',420);
  confetti(46,G.size||360);
  rayBurst(G.size/2,G.size/2,'#ffd76b',G.size*.55);
- popText(G.size/2,G.size*.4,T('王様 みっけ！'),'#ffd76b');
+ popText(G.size/2,G.size*.4,'CLEAR!','#ffd76b',.13);
  if(G.trialOn){trialAdvance();return;}
  const prev=S.stars[G.stage]||0,first=prev===0;
  let coins=0;const rw=[];
@@ -2874,7 +3624,8 @@ function win(){
   S.stat.stars=(S.stat.stars||0)+(st-prev);}
  if(G.stage>S.cleared)S.cleared=G.stage;
  if(G.maxChain>=3){coins+=G.maxChain*2;rw.push([G.maxChain+T('連鎖'),'🐟'+G.maxChain*2]);}
- if(first&&G.stage%10===0){S.items.hint++;S.items.undo++;rw.push([T('アイテム'),'＋1']);}
+ if(first&&G.stage%10===0){S.items.undo+=2;S.items.hint+=1;rw.push(['↩︎','＋2']);rw.push(['💡','＋1']);}
+ if(first&&G.stage%50===0){S.items.paw+=1;S.items.swap+=1;rw.push(['🐾','＋1']);rw.push(['🔁','＋1']);}
  if(G.daily&&S.dc.day===today()&&!S.dc.done){
   S.dc.done=true;S.dcClears=(S.dcClears||0)+1;coins+=20;rw.push([T('今日の一問'),'🐟20']);}
  if(knacks().keep&&G.usedItems)rw.push([T('持ち帰り'),'＋1']);
@@ -2886,13 +3637,15 @@ function win(){
  const got=addCoins(coins);
  rankTick();checkQuests();checkMiles();checkAchv();pushScores();cloudPush();save();
  if(st>=3)maybeAskReview();
- result(true,st,rw,best,got);
+ /* let CLEAR! land on the board before the result card covers it */
+ setTimeout(()=>result(true,st,rw,best,got),850);
 }
 function lose(){
  if(G.over)return;G.over=true;G.busy=false;
  if(!G.trialOn){noteFail(G.stage);checkQuests();}
  vib(120);save();
  if(G.trialOn){trialResult(false);return;}
+ if(pinchEligible('lose')){showPinch('lose');return;}
  A.lose();result(false,0,[],false,0);
 }
 function result(won,stars,rw,best,coins){
@@ -2912,7 +3665,8 @@ function result(won,stars,rw,best,coins){
  ks.appendChild(cv);
  const sc=$('rStars');sc.style.display=won?'flex':'none';
  [...sc.children].forEach((s,i)=>{s.classList.remove('lit');
-  if(won&&i<stars)setTimeout(()=>{s.classList.add('lit');A.coin();},260+i*220);});
+  void s.offsetWidth;   /* restart the fill even if the same slot was lit last time */
+  if(won&&i<stars)setTimeout(()=>{s.classList.add('lit');A.coin();vib(18);},420+i*330);});
  const L=[];
  if(won){L.push('<b>'+G.moves+T('手</b>で 王様だけになった！　（★★★ は <b>')+starTgt()+T('手</b>以内）'));
   if(stars<3)L.push(T('<span style="font-size:11px">あと ')+(G.moves-starTgt())+T('手 短くできます</span>'));}
@@ -2946,8 +3700,9 @@ function result(won,stars,rw,best,coins){
  if(!won&&G.hist.length){
   const u=el('button','btn mag',T('巻き戻して続ける'));
   u.onclick=()=>{close();G.over=false;
-   if(G.items.undo<=0)playAd(()=>{G.items.undo++;useItem('undo');});
-   else useItem('undo');};
+   if(itemN('undo')>0){useItem('undo');return;}
+   if(adItemsLeft()<=0){openItemShop();return;}
+   playAd(()=>{noteAdItem();G.free.undo=(G.free.undo||0)+1;useItem('undo');});};
   b.appendChild(u);}
  if(won&&!G.daily&&G.stage<TOTAL){
   const nx=el('button','btn gold',T('次へ'));
@@ -2969,6 +3724,7 @@ function result(won,stars,rw,best,coins){
 let curCh=0;
 function showScreen(id){for(const s of document.querySelectorAll('.screen'))s.classList.toggle('on',s.id===id);}
 function paintTop(){$('coinV').textContent=fmt(S.coins);
+ paintTopAva();
  const sp=$('shardPill');
  if(sp){sp.style.display=(S.shard||0)>0?'flex':'none';
   sp.lastElementChild.textContent=fmt(S.shard||0);}}
@@ -2987,7 +3743,7 @@ const ITEMS=[['undo','↩︎',T('巻き戻し')],['hint','💡',T('ヒント')],
 function paintItems(){
  const bar=$('itemBar');bar.innerHTML='';
  for(const[k,ic,lb]of ITEMS){
-  const b=el('button','item'),n=G.items[k]||0;
+  const b=el('button','item'),n=itemN(k);
   if(n<=0)b.classList.add('no');
   if(G.mode===k)b.classList.add('act');
   if(k==='undo'&&G.dead)b.classList.add('urge');
@@ -3013,7 +3769,7 @@ function paintHome(){
  $('gbarL').textContent=GUILD_RANKS[gp.lv];
  $('gbarT').firstElementChild.style.width=clamp(gp.cur/gp.need*100,4,100)+'%';
  $('gInfo').textContent=T('猫 ')+dexN()+'/'+allCats().length+T('　同行 ')+S.equip.length+'/'+slots();
- paintPromo();paintDaily();paintTrial();paintQuests();paintMiles();paintTabBadge();
+ paintRankCard();paintPromo();paintDaily();paintTrial();paintQuests();paintMiles();paintTabBadge();
  const cs=$('chapWrap');cs.innerHTML='';
  CHAPTERS.forEach((c,i)=>{
   const open=i===0||S.cleared>=c.from-1;
@@ -3068,11 +3824,11 @@ function paintQuests(){
 let tstT=null;
 function toast(m,ms){const t=$('toast');t.innerHTML=m;t.classList.add('on');
  clearTimeout(tstT);tstT=setTimeout(()=>t.classList.remove('on'),ms||1900);}
-function confirmBox(t,b,yes,onYes){
+function confirmBox(t,b,yes,onYes,onNo){
  $('cTitle').textContent=t;$('cBody').innerHTML=b;$('cYes').textContent=yes;
  $('ovConfirm').classList.add('on');
  $('cYes').onclick=()=>{$('ovConfirm').classList.remove('on');onYes&&onYes();};
- $('cNo').onclick=()=>$('ovConfirm').classList.remove('on');}
+ $('cNo').onclick=()=>{$('ovConfirm').classList.remove('on');onNo&&onNo();};}
 function drawHero(now){
  const cv=$('heroCv'),box=$('hero');
  const w=box.clientWidth,h=box.clientHeight;
@@ -3145,9 +3901,14 @@ function closeSheet(){
 /* The ears reach 1.5x the head height and the crown sits above that, so a
    cat drawn at 0.74 of the canvas loses its crown off the top edge. 0.62
    with the centre pushed down keeps ears, crown, tail and paws inside. */
-function catCv(kind,px,king,skin,cos){const cv=el('canvas');cv.width=cv.height=px||170;
- drawCat(cv.getContext('2d'),(px||170)*.47,(px||170)*.60,(px||170)*.62,kind,
-  {king:!!king,skin:skin||null,cos:cos||null,glow:!!skin,rays:!!skin,sparkle:!!skin,now:performance.now()});
+function catCv(kind,px,king,skin,cos,silhouette){const cv=el('canvas');cv.width=cv.height=px||170;
+ const g=cv.getContext('2d');
+ drawCat(g,(px||170)*.47,(px||170)*.60,(px||170)*.62,kind,
+  {king:!!king,skin:skin||null,cos:cos||null,glow:!!skin&&!silhouette,rays:!!skin&&!silhouette,sparkle:!!skin&&!silhouette,
+   plain:!!silhouette,now:performance.now()});
+ /* a cat you have not met yet shows as its own shape, not someone else's art */
+ if(silhouette){g.save();g.globalCompositeOperation='source-atop';
+  g.fillStyle='rgba(26,30,58,.92)';g.fillRect(0,0,cv.width,cv.height);g.restore();}
  return cv;}
 
 function openGuild(){sheetPush(()=>openGuild());sheet(T('猫軍'),b=>{
@@ -3169,7 +3930,7 @@ function openGuild(){sheetPush(()=>openGuild());sheet(T('猫軍'),b=>{
   const have=!!S.dex[p.id],eq=S.equip.indexOf(p.id)>=0;
   const c=el('div','dexC'+(have?'':' dim')+(eq?' eq':''));
   if(eq)c.appendChild(el('div','eb',T('同行中')));
-  c.appendChild(catCv(p.k,170,false,have?catSkin(p):null,have?cosOf(p.id):null));
+  c.appendChild(catCv(p.k,170,false,catSkin(p),have?cosOf(p.id):null,!have));
   c.appendChild(el('div','nm',have?catName(p):'？？？'));
   const rr=el('div','rr','★'.repeat(p.r));rr.style.color=RCOL[p.r];c.appendChild(rr);
   if(have){
@@ -3575,12 +4336,14 @@ function gacha10(){
    as actual drawn cats because that is the entire reason to buy one. */
 function owns(id){
  const it=IAPBY(id);
- if(!it)return false;
- if(it.days)return false;
+ if(!it||it.days)return false;
  if(S.owned[id])return true;
- if(S.owned.bundle&&id!=='starter'&&id!=='cats3'&&id!=='coss3')return true;
- if(id==='cats3')return PREMIUM.every(p=>S.owned[p.id]);
- if(id==='coss3')return PCOS.every(c=>S.owned[c.id]);
+ /* a set is owned when everything in it is, however it was bought */
+ if(it.set)return it.set().every(x=>owns(x));
+ if(S.owned.bundle2)return true;
+ if(S.owned.bundle&&BUNDLE_V1.includes(id))return true;
+ if((S.owned.cats3&&['cat_gin','cat_ame','cat_koha'].includes(id))
+  ||(S.owned.coss3&&['pc_crown','pc_wing','pc_cape'].includes(id)))return true;
  return false;
 }
 /* On a device the native layer owns the transaction: we ask, StoreKit
@@ -3590,17 +4353,22 @@ function owns(id){
    build that grants purchases locally would be both a security hole and
    an immediate rejection. */
 let IAP_BRIDGE=false;
-function buy(it){
- if(native('purchase',{id:it.id,yen:it.yen,kind:it.days?'nonRenewing':'nonConsumable'})){
+let BUY_CB=null;
+function buy(it,onDone){
+ const kind='nonConsumable';
+ BUY_CB=onDone?{id:it.id,fn:onDone}:null;
+ if(native('purchase',{id:it.id,yen:it.yen,kind})){
   IAP_BRIDGE=true;toast(T('ストアに接続しています…'));return;}
  confirmBox(it.t,
   '<b style="font-size:17px">¥'+fmt(it.yen)+'</b>　'
-  +(it.days?T('（買い切り・期間限定／自動更新なし）'):T('（買い切り・非消費型）'))+'<br><br>'
+  +T('（買い切り・非消費型）')+'<br><br>'
   +it.d+'<br><br>'
   +'<span style="font-size:11px;color:var(--lo)">'
   +T('これはデモ表示です。実機ではストアの購入画面が開きます。')+'</span>',
   T('購入する（デモ）'),()=>{
-   grantIAP(it.id);toast(T('購入しました（デモ）'));openShop();});
+   grantIAP(it.id);toast(T('購入しました（デモ）'));
+   const cb=BUY_CB;BUY_CB=null;
+   if(cb&&cb.id===it.id)cb.fn();else openShop();});
 }
 function buyBtn(it,cls){
  const own=owns(it.id);
@@ -3609,6 +4377,47 @@ function buyBtn(it,cls){
  if(own){btn.disabled=true;return btn;}
  btn.onclick=()=>buy(it);
  return btn;
+}
+/* ---------------------------------------------------------------- shop helpers */
+function openItemShop(){
+ openShop();
+ setTimeout(()=>{const a=$('shopExch');if(a&&a.isConnected)a.scrollIntoView({block:'start'});},60);
+}
+/* A set card appears only while it is cheaper than buying what is still
+   missing one by one, and says so in those terms. */
+function setShow(b,setId,thumb,tw,th){
+ const st=IAPBY(setId);if(!st||owns(setId))return;
+ const ids=st.set(), missing=ids.filter(x=>!owns(x));
+ const worth=missing.reduce((a,x)=>a+IAPBY(x).yen,0);
+ if(worth<=st.yen)return;
+ tw=tw||120;th=th||120;
+ const sc=el('div','setShow'), row=el('div','s3');
+ for(const id of ids){const cv=el('canvas');cv.width=tw;cv.height=th;
+  cv.style.width=(tw/2)+'px';cv.style.height=(th/2)+'px';row.appendChild(cv);
+  liveDraw(cv,(g,now)=>thumb(g,now,id));}
+ sc.appendChild(row);
+ sc.appendChild(el('div','s3t','<div class="dn">'+st.t+'</div>'
+  +'<div class="pc"><b>'+fmt(worth-st.yen)+'</b>'+JE('円おトク','yen off')+'</div>'));
+ sc.appendChild(el('div','s3d','<s>'+(missing.length<ids.length
+  ?JE('持っていない'+missing.length+'つを1つずつ買うと ¥'+fmt(worth),'¥'+fmt(worth)+' for the '+missing.length+' you do not own')
+  :JE('1つずつ買うと ¥'+fmt(worth),'¥'+fmt(worth)+' one by one'))+'</s>'));
+ const bb=buyBtn(st,'gold');bb.classList.add('wide','pbuy');
+ bb.textContent=JE('まとめて ¥'+fmt(st.yen),'All for ¥'+fmt(st.yen));
+ sc.appendChild(bb);b.appendChild(sc);
+}
+/* canvases that keep moving: in the open sheet, or (always) in an open overlay */
+const LIVE=[];let liveT=0;
+function liveDraw(cv,fn,always){
+ LIVE.push({cv,fn,always:!!always});
+ fn(cv.getContext('2d'),performance.now());
+}
+function animLive(now){
+ if(!LIVE.length||now-liveT<33)return;liveT=now;
+ const open=$('sheet').classList.contains('on');
+ for(let i=LIVE.length-1;i>=0;i--){const L=LIVE[i];
+  if(!L.cv.isConnected){LIVE.splice(i,1);continue;}
+  if(!(L.always?!!L.cv.closest('.ov.on'):open))continue;
+  const g=L.cv.getContext('2d');g.clearRect(0,0,L.cv.width,L.cv.height);L.fn(g,now);}
 }
 function shopSec(b,title,sub){
  b.appendChild(el('div','','<div style="height:16px"></div>'
@@ -3628,93 +4437,87 @@ function openShop(){sheetPush(()=>openShop());sheet(T('ショップ'),b=>{
   +'</div>';
  b.appendChild(st);
 
- /* ---- 1. ads ---- */
- shopSec(b,T('広告を消す'),T('リワード広告（自分から見るもの）は残ります。'));
- for(const id of['adfree7','adfree21','noads']){
-  const it=IAPBY(id);
-  const r=el('div','row'+(id==='noads'?' hi':''));
-  r.innerHTML='<div class="g"><div class="t">'+it.t
-   +(id==='adfree21'?T('<span class="tag gd">おすすめ</span>'):'')
-   +(id==='noads'&&owns('noads')?T('<span class="tag">購入済</span>'):'')
-   +'</div><div class="s">'+it.d+'</div></div>';
-  r.appendChild(buyBtn(it,id==='noads'?'gold':'ghost'));
-  b.appendChild(r);}
-
- /* ---- 2. premium cats, drawn ---- */
- shopSec(b,T('特別な猫'),T('ガチャからは出ません。買った瞬間に猫軍へ加わります。'));
+ /* ---- 1. premium cats: moving, with what they do ---- */
+ shopSec(b,T('特別な猫'),JE('ガチャからは出ません。買い切りで、機種変更しても「購入を復元」で戻ります。',
+  'Never in the gacha. Yours for good: Restore Purchases brings them back on a new phone.'));
  for(const p of PREMIUM){
-  const it=IAPBY(p.id);
-  const c=el('div','catCard');
-  const art=el('div','art');art.appendChild(catCv(p.k,138,false,p.skin));
+  const it=IAPBY(p.id), own=owns(p.id), K=SKINS[p.skin]||{};
+  const c=el('div','pcShow'+(own?' own':''));
+  c.style.setProperty('--au',K.aura||'#ffd76b');
+  const art=el('div','pa');const cv=el('canvas');cv.width=cv.height=280;art.appendChild(cv);
+  liveDraw(cv,(g,now)=>drawCat(g,140,164,176,p.k,{skin:p.skin,mood:'happy',now}));
   c.appendChild(art);
-  const g=el('div','g');
-  g.innerHTML='<div class="nm">'+catName(p)
-   +'<span class="r5">★★★★★</span>'
-   +(S.owned[p.id]||S.owned.bundle?T('<span class="tag">所持</span>'):'')+'</div>'
-   +'<div class="jb">'+p.job+'</div>'
-   +'<div class="ef">'+KNACK[p.a].ja+'</div>';
-  const bb=buyBtn(it);bb.style.marginTop='7px';
-  g.appendChild(bb);
-  c.appendChild(g);
-  b.appendChild(c);}
- const set3=IAPBY('cats3');
- const r3=el('div','row hi');
- r3.innerHTML='<div class="g"><div class="t">'+set3.t
-  +T('<span class="tag gd">200円おトク</span>')+'</div><div class="s">'+set3.d+'</div></div>';
- r3.appendChild(buyBtn(set3));b.appendChild(r3);
+  const g=el('div','pg');
+  g.innerHTML='<div class="pbx"><span class="bx r5">★★★★★</span><span class="bx">'
+   +JE('ガチャ未排出','Not in the gacha')+'</span></div>'
+   +'<div class="pn">'+catName(p)+'</div><div class="pj">'+p.job+'</div>'
+   +'<ul class="pf">'+KNACK[p.a].ja.split('／').map(x=>'<li>'+x.trim()+'</li>').join('')
+   +'<li class="fx">'+PAID_LOOK[p.id]+'</li></ul>';
+  if(own)g.appendChild(el('div','pown',JE('✓ 仲間になっています','✓ Already in your squad')));
+  else{const bb=buyBtn(it,'gold');bb.classList.add('wide','pbuy');
+   bb.textContent=JE('¥'+fmt(it.yen)+' で仲間にする','Recruit for ¥'+fmt(it.yen));g.appendChild(bb);}
+  c.appendChild(g);b.appendChild(c);}
+ setShow(b,'cats6',(g,now,id)=>{const p=PREMIUM.find(x=>x.id===id);
+  drawCat(g,60,72,74,p.k,{skin:p.skin,mood:'happy',now});});
 
- /* ---- 3. starter + themes ---- */
- shopSec(b,T('道具とテーマ'),T('テーマは買い切り。オン／オフの切り替えは メニュー →「テーマ」から、何度でも無料です。'));
- for(const id of['starter','th_wa','th_sora']){
-  const it=IAPBY(id);
-  const r=el('div','row');
-  r.innerHTML='<div class="g"><div class="t">'+it.t
-   +(owns(id)?T('<span class="tag">購入済</span>'):'')+'</div><div class="s">'+it.d+'</div></div>';
-  if(id!=='starter'&&owns(id)){
-   const sw=el('button','btn ghost sm',T('切り替え'));
-   sw.onclick=()=>{A.click();openTheme();};r.appendChild(sw);}
-  else r.appendChild(buyBtn(it,'ghost'));
-  b.appendChild(r);}
- const tsw=el('button','btn ghost wide',T('🎨 テーマを切り替える'));
- tsw.style.marginTop='2px';tsw.onclick=()=>{A.click();openTheme();};
- b.appendChild(tsw);
-
- /* ---- 3b. paid costumes, shown on a cat you actually own ---- */
- shopSec(b,T('特別な着せ替え'),
-  T('ガチャからは出ません。買い切りで、どの猫にも何度でも着せられます。'));
+ /* ---- 2. outfits, worn by a cat the player actually has ---- */
+ shopSec(b,T('特別な着せ替え'),JE('ガチャからは出ません。買い切りで、どの猫にも何度でも。パーティの猫に着せると煮干しが増えます。',
+  'Never in the gacha. Any cat, any time. On a party cat they boost sardines.'));
  const cmodel=partyCats()[0]||allCats().find(p=>S.dex[p.id])||PARTNERS[0];
+ const cgrid=el('div','shopGrid');
  for(const pc of PCOS){
-  const it=IAPBY(pc.id);
-  const c=el('div','catCard');
-  const art=el('div','art');
-  const cv=el('canvas');cv.width=cv.height=138;
-  drawCat(cv.getContext('2d'),138*.47,138*.60,138*.62,cmodel.k,
-   {cos:pc.id,skin:catSkin(cmodel),now:performance.now()});
-  art.appendChild(cv);c.appendChild(art);
-  const g2=el('div','g');
-  g2.innerHTML='<div class="nm">'+pc.ja
-   +(owns(pc.id)?T('<span class="tag">所持</span>'):T('<span class="tag gd">特別</span>'))+'</div>'
-   +'<div class="ef">'+pc.d+'</div>';
-  if(owns(pc.id)){
-   const wb2=el('button','btn ghost sm',T('着せる'));wb2.style.marginTop='7px';
-   wb2.onclick=()=>{A.click();openWardrobe();};g2.appendChild(wb2);
-  }else{const bb3=buyBtn(it,'ghost');bb3.style.marginTop='7px';g2.appendChild(bb3);}
-  c.appendChild(g2);b.appendChild(c);}
- const setC=IAPBY('coss3');
- const rc=el('div','row hi');
- rc.innerHTML='<div class="g"><div class="t">'+setC.t
-  +T('<span class="tag gd">200円おトク</span>')+'</div><div class="s">'+setC.d+'</div></div>';
- rc.appendChild(buyBtn(setC));b.appendChild(rc);
+  const it=IAPBY(pc.id), own=owns(pc.id);
+  const c=el('div','gItem'+(own?' own':''));
+  const cv=el('canvas');cv.width=cv.height=220;c.appendChild(cv);
+  liveDraw(cv,(g,now)=>drawCat(g,110,140,124,cmodel.k,{cos:pc.id,skin:catSkin(cmodel),mood:'happy',now}));
+  const pct=Math.round((PCOS_COIN[pc.id]||0)*100);
+  c.appendChild(el('div','gn',pc.ja));
+  if(pct)c.appendChild(el('div','gb',JE('煮干し ＋'+pct+'%','Sardines +'+pct+'%')));
+  c.appendChild(el('div','gd',pc.d));
+  if(own){const w=el('button','btn ghost sm wide',T('着せる'));w.onclick=()=>{A.click();openWardrobe();};c.appendChild(w);}
+  else{const bb=buyBtn(it,'gold');bb.classList.add('wide');c.appendChild(bb);}
+  cgrid.appendChild(c);}
+ b.appendChild(cgrid);
+ setShow(b,'coss6',(g,now,id)=>drawCat(g,60,78,68,cmodel.k,{cos:id,skin:catSkin(cmodel),mood:'happy',now}));
 
- /* ---- 4. bundle ---- */
- shopSec(b,T('まとめ買い'));
- const bd=IAPBY('bundle');
- const bc=el('div','bundleCard');
- bc.innerHTML='<div class="hd">'+bd.t+T('<span class="off">26%OFF</span>')+'</div>'
-  +'<div class="ds">'+bd.d+'</div>'
-  +'<div class="was">'+T('ばらばらに買うと ¥4,350')+'</div>';
- const bb2=buyBtn(bd);bb2.classList.add('wide');bb2.style.marginTop='10px';
- bc.appendChild(bb2);b.appendChild(bc);
+ /* ---- 3. themes, shown as a moving board ---- */
+ shopSec(b,JE('テーマ','Themes'),JE('盤面と背景が変わり、テーマごとの演出が動きます。オン／オフは メニュー →「テーマ」から何度でも無料。',
+  'Changes the board and background, with its own ambient motion. Switch in Menu → Themes, free.'));
+ const tgrid=el('div','shopGrid');
+ for(const t of THEMES.filter(x=>x.buy)){
+  const it=IAPBY(t.buy), own=owns(t.buy);
+  const c=el('div','gItem'+(own?' own':''));
+  const cv=el('canvas');cv.width=260;cv.height=196;cv.className='thPv';c.appendChild(cv);
+  liveDraw(cv,(g,now)=>drawThemePreview(g,260,196,t,now));
+  c.appendChild(el('div','gn',t.ja));
+  c.appendChild(el('div','gd',it.d));
+  if(own){const w=el('button','btn ghost sm wide',curTheme().id===t.id?JE('使用中','In use'):T('切り替え'));
+   w.onclick=()=>{A.click();openTheme();};c.appendChild(w);}
+  else{const bb=buyBtn(it,'gold');bb.classList.add('wide');c.appendChild(bb);}
+  tgrid.appendChild(c);}
+ b.appendChild(tgrid);
+ setShow(b,'themes6',(g,now,id)=>drawThemePreview(g,120,90,THEMES.find(x=>x.buy===id),now),120,90);
+
+ /* ---- 4. ads ---- */
+ shopSec(b,T('広告を消す'),T('リワード広告（自分から見るもの）は残ります。'));
+ {const it=IAPBY('noads');
+  const r=el('div','row hi');
+  r.innerHTML='<div class="g"><div class="t">'+it.t
+   +(owns('noads')?T('<span class="tag">購入済</span>'):'')+'</div><div class="s">'+it.d+'</div></div>';
+  r.appendChild(buyBtn(it,'gold'));b.appendChild(r);}
+
+ /* ---- 5. everything, priced against what is still missing ---- */
+ {const bd=IAPBY('bundle2');
+  if(!owns('bundle2')){
+   const worth=bd.set().filter(x=>!owns(x)).reduce((a,x)=>a+IAPBY(x).yen,0);
+   if(worth>bd.yen){
+    shopSec(b,T('まとめ買い'));
+    const bc=el('div','bundleCard');
+    bc.innerHTML='<div class="hd">'+bd.t+'<span class="off">'+Math.round((1-bd.yen/worth)*100)+'%OFF</span></div>'
+     +'<div class="ds">'+bd.d+'</div>'
+     +'<div class="was">'+JE('持っていない分を1つずつ買うと ¥'+fmt(worth),'¥'+fmt(worth)+' for what you do not own yet, bought singly')+'</div>';
+    const bb2=buyBtn(bd);bb2.classList.add('wide');bb2.style.marginTop='10px';
+    bc.appendChild(bb2);b.appendChild(bc);}}}
 
  /* The shard counter belongs where people already go to spend things. */
  shopSec(b,T('メダルのかけら'),T('重複した猫が変わったものです。お金では買えません。'));
@@ -3741,7 +4544,7 @@ function openShop(){sheetPush(()=>openShop());sheet(T('ショップ'),b=>{
   +T('ゲーム内通貨「煮干し」は販売しません。遊んでためるものです。<br>')
   +T('購入の記録は Apple / Google のストア側で管理されます。')
   +T('端末を変えても「購入を復元」で戻せます。')
-  +T('期間限定の広告オフは自動更新されないため、復元の対象外です。</div>')));
+  +JE('有料アイテムはすべて買い切りです。自動更新や継続課金はありません。','Every paid item is a one-time purchase; nothing renews.')+'</div>'));
 },'shop');}
 /* The one place themes are turned on and off. Reached from the drawer, from
    Settings, and from the shop row itself, because "I bought it, now what?"
@@ -3955,9 +4758,9 @@ function legalJA(F,U){
  +'<p><b>第6条（有料アイテム）</b> 有料アイテムの売買契約は、利用者と Apple または Google'
  +'との間に成立します。決済、課金、領収書の発行および返金は、各ストアの定めるところにより'
  +'各社が行います。非消費型アイテムは、同一のストアアカウントであれば本アプリの'
- +'「購入を復元」により再取得できます。期間限定の広告非表示は'
- +'<b>非更新型（自動更新なし）</b>であり、期間の経過により自動的に終了し、'
- +'利用者の追加の操作なく再度課金されることはありません。'
+ +'「購入を復元」により再取得できます。本アプリの有料アイテムはすべて'
+ +'<b>買い切りの非消費型</b>であり、自動更新や継続的な課金はありません。'
+ +'道具およびゲーム内通貨は販売していません。'
  +'非更新型であるため復元の対象外です。表示価格はすべて消費税込みです。</p>'
  +'<p><b>第7条（ゲーム内通貨「煮干し」）</b> 「煮干し」は、プレイまたは任意の広告視聴に'
  +'よってのみ取得できる無償のゲーム内ポイントです。当方は「煮干し」を有償で'
@@ -4238,8 +5041,8 @@ function legalEN(F,U){
  +'<p><b>6. Paid items.</b> The contract of sale for a paid item is between you and Apple '
  +'or Google. Payment, billing, receipts and refunds are handled by them under their own '
  +'terms. Non-consumable items can be recovered with Restore Purchases on the same store '
- +'account. Timed ad-removal passes are <b>non-renewing</b>: they end when the period '
- +'expires, never charge you again without a fresh purchase, and cannot be restored. '
+ +'account. Every paid item is a <b>one-time, non-consumable</b> purchase: nothing renews '
+ +'and nothing is used up. Tools and in-game currency are never sold. '
  +'All prices shown include consumption tax where applicable.</p>'
  +'<p><b>7. In-game currency ("sardines").</b> Sardines are a free in-game point obtained '
  +'only by playing or by choosing to watch a reward video. We never issue or sell them for '
@@ -4775,8 +5578,8 @@ function maybeAskReview(){
 const LOGIN=[
  /* v1.3: ~70% of the old sardines. Day 7 stays clearly the best day of the
     week, which is the only thing this table has to get right. */
- {fish:10},{fish:15},{item:'hint',n:1,fish:7},{fish:22},
- {item:'undo',n:1,fish:12},{fish:32},{item:'paw',n:1,fish:50}];
+ {fish:10},{fish:15},{item:'hint',n:2,fish:7},{fish:22},
+ {item:'undo',n:3,fish:12},{fish:32},{item:'paw',n:1,item2:'swap',n2:1,fish:50}];
 const dayNum=d=>Math.floor(new Date(d).getTime()/864e5);
 function checkLogin(){
  const t=today();
@@ -4796,7 +5599,8 @@ function showLogin(){
  art.appendChild(cv);
  const parts=[];
  if(r.fish)parts.push('🐟 '+r.fish);
- if(r.item)parts.push({undo:T('巻き戻し'),hint:T('ヒント'),paw:T('猫パンチ'),swap:T('入れ替え')}[r.item]+' ＋'+r.n);
+ if(r.item)parts.push(itemName(r.item)+' ＋'+r.n);
+ if(r.item2)parts.push(itemName(r.item2)+' ＋'+r.n2);
  $('dRew').textContent=parts.join('　／　');
  const g=$('dStreak');g.innerHTML='';
  LOGIN.forEach((x,k)=>{
@@ -4812,6 +5616,7 @@ function showLogin(){
   $('ovDaily').classList.remove('on');
   if(r.fish)addCoins(r.fish);
   if(r.item){S.items[r.item]=(S.items[r.item]||0)+r.n;}
+  if(r.item2){S.items[r.item2]=(S.items[r.item2]||0)+r.n2;}
   save();A.coin();paintHome();paintTop();};
  $('ovDaily').classList.add('on');
 }
@@ -4890,6 +5695,7 @@ const EXCH=[
  {k:'swap',ja:T('入れ替え'), n:2,cost:130},
 ];
 function buildExchange(b){
+ {const an=el('div','');an.id='shopExch';b.appendChild(an);}
  b.appendChild(el('div','','<div style="height:18px"></div>'
   +T('<div style="font-weight:800;font-size:13.5px;margin-bottom:3px">煮干しと交換</div>')
   +'<div style="font-size:11px;color:var(--lo);margin-bottom:9px">'
@@ -4907,9 +5713,10 @@ function buildExchange(b){
  ad.innerHTML=T('<div class="g"><div class="t">広告を見てアイテム</div>')
   +T('<div class="s">巻き戻し・ヒント・猫パンチ・入れ替えから1つもらえます</div></div>');
  const ab=el('button','btn mag sm',T('📺 見る'));
- ab.onclick=()=>playAd(()=>{const k=['undo','hint','paw','swap'][Math.floor(Math.random()*4)];
-  S.items[k]=(S.items[k]||0)+1;save();
-  toast({undo:T('巻き戻し'),hint:T('ヒント'),paw:T('猫パンチ'),swap:T('入れ替え')}[k]+' ＋1');openShop();});
+ if(adItemsLeft()<=0){ab.disabled=true;ab.textContent=JE('明日また','Tomorrow');}
+ ab.onclick=()=>{if(adItemsLeft()<=0)return;playAd(()=>{const k=['undo','hint','paw','swap'][Math.floor(Math.random()*4)];
+  noteAdItem();S.items[k]=(S.items[k]||0)+1;save();
+  toast({undo:T('巻き戻し'),hint:T('ヒント'),paw:T('猫パンチ'),swap:T('入れ替え')}[k]+' ＋1');openShop();});};
  ad.appendChild(ab);b.appendChild(ad);
 }
 
@@ -5128,12 +5935,15 @@ window.KingCats={
  purchaseDone(id,ok){
   if(ok){grantIAP(id);toast(T('購入しました'));}
   else toast(T('購入は完了しませんでした'));
+  const cb=BUY_CB;BUY_CB=null;
+  if(ok&&cb&&cb.id===id){cb.fn();return;}
+  if(typeof paintItems==='function'&&G&&G.free)paintItems();
   if($('sheet').classList.contains('on'))openShop();
  },
  restoreDone(ids){
   let n=0;
-  try{for(const id of(ids||[])){if(IAPBY(id)&&!IAPBY(id).days){S.owned[id]=1;n++;}}}catch(e){}
-  for(const p of PREMIUM)if(S.owned[p.id]||S.owned.bundle)S.dex[p.id]=1;
+  try{for(const id of(ids||[])){const it=IAPBY(id);if(it&&!it.days){S.owned[id]=1;n++;}}}catch(e){}
+  for(const p of PREMIUM)if(owns(p.id))S.dex[p.id]=1;
   save();refreshBanner();
   toast(n?T('購入を復元しました'):T('復元できる購入はありませんでした'));
   if($('sheet').classList.contains('on'))openShop();
@@ -5171,12 +5981,12 @@ function consentSummaryHTML(){
   +li('No account needed','Play straight away. You never create an account or enter personal details.')
   +li('Your save data','Progress is stored on this device (and, on iOS with iCloud turned on, in your own iCloud). We run no server and collect no play data. We cannot recover data lost by resetting the device or deleting the app.')
   +li('Gacha and sardines','No cash ever goes directly into Call a Cat. Draws use sardines or an optional ad, and the odds are always shown on the draw screen. Sardines come from playing or optional ads; they are never sold and cannot be cashed out or transferred.')
-  +li('Paid items','You can buy ad removal, premium cats, themes, outfits, and tool or shard packs, each as a single purchase. Nothing renews or charges you automatically.')
+  +li('Paid items','Ad removal, premium cats, themes and outfits are sold as one-time purchases. Tools and in-game currency are never sold, and nothing renews or charges you automatically.')
   +li('Ads and your data','The free version shows Google AdMob ads. To serve them, Google may use your advertising identifier and other device information. You can change personalised ads in Settings in the game or on your device.')
   +li('Under-18s','If you are under 13, read this screen with a parent or guardian before agreeing. If you are a minor, ask a parent or guardian before buying anything.')
   +li('Flashing lights','If flashing lights bother you, turn effects down in Settings.')
   +'</ul><h4>Terms and privacy in brief</h4><ul>'
-  +li('Terms of Use','The app is provided as is. Non-consumable items such as Remove Ads (permanent) and premium cats can be recovered with Restore Purchases on the same store account. Timed ad-off passes and tool or shard packs cannot be restored. Our liability is as set out in the Terms of Use.')
+  +li('Terms of Use','The app is provided as is. Every paid item is non-consumable and can be recovered with Restore Purchases on the same store account. Our liability is as set out in the Terms of Use.')
   +li('Privacy','We do not collect personal information ourselves. Data handled by advertising (Google AdMob), leaderboards and achievements (Game Center, iOS) and save sync (iCloud, iOS) is governed by each provider’s own terms and privacy policy.')
   +'</ul>';
  return ''
@@ -5185,12 +5995,12 @@ function consentSummaryHTML(){
   +li('アカウント登録不要','アカウントの作成や個人情報の入力なしで、すぐにプレイを始められます。')
   +li('セーブデータの管理','ゲームの進行データはお使いの端末内に保存されます（iOSでiCloudを有効にしている場合は、ご自身のiCloudにも保存されます）。開発者はサーバーを持たず、プレイデータを収集しません。端末の初期化やアプリの削除で失われたデータは、開発者側では復元できません。')
   +li('ガチャとゲーム内通貨','ガチャ（猫を呼ぶ機能）に現金を直接使う仕組みはありません。ガチャはゲーム内通貨「煮干し」または任意の広告視聴で利用でき、提供割合はガチャ画面でいつでも確認できます。「煮干し」はプレイや任意の広告視聴で入手でき、販売はしておらず、換金・譲渡もできません。')
-  +li('有料アイテム','広告非表示、特別な猫、テーマ、着せ替え、道具やかけらのパックなど、1回ごとに購入する有料アイテムがあります。自動で更新・課金されるものはありません。')
+  +li('有料アイテム','広告非表示、特別な猫、テーマ、着せ替えを買い切りで販売しています。道具やゲーム内通貨の販売はなく、自動で更新・課金されるものもありません。')
   +li('広告の表示とデータ利用','無料版ではGoogle AdMobによる広告が表示されます。広告配信のため、広告識別子などの端末情報がGoogleに利用される場合があります。興味に合わせた広告の設定は、ゲーム内の「設定」や端末の設定から変更できます。')
   +li('未成年のお客様へ','13歳未満の方は、保護者の方と一緒にこの画面の内容を確認してから同意してください。未成年の方が有料アイテムを購入する場合は、事前に保護者の同意を得てください。')
   +li('光の点滅について','光の点滅が苦手な方は、「設定」から演出を弱められます。')
   +'</ul><h4>利用規約・プライバシーポリシー（要約）</h4><ul>'
-  +li('利用規約','本アプリは現状のまま提供されます。「広告オフ（永久）」や特別な猫などの非消費型アイテムは、同じストアアカウントで「購入を復元」を行うと再取得できます（期間限定の広告オフ、道具・かけらのパックは対象外です）。開発者が負う責任の範囲は、利用規約の定めによります。')
+  +li('利用規約','本アプリは現状のまま提供されます。有料アイテムはすべて買い切りの非消費型で、同じストアアカウントで「購入を復元」を行うと再取得できます。開発者が負う責任の範囲は、利用規約の定めによります。')
   +li('プライバシー','開発者が個人情報を直接取得することはありません。広告配信（Google AdMob）、ランキング・実績（Game Center／iOS）、セーブデータの同期（iCloud／iOS）で扱われる情報は、各提供元の規約とプライバシーポリシーに従って取り扱われます。')
   +'</ul>';
 }
@@ -5687,34 +6497,46 @@ function rankSeed(p,i){
  return h;
 }
 const rnd01=(p,i)=>(rankSeed(p,i)%10000)/10000;
-/* frame tiers, in points */
+/* Frame tiers, in points. A round pays at most 🏆3, so the old ladder
+   (…400, 700, 1000, 1500) could not be finished in years of daily play.
+   These are spaced so a new frame keeps arriving: the first few within a
+   week or two, the last ones over months. Ids never change meaning, because
+   saves store the id; the two new tiers take new ids and slot in by points. */
 const FRAMES=[
- {pt:0,    id:'f0',  ja:T('なし')},
- {pt:1,    id:'f1',  ja:T('木の枠')},
- {pt:5,    id:'f2',  ja:T('銅の枠')},
- {pt:10,   id:'f3',  ja:T('銀の枠')},
- {pt:20,   id:'f4',  ja:T('金の枠')},
- {pt:50,   id:'f5',  ja:T('翡翠の枠')},
- {pt:100,  id:'f6',  ja:T('瑠璃の枠')},
- {pt:200,  id:'f7',  ja:T('紅玉の枠')},
- {pt:400,  id:'f8',  ja:T('虹の枠')},
- {pt:700,  id:'f9',  ja:T('星屑の枠')},
- {pt:1000, id:'f10', ja:T('王冠の枠')},
- {pt:1500, id:'f11', ja:T('伝説の枠')},
+ {pt:0,   id:'f0',  ja:T('なし')},
+ {pt:1,   id:'f1',  ja:T('木の枠')},
+ {pt:3,   id:'f2',  ja:T('銅の枠')},
+ {pt:6,   id:'f3',  ja:T('銀の枠')},
+ {pt:10,  id:'f4',  ja:T('金の枠')},
+ {pt:15,  id:'f5',  ja:T('翡翠の枠')},
+ {pt:22,  id:'f6',  ja:T('瑠璃の枠')},
+ {pt:30,  id:'f7',  ja:T('紅玉の枠')},
+ {pt:40,  id:'f8',  ja:T('虹の枠')},
+ {pt:55,  id:'f9',  ja:T('星屑の枠')},
+ {pt:75,  id:'f12', ja:LANG==='en'?'Moonlight':'月光の枠'},
+ {pt:100, id:'f10', ja:T('王冠の枠')},
+ {pt:130, id:'f13', ja:LANG==='en'?'Seraph':'天翼の枠'},
+ {pt:170, id:'f11', ja:T('伝説の枠')},
 ];
+/* Each tier keeps everything the one below it had and adds something you can
+   see from across the room: grain → bevel → studs → glow → gems → shine →
+   laurels → rainbow → orbiting stars → moon and rays → crown → wings and
+   halo → all of it at once. */
 const FRAME_ART={
  f0:null,
- f1 :{a:'#8a6a44',b:'#c8a06a',w:.055},
- f2 :{a:'#8A5A2E',b:'#E0A96D',w:.06},
- f3 :{a:'#93A2BC',b:'#EEF3FA',w:.065},
- f4 :{a:'#C9932A',b:'#FFE9A8',w:.07},
- f5 :{a:'#2E8B6B',b:'#8FF0C8',w:.07},
- f6 :{a:'#2A55B8',b:'#8FC4FF',w:.075},
- f7 :{a:'#A81E3C',b:'#FF8FA8',w:.075},
- f8 :{rainbow:true,w:.08},
- f9 :{a:'#5B3EA8',b:'#E7DBFF',w:.08,stars:true},
- f10:{a:'#B8860B',b:'#FFF3C4',w:.085,crown:true},
- f11:{rainbow:true,w:.095,stars:true,crown:true},
+ f1 :{a:'#7A5A36',b:'#C8A06A',w:.075,grain:true},
+ f2 :{a:'#8A5A2E',b:'#F0B47A',w:.085,bevel:true},
+ f3 :{a:'#8E9CB6',b:'#F4F8FF',w:.09, bevel:true,studs:4},
+ f4 :{a:'#B8841E',b:'#FFEFB0',w:.10, bevel:true,studs:8,glow:'#FFD76B'},
+ f5 :{a:'#1F7A5C',b:'#9FF5D2',w:.105,bevel:true,gems:4, gemC:'#E9FFF6',glow:'#6EE7A0',shine:true},
+ f6 :{a:'#2448A8',b:'#9CCBFF',w:.11, bevel:true,gems:8, gemC:'#FFE08A',glow:'#8FC4FF',shine:true},
+ f7 :{a:'#9C1636',b:'#FF9DB4',w:.115,bevel:true,gems:8, gemC:'#FFF3C4',glow:'#FF7A9A',shine:true,laurel:'#FFD76B'},
+ f8 :{rainbow:true,           w:.12, bevel:true,gems:8, gemC:'#FFFFFF',glow:'#FF8AE0',shine:true,spin:true,laurel:'#FFE9A8'},
+ f9 :{a:'#4A2E9A',b:'#EADFFF',w:.12, bevel:true,gems:8, gemC:'#FFE9A8',glow:'#C9A8FF',shine:true,laurel:'#EADFFF',stars:6,sparks:true},
+ f12:{a:'#3C5A9E',b:'#EAF4FF',w:.125,bevel:true,gems:8, gemC:'#BFE6FF',glow:'#9FD8FF',shine:true,stars:8,moon:true,rays:'#BFE6FF',sparks:true},
+ f10:{a:'#A8740A',b:'#FFF3C4',w:.13, bevel:true,gems:12,gemC:'#FF5FD0',glow:'#FFD76B',shine:true,laurel:'#FFD76B',stars:8,crown:true,rays:'#FFE9A8',sparks:true},
+ f13:{a:'#C9A24A',b:'#FFFFFF',w:.13, bevel:true,gems:12,gemC:'#8FE6FF',glow:'#FFF3C4',shine:true,stars:8,wings:true,halo:true,rays:'#FFFFFF',sparks:true},
+ f11:{rainbow:true,           w:.14, bevel:true,gems:12,gemC:'#FFFFFF',glow:'#FF8AE0',shine:true,spin:true,laurel:'#FFE9A8',stars:10,crown:true,wings:true,rays:'#FFE9A8',sparks:true},
 };
 function framesOwned(){const p=S.prof.pt||0;return FRAMES.filter(f=>p>=f.pt);}
 function curFrame(){
@@ -5729,25 +6551,35 @@ function curFrame(){
    window resets that every time, so a newcomer and a veteran are running the
    same race and yesterday's effort is what counts. */
 function myGain(){return Math.max(0,starTot()-(S.rank.base||0));}
-function rankBoard(){
- const p=rankPeriod();
- const day=Math.min(RANK_DAYS,(Date.now()/86400000)-p*RANK_DAYS);
+/* period and day can be given, so a finished period can be scored as it
+   stood at its deadline rather than as the new period looks now */
+/* Rival strength as multiples of the player's own recent pace, strongest
+   first. Before, all nine were drawn from one flat 0.35–1.90 range, so the
+   top three were often bunched near the top: a player either beat nearly
+   everyone or finished 4th, and 🏆1 / 🏆2 were rare. A fixed ladder gives each
+   prize its own bar — match your usual pace for 3rd, push a bit for 2nd,
+   have a big two days for 1st — and the jitter only varies the exact numbers. */
+const RIVAL_LADDER=[1.60,1.30,1.05,.88,.74,.62,.50,.40,.30];
+const RANK_PACE_MIN=24;
+function rankBoard(period,dayAt){
+ const p=period===undefined?rankPeriod():period;
+ const day=dayAt===undefined?Math.min(RANK_DAYS,(Date.now()/86400000)-p*RANK_DAYS):dayAt;
  /* rivals earn at a pace scaled to what the player has been managing, with
     a floor so an idle player still has a table worth looking at */
  /* Pitched so a light session lands mid-table and a solid two days wins it:
     the top rival finishes near 1.9x the player's own recent pace. */
- const pace=Math.max(40,Math.round((S.rank.pace||60)));
+ const pace=Math.max(RANK_PACE_MIN,Math.round(S.rank.pace||45));
  const rows=[];
  const used=[];
  for(let i=0;i<RANK_N-1;i++){
-  const f=.35+rnd01(p,i)*1.55;          /* 0.35x .. 1.90x of that pace */
+  const f=RIVAL_LADDER[i]*(.95+rnd01(p,i)*.10);   /* ±5%, never enough to swap two rungs */
   /* no two rivals share a name — a table with three シロ reads as a bug */
   let ni=rankSeed(p,i+7)%RIVALS.length,guard=0;
   while(used.indexOf(ni)>=0&&guard++<RIVALS.length)ni=(ni+1)%RIVALS.length;
   used.push(ni);
   rows.push({name:RIVALS[ni]+(i%4===3?'さん':''),
    stars:Math.round(pace*f*(day/RANK_DAYS)), me:false,
-   k:rankSeed(p,i+3)%6});
+   k:rankSeed(p,i+3)%6, sk:'rv'+ni});
  }
  rows.push({name:S.prof.name||T('あなた'),stars:myGain(),me:true,k:-1});
  rows.sort((a,b)=>b.stars-a.stars||(a.me?-1:1));
@@ -5762,15 +6594,30 @@ function rankSync(){
  const p=rankPeriod();
  if(S.rank.period===p)return false;
  if(S.rank.period){                    /* not the very first run */
-  const pos=S.rank.lastPos||myRank();
+  /* Score the period that just ended, at its deadline. This used to fall
+     back to myRank(), which reads the NEW period: its rivals are near zero
+     stars, so a player who had not cleared anything all period was placed
+     1st and handed 🏆3 for nothing. */
+  const ownBefore=framesOwned().length;
+  const fin=rankBoard(S.rank.period,RANK_DAYS).find(r=>r.me);
+  const pos=fin?fin.pos:(S.rank.lastPos||RANK_N);
   const pt=RANK_PT[pos]||0;
   if(pt){S.prof.pt=(S.prof.pt||0)+pt;
    S.rank.wins=S.rank.wins||{};S.rank.wins[pos]=(S.rank.wins[pos]||0)+1;}
   S.rank.prev={pos,pt};
+  S.rank.news={pos,pt,frames:framesOwned().slice(ownBefore).map(f=>f.id)};
  }
  /* remember how fast this player actually collects, so the next table is
     pitched at them rather than at an imaginary average */
- if(S.rank.period)S.rank.pace=Math.round(((S.rank.pace||36)*2+Math.max(30,myGain()))/3);
+  /* Follow the player's pace slowly and by at most 15% a round, so one huge
+     round does not make the next table unwinnable, and a quiet round does
+     not make it free. */
+  if(S.rank.period){
+   /* aimed a little under what they managed, so steady play keeps 3rd and
+      only extra effort climbs to 2nd or 1st */
+   const old=S.rank.pace||45, np=(old*3+myGain()*.9)/4;
+   S.rank.pace=Math.round(Math.max(RANK_PACE_MIN,clamp(np,old*.85,old*1.15)));
+  }
  S.rank.period=p;S.rank.base=starTot();
  S.rank.lastPos=0;
  save();
@@ -5790,49 +6637,238 @@ function rankHoursLeft(){
 /* ---------------------------------------------------------- the avatar */
 function drawFrame(g,cx,cy,r,id,now){
  const f=FRAME_ART[id];if(!f)return;
- const lw=r*f.w;
- g.save();
- if(f.rainbow){
-  const gr=g.createLinearGradient(cx-r,cy-r,cx+r,cy+r);
-  ['#ff5fd0','#ffd76b','#6ee7a0','#54e9ff','#c98be0'].forEach((c,i,a)=>
-   gr.addColorStop(i/(a.length-1),c));
-  g.strokeStyle=gr;
- }else{
-  const gr=g.createLinearGradient(cx-r,cy-r,cx+r,cy+r);
-  gr.addColorStop(0,f.b);gr.addColorStop(.5,f.a);gr.addColorStop(1,f.b);
-  g.strokeStyle=gr;
- }
- g.lineWidth=lw;
- g.beginPath();g.arc(cx,cy,r-lw/2,0,7);g.stroke();
- if(f.stars){
-  const t=(now||0)/1400;
-  g.fillStyle='#fff';
-  for(let i=0;i<6;i++){
-   const a=t+i*Math.PI/3, sx=cx+Math.cos(a)*(r-lw/2), sy=cy+Math.sin(a)*(r-lw/2);
-   const k=r*.09;
-   g.beginPath();
-   g.moveTo(sx,sy-k);g.quadraticCurveTo(sx,sy,sx+k,sy);
-   g.quadraticCurveTo(sx,sy,sx,sy+k);g.quadraticCurveTo(sx,sy,sx-k,sy);
-   g.quadraticCurveTo(sx,sy,sx,sy-k);g.fill();}
- }
- if(f.crown)drawCrown(g,cx,cy-r+lw*.2,r*.62,Math.max(1.2,r*.05));
+ const t=(now||0)/1000, lw=r*f.w, rr=r-lw/2;
+ g.save();g.translate(cx,cy);
+ if(f.rays){g.save();g.globalCompositeOperation='lighter';g.rotate(t*.3);
+  for(let i=0;i<12;i++){g.rotate(Math.PI/6);
+   const gr=g.createLinearGradient(0,-r*.9,0,-r*1.25);
+   gr.addColorStop(0,hexA(f.rays,.4));gr.addColorStop(1,hexA(f.rays,0));
+   g.fillStyle=gr;g.beginPath();g.moveTo(-r*.07,-r*.9);g.lineTo(0,-r*1.25);g.lineTo(r*.07,-r*.9);
+   g.closePath();g.fill();}
+  g.restore();}
+ if(f.glow){const pu=.75+.25*Math.sin(t*2);
+  const gg=g.createRadialGradient(0,0,r*.8,0,0,r*1.22);
+  gg.addColorStop(0,hexA(f.glow,0));gg.addColorStop(.35,hexA(f.glow,.5*pu));gg.addColorStop(1,hexA(f.glow,0));
+  g.fillStyle=gg;g.beginPath();g.arc(0,0,r*1.22,0,Math.PI*2);g.moveTo(r*.8,0);
+  g.arc(0,0,r*.8,Math.PI*2,0,true);g.fill('evenodd');}
+ if(f.wings)drawFrameWings(g,r,t,f.glow||'#FFF3C4');
+ /* the band */
+ const cols=['#ff5fd0','#ffd76b','#6ee7a0','#54e9ff','#c98be0','#ff5fd0'];
+ let st;
+ if(f.rainbow&&g.createConicGradient){st=g.createConicGradient(f.spin?t*.8:0,0,0);
+  cols.forEach((c,i)=>st.addColorStop(i/(cols.length-1),c));}
+ else if(f.rainbow){st=g.createLinearGradient(-r,-r,r,r);
+  cols.forEach((c,i)=>st.addColorStop(i/(cols.length-1),c));}
+ else{st=g.createLinearGradient(-r,-r,r,r);
+  st.addColorStop(0,f.b);st.addColorStop(.5,f.a);st.addColorStop(1,f.b);}
+ g.strokeStyle=st;g.lineWidth=lw;g.beginPath();g.arc(0,0,rr,0,7);g.stroke();
+ if(f.grain){g.save();g.globalAlpha=.4;g.strokeStyle=f.a;g.lineWidth=Math.max(.6,lw*.12);
+  for(let i=0;i<3;i++){g.beginPath();g.arc(0,0,rr-lw*.25+i*lw*.25,i*1.3,i*1.3+2.2);g.stroke();}
+  g.restore();}
+ if(f.bevel){const bw=Math.max(.8,lw*.14);g.save();g.lineWidth=bw;
+  g.strokeStyle='rgba(255,255,255,.6)';g.beginPath();g.arc(0,0,r-bw/2,0,7);g.stroke();
+  g.strokeStyle='rgba(20,16,40,.5)';g.beginPath();g.arc(0,0,r-lw+bw/2,0,7);g.stroke();g.restore();}
+ if(f.shine){const a=(t*1.2)%(Math.PI*2);
+  g.save();g.globalCompositeOperation='lighter';g.strokeStyle='rgba(255,255,255,.6)';
+  g.lineWidth=lw*.5;g.lineCap='round';g.beginPath();g.arc(0,0,rr,a,a+.55);g.stroke();g.restore();}
+ if(f.studs){for(let i=0;i<f.studs;i++){const a=i*Math.PI*2/f.studs+Math.PI/4;
+  const x=Math.cos(a)*rr,y=Math.sin(a)*rr,k=lw*.27;
+  const sg=g.createRadialGradient(x-k*.3,y-k*.3,0,x,y,k);
+  sg.addColorStop(0,'#ffffff');sg.addColorStop(1,f.a);
+  g.fillStyle=sg;g.beginPath();g.arc(x,y,k,0,7);g.fill();}}
+ if(f.laurel)drawFrameLaurel(g,r,lw,f.laurel);
+ if(f.gems){const q=Math.max(1,Math.round(f.gems/4));
+  for(let i=0;i<f.gems;i++){const a=i*Math.PI*2/f.gems-Math.PI/2;
+   const big=i%q===0, k=lw*(big?.66:.42);
+   g.save();g.translate(Math.cos(a)*rr,Math.sin(a)*rr);g.rotate(a+Math.PI/2);
+   g.beginPath();g.moveTo(0,-k);g.lineTo(k*.72,0);g.lineTo(0,k);g.lineTo(-k*.72,0);g.closePath();
+   const gg=g.createLinearGradient(0,-k,0,k);gg.addColorStop(0,'#ffffff');gg.addColorStop(1,f.gemC);
+   g.fillStyle=gg;g.fill();g.strokeStyle='rgba(20,16,40,.55)';g.lineWidth=Math.max(.6,k*.16);g.stroke();
+   if(big){g.globalAlpha=.55+.45*Math.sin(t*3+i);g.fillStyle='#ffffff';star4(g,-k*.12,-k*.34,k*.36);}
+   g.restore();}}
+ if(f.stars){g.fillStyle='#ffffff';
+  for(let i=0;i<f.stars;i++){const a=t*.7+i*Math.PI*2/f.stars;
+   g.globalAlpha=.95;star4(g,Math.cos(a)*(r+lw*.1),Math.sin(a)*(r+lw*.1),r*.07*(.7+.3*Math.sin(t*3+i)));}
+  g.globalAlpha=1;}
+ if(f.moon){const k=r*.17,my=-r*.98;
+  g.save();g.shadowColor='#BFE6FF';g.shadowBlur=r*.12;
+  g.beginPath();g.rect(-r*2,-r*2,r*4,r*4);g.moveTo(k*.5+k*.86,my-k*.25);
+  g.arc(k*.5,my-k*.25,k*.86,0,Math.PI*2,true);g.clip('evenodd');
+  g.fillStyle='#FFF3C4';g.beginPath();g.arc(0,my,k,0,7);g.fill();g.restore();}
+ if(f.halo){g.save();g.globalCompositeOperation='lighter';
+  g.beginPath();g.ellipse(0,-r*1.08,r*.36,r*.085,0,0,7);
+  g.strokeStyle='rgba(255,233,168,.55)';g.lineWidth=r*.07;g.stroke();
+  g.strokeStyle='#FFF7DD';g.lineWidth=Math.max(1,r*.028);g.stroke();g.restore();}
+ if(f.crown)drawCrown(g,0,-r*.98,r*.62,Math.max(1.1,r*.04));
+ if(f.sparks){g.fillStyle='#ffffff';
+  for(let i=0;i<6;i++){const u=t*.45+i/6,ph=u%1,a=i*1.9+Math.floor(u)*2.3,d=r*(1.0+ph*.18);
+   g.globalAlpha=Math.sin(ph*Math.PI);star4(g,Math.cos(a)*d,Math.sin(a)*d,r*.055);}
+  g.globalAlpha=1;}
  g.restore();
+}
+/* leaves up both sides from the bottom of the band */
+function drawFrameLaurel(g,r,lw,c){
+ g.save();g.fillStyle=c;g.strokeStyle='rgba(20,16,40,.45)';g.lineWidth=Math.max(.6,lw*.08);
+ for(const s of[-1,1])for(let i=0;i<6;i++){
+  const a=Math.PI/2+s*(.28+i*.21), d=r+lw*.02;
+  const x=Math.cos(a)*d,y=Math.sin(a)*d;
+  g.save();g.translate(x,y);g.rotate(a+Math.PI/2+s*.7);
+  g.beginPath();g.ellipse(0,0,lw*.6,lw*.24,0,0,7);g.fill();g.stroke();g.restore();}
+ g.restore();
+}
+function drawFrameWings(g,r,t,c){
+ for(const s of[-1,1]){
+  g.save();g.translate(s*r*.84,-r*.1);g.scale(s,1);g.rotate(-.12+Math.sin(t*2.2)*.07);
+  for(let j=0;j<5;j++){g.save();g.rotate(-.62+j*.27);
+   const L=r*(.42-j*.045);
+   g.beginPath();g.moveTo(0,0);
+   g.quadraticCurveTo(L*.5,-r*.11,L,-r*.015);g.quadraticCurveTo(L*.5,r*.09,0,0);
+   const wg=g.createLinearGradient(0,0,L,0);wg.addColorStop(0,'#ffffff');wg.addColorStop(1,hexA(c,.9));
+   g.fillStyle=wg;g.fill();g.strokeStyle='rgba(20,16,40,.35)';g.lineWidth=Math.max(.6,r*.012);g.stroke();
+   g.restore();}
+  g.restore();}
 }
 function avatarCv(px2,frameId){
  const cv=el('canvas');cv.width=cv.height=px2;
- const g=cv.getContext('2d');
+ drawAvatar(cv.getContext('2d'),px2,frameId,performance.now());
+ return cv;
+}
+/* hint: with no frame yet, a faint dashed ring shows where one will go */
+function drawAvatar(g,px2,frameId,now,hint){
+ g.clearRect(0,0,px2,px2);
  const id=S.prof.icon;
  const p=allCats().find(x=>x.id===id&&S.dex[x.id]);
- const now=performance.now();
  g.save();
- g.beginPath();g.arc(px2/2,px2/2,px2*.40,0,7);g.clip();
+ g.beginPath();g.arc(px2/2,px2/2,px2*.36,0,7);g.clip();
  g.fillStyle='rgba(255,255,255,.06)';g.fillRect(0,0,px2,px2);
- if(p)drawCat(g,px2*.47,px2*.60,px2*.60,p.k,
+ if(p)drawCat(g,px2*.473,px2*.59,px2*.54,p.k,
   {cos:cosOf(p.id),skin:catSkin(p),glow:!!catSkin(p),mood:'happy',now});
- else drawCat(g,px2*.47,px2*.60,px2*.60,0,{king:true,glow:true,mood:'happy',now});
+ else drawCat(g,px2*.473,px2*.59,px2*.54,0,{king:true,glow:true,mood:'happy',now});
  g.restore();
- drawFrame(g,px2/2,px2/2,px2*.44,frameId||curFrame(),now);
+ const fid=frameId||curFrame();
+ if(fid==='f0'&&hint){g.save();g.setLineDash([px2*.045,px2*.035]);
+  g.strokeStyle='rgba(255,255,255,.28)';g.lineWidth=Math.max(1,px2*.025);
+  g.beginPath();g.arc(px2/2,px2/2,px2*.39,0,7);g.stroke();g.restore();}
+ else drawFrame(g,px2/2,px2/2,px2*.40,fid,now);
+}
+function rivalCv(r,px){
+ const cv=el('canvas');cv.width=cv.height=px;
+ drawCat(cv.getContext('2d'),px*.47,px*.60,px*.60,r.k,{skin:r.sk||null,now:performance.now()});
  return cv;
+}
+/* the gap label for the rows touching the player's own row */
+function rankGap(r,me){
+ if(!me||r.me)return null;
+ if(r.pos===me.pos-1)return {cls:'up',tx:JE('あと★'+fmt(r.stars-me.stars+0)+'で'+r.pos+'位','★'+fmt(r.stars-me.stars)+' to #'+r.pos)};
+ if(r.pos===me.pos+1){const d=me.stars-r.stars;
+  return {cls:'dn',tx:d>0?JE('★'+fmt(d)+'リード','★'+fmt(d)+' ahead'):JE('並ばれています','Tied')};}
+ return null;
+}
+/* ------------------------------------------------ home: ranking card */
+function paintRankCard(){
+ const box=$('rankBox');if(!box)return;
+ rankTick();
+ const rows=rankBoard(), me=rows.find(r=>r.me);
+ if(!me){box.innerHTML='';return;}
+ const i=rows.indexOf(me), up=rows[i-1]||null, dn=rows[i+1]||null;
+ const pt=S.prof.pt||0;
+ const own=framesOwned(), cur=own[own.length-1];
+ const next=FRAMES.find(f=>pt<f.pt);
+ const pct=next?clamp((pt-cur.pt)/(next.pt-cur.pt)*100,3,100):100;
+ const worn=FRAMES.find(f=>f.id===curFrame());
+ const name=String(S.prof.name||'').replace(/[<>&"']/g,'')||JE('あなた','You');
+ box.innerHTML='';
+ const card=el('div','rkCard');
+ card.setAttribute('role','button');card.tabIndex=0;
+ const nw=S.rank.news;
+ if(nw){
+  const nb=el('div','rkNews'+(nw.pt?' win':''));
+  const fr=(nw.frames||[]).map(fid=>FRAMES.find(f=>f.id===fid)).filter(Boolean);
+  const top=fr[fr.length-1];
+  if(top){const pv=avatarCv(160,top.id);pv.className='pv';nb.appendChild(pv);}
+  nb.appendChild(el('div','tx',
+   '<div class="h">'+(nw.pt
+     ?JE('前回 '+nw.pos+'位　🏆＋'+nw.pt+'pt','Last round: #'+nw.pos+' · 🏆+'+nw.pt+'pt')
+     :JE('前回 '+nw.pos+'位　ポイントなし','Last round: #'+nw.pos+' · no points'))+'</div>'
+   +'<div class="s">'+(top
+     ?JE('新しい枠「'+top.ja+'」を手に入れました！','New frame unlocked: “'+top.ja+'”!')
+     :(nw.pt?JE('つぎの枠に近づきました','A step closer to the next frame')
+            :JE('3位に入ると🏆1pt。今回は狙えます','Finish 3rd for 🏆1 — this round is yours to take')))+'</div>'));
+  const bt=el('div','bt');
+  if(top&&curFrame()!==top.id){
+   const on=el('button','btn gold sm',JE('つける','Wear it'));
+   on.onclick=e=>{e.stopPropagation();A.click();S.prof.frame=top.id;S.rank.news=null;save();
+    paintTop();paintRankCard();toast(JE('枠をつけました','Frame on'));};
+   bt.appendChild(on);}
+  const ok=el('button','btn ghost sm',JE('OK','OK'));
+  ok.onclick=e=>{e.stopPropagation();A.click();S.rank.news=null;save();paintRankCard();};
+  bt.appendChild(ok);nb.appendChild(bt);
+  card.appendChild(nb);
+ }
+ const hd=el('div','rkHead');
+ const ava=el('button','rkAva');
+ ava.setAttribute('aria-label',JE('プロフィールとアイコンの枠','Profile and icon frame'));
+ const cv=el('canvas');cv.width=cv.height=200;cv.id='homeAvaCv';
+ drawAvatar(cv.getContext('2d'),200,null,performance.now(),true);
+ ava.appendChild(cv);
+ ava.onclick=e=>{e.stopPropagation();A.unlock();A.click();openProfile();};
+ hd.appendChild(ava);
+ hd.appendChild(el('div','rkInfo',
+  '<div class="rkName">'+name+'</div>'
+  +'<div class="rkFrame">'+(worn&&worn.id!=='f0'?'🖼 '+worn.ja:JE('枠はまだありません','No frame yet'))+'</div>'
+  +'<div class="rkNext">'+(next
+    ?JE('つぎの枠「'+next.ja+'」まで <b class="nw">🏆'+(next.pt-pt)+'pt</b>','Next frame “'+next.ja+'”: <b class="nw">🏆'+(next.pt-pt)+'pt</b> to go')
+    :JE('枠はすべて集まりました','Every frame collected'))+'</div>'
+  +'<div class="rkBar"><i style="width:'+pct+'%"></i></div>'));
+ hd.appendChild(el('div','rkPos','<b>'+me.pos+'</b><span>'+JE('位','place')+'</span>'
+  +'<em>🏆 '+fmt(pt)+'pt</em>'));
+ card.appendChild(hd);
+ const list=el('div','rkList');
+ const row=(r,cls)=>{
+  const d=el('div','rkRow '+cls);
+  d.appendChild(el('div','ps',String(r.pos)));
+  if(r.me){const c2=el('canvas');c2.width=c2.height=72;
+   drawAvatar(c2.getContext('2d'),72,null,performance.now());d.appendChild(c2);}
+  else d.appendChild(rivalCv(r,72));
+  d.appendChild(el('div','nm',r.me?name:r.name));
+  d.appendChild(el('div','st','★ '+fmt(r.stars)));
+  const gp=rankGap(r,me);if(gp)d.appendChild(el('div','gap',gp.tx));
+  return d;};
+ if(up)list.appendChild(row(up,'up'));
+ else list.appendChild(el('div','rkTop',JE('👑 いま1位です','👑 You are in 1st place')));
+ list.appendChild(row(me,'me'));
+ if(dn)list.appendChild(row(dn,'dn'));
+ card.appendChild(list);
+ /* what the current position is worth, and how far the nearest prize is */
+ let goal;
+ if(me.pos<=3)goal=JE('締め切りまで守れば 🏆＋'+RANK_PT[me.pos]+'pt','Hold this to the deadline for 🏆+'+RANK_PT[me.pos]);
+ else{const third=rows[2];
+  goal=JE('3位（🏆＋1）まで あと★'+fmt(Math.max(1,third.stars-me.stars)),
+          '★'+fmt(Math.max(1,third.stars-me.stars))+' more for 3rd (🏆+1)');}
+ card.appendChild(el('div','rkGoal'+(me.pos<=3?' in':''),goal));
+ card.appendChild(el('div','rkFoot','<span>'
+  +JE('締め切りまで '+rankHoursLeft()+'時間 ／ 1位🏆3・2位2・3位1','Closes in '+rankHoursLeft()+'h · 1st 🏆3 · 2nd 2 · 3rd 1')
+  +'</span><b>'+JE('ランキング ▶','Ranking ▶')+'</b>'));
+ const go=()=>{A.unlock();A.click();openRank();};
+ card.onclick=go;
+ card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};
+ box.appendChild(card);
+}
+/* the icon in the top bar; cheap enough to repaint whenever the top bar is */
+function paintTopAva(){
+ const b=$('topAva');if(!b)return;
+ const cv=b.firstElementChild;
+ drawAvatar(cv.getContext('2d'),cv.width,null,performance.now(),true);
+}
+let avaT=0;
+function animAvatars(now){
+ if(now-avaT<33)return;avaT=now;
+ const h=$('homeAvaCv');
+ if(h&&h.isConnected)drawAvatar(h.getContext('2d'),h.width,null,now,true);
+ /* skipped mid-stage: the board is what needs the frame time there */
+ const b=$('topAva');
+ if(b&&!document.body.classList.contains('playing'))
+  drawAvatar(b.firstElementChild.getContext('2d'),b.firstElementChild.width,null,now,true);
 }
 
 
@@ -5877,7 +6913,7 @@ function openProfile(){sheetPush(()=>openProfile());sheet(T('プロフィール'
   drawCat(cv.getContext('2d'),140*.47,140*.60,140*.62,p.k,
    {cos:cosOf(p.id),skin:catSkin(p),glow:!!catSkin(p),mood:'happy',now:performance.now()});
   d.appendChild(cv);d.appendChild(el('div','nm',catName(p)));
-  d.onclick=()=>{A.click();S.prof.icon=p.id;save();openProfile();};
+  d.onclick=()=>{A.click();S.prof.icon=p.id;save();openProfile();paintTop();};
   gr.appendChild(d);}
  if(!cats.length)gr.appendChild(el('div','','<div style="font-size:11px;color:var(--lo)">'
   +T('まだ仲間がいません。')+'</div>'));
@@ -5900,8 +6936,12 @@ function openProfile(){sheetPush(()=>openProfile());sheet(T('プロフィール'
    d.appendChild(el('div','nm',f.ja));
    d.onclick=()=>{A.click();S.prof.frame=f.id;save();openProfile();paintTop();};
   }else{
-   d.innerHTML='<div class="lk">🔒</div><div class="nm">'+f.ja+'</div>'
-    +'<div class="rr">'+f.pt+T('pt')+'</div>';}
+   /* show what is coming, not just a padlock: the ladder only motivates if
+      the next rungs are visibly grander than the one you are wearing */
+   d.classList.remove('lock');d.classList.add('soon');
+   const pv=avatarCv(140,f.id);pv.style.opacity='.5';d.appendChild(pv);
+   d.appendChild(el('div','nm','🔒 '+f.ja));
+   d.appendChild(el('div','rr',f.pt+T('pt')+JE('（あと'+(f.pt-(S.prof.pt||0))+'）',' ('+(f.pt-(S.prof.pt||0))+' to go)')));}
   fg.appendChild(d);}
  b.appendChild(fg);
  const rb=el('button','btn mag wide',T('ランキングを見る'));
@@ -5932,11 +6972,11 @@ function openRank(){sheetPush(()=>openRank());sheet(T('★ランキング'),b=>{
   const d=el('div','rankRow'+(r.me?' me':'')+(r.pos<=3?' top':''));
   d.innerHTML='<div class="pos">'+(r.pos<=3?['','🥇','🥈','🥉'][r.pos]:r.pos)+'</div>';
   if(r.me)d.appendChild(avatarCv(72));
-  else{const cv=el('canvas');cv.width=cv.height=72;
-   drawCat(cv.getContext('2d'),72*.47,72*.60,72*.60,r.k,{now:performance.now()});
-   d.appendChild(cv);}
+  else d.appendChild(rivalCv(r,72));
   d.appendChild(el('div','g','<div class="nm">'+r.name+'</div>'
    +'<div class="s">★ '+fmt(r.stars)+'</div>'));
+  const gp=rankGap(r,me);
+  if(gp)d.appendChild(el('div','gap '+gp.cls,gp.tx));
   b.appendChild(d);}
  const pb=el('button','btn ghost wide',T('プロフィールを開く'));
  pb.style.marginTop='14px';pb.onclick=()=>openProfile();
@@ -5972,7 +7012,7 @@ function paintPromo(){
  else if(!adsOff()&&S.cleared>=8)
   c={ic:'🚫',t:T('広告を消して遊ぶ'),
      s:T('1週間 ¥300 から。永久は ¥1,200。'),go:openShop};
- else if(!PREMIUM.every(p=>S.owned[p.id]||S.owned.bundle)&&S.cleared>=3)
+ else if(!PREMIUM.every(p=>owns(p.id))&&S.cleared>=3)
   c={ic:'✨',t:T('特別な猫 3匹'),
      s:T('ガチャからは出ない★5。専用の毛色とオーラつき。'),go:openShop};
  else if(!S.owned.starter&&S.cleared>=2)
@@ -6432,6 +7472,7 @@ const BOOT_SCREENS=($('title')?$('title').outerHTML:'')+($('splash')?$('splash')
 
 /* ------------------------------------------------------------------ boot */
 $('menuBtn').onclick=()=>{A.unlock();buildDrawer();openDrawer();};
+$('topAva').onclick=()=>{A.unlock();A.click();openProfile();};
 $('drawerScrim').onclick=closeDrawer;
 $('sheetX').onclick=()=>{A.click();
  if(sheetStack.length>1)sheetBack();else closeSheet();};
