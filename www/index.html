@@ -302,6 +302,24 @@ body[data-theme="sora"] #starfield{opacity:.25}
 #cnHint{display:none;font-size:11px;font-weight:800;color:var(--gold);
  margin-top:10px;line-height:1.6;text-align:center}
 #cnHint.on{display:block}
+/* Consent dialog: title stays put, only the text scrolls, and the note plus
+   both buttons are pinned to the bottom so they are never scrolled away. */
+#ovConsent .ovc{display:flex;flex-direction:column;overflow:hidden}
+#cnBody,#cnFull{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+ overscroll-behavior:contain}
+#cnFull{max-height:none}
+#cnHint,#cnNote{order:1;flex:none}
+#cnBtns{order:2;flex:none}
+#cnNote{border-top:1px solid var(--line);padding-top:9px}
+#cnBody{padding-right:2px}
+#cnBody .lead{margin:0 0 4px}
+#cnBody h4{margin:12px 0 2px;font-size:13px;font-weight:900;color:var(--hi)}
+#cnBody ul{list-style:none;margin:0}
+#cnBody li{position:relative;padding:7px 0 7px 13px;line-height:1.75;border-bottom:1px dashed var(--line)}
+#cnBody li:last-child{border-bottom:none}
+#cnBody li::before{content:"";position:absolute;left:1px;top:15px;width:5px;height:5px;
+ border-radius:50%;background:var(--gold)}
+#cnBody li b{display:block;color:var(--hi);font-weight:800}
 #adOv{position:fixed;inset:0;z-index:90;display:none;flex-direction:column;align-items:center;
  justify-content:center;gap:13px;background:#04060e;text-align:center;padding:20px}
 #adOv.on{display:flex}
@@ -736,7 +754,7 @@ body.hasAd{--bannerH:48px}
  <div id="mdDesc" style="font-size:12px;color:var(--mid);margin-top:5px"></div>
  <button class="btn gold wide" id="mdOk" style="margin-top:15px"></button></div></div>
 
-<div class="ov" id="ovConsent"><div class="ovc card" style="max-width:400px">
+<div class="ov" id="ovConsent"><div class="ovc card" style="max-width:400px" role="dialog" aria-modal="true" aria-labelledby="cnTitle">
  <div class="eyebrow" id="cnEye"></div>
  <div id="cnTitle" style="font-size:19px;font-weight:900;margin:4px 0 8px"></div>
  <div id="cnBody" style="font-size:12px;color:var(--mid);line-height:1.75"></div>
@@ -779,7 +797,7 @@ function detectLang(){
    they are declared. Reading the save file directly is ugly but it is the
    only thing available this early. */
 let LANG=(function(){
- try{const r=localStorage.getItem('kingcats.v3')||localStorage.getItem('kingcats.v2');
+ try{const r=localStorage.getItem('kingcats.v4')||localStorage.getItem('kingcats.v3')||localStorage.getItem('kingcats.v2');
   if(r){const o=JSON.parse(r);if(o&&o.lang)return o.lang==='en'?'en':'ja';}}catch(e){}
  return detectLang();
 })();
@@ -815,7 +833,7 @@ function paintStatic(){
  set('gEye',T('猫を呼ぶ'));set('gClose',T('閉じる'));
  set('cNo',T('いいえ'));set('cYes',T('はい'));
  set('cnEye',T('はじめに'));set('cnTitle',T('利用規約とプライバシー'));
- set('cnRead',T('全文を読む（利用規約・プライバシーポリシー）'));set('cnOk',T('同意して始める'));
+ set('cnRead',T('全文を読む'));set('cnOk',T('同意して始める'));
  set('cnBack',T('同意画面にもどる'));
  set('cnNote',T('「同意して始める」を押すと、利用規約とプライバシーポリシーに同意したものとみなされます。'));
  set('dEye',T('毎日 ログインボーナス'));set('dClose',T('受け取る'));
@@ -3875,8 +3893,11 @@ function openSettings(){sheetPush(()=>openSettings());sheet(T('設定'),b=>{
  b.appendChild(el('div','','<div style="height:10px"></div>'));
  const rs=el('button','btn ghost wide',T('データを消す'));
  rs.onclick=()=>confirmBox(T('データを消す'),
-  T('すべての進行データを消します。元に戻せません。'),T('消す'),
-  ()=>{S=DEF();save();toast(T('消しました'));$('sheet').classList.remove('on');goHome();});
+  T('すべての進行データを消します。元に戻せません。')
+  +(LANG==='en'
+    ?'<br><br>The copy in iCloud is cleared too, and the game restarts from the title screen. Paid items come back with Restore Purchases.'
+    :'<br><br>iCloudの控えも消え、タイトル画面からやり直しになります。購入済みのアイテムは「購入を復元」で戻せます。'),
+  T('消す'),wipeAllData);
  b.appendChild(rs);
  b.appendChild(el('div','','<div style="font-size:10.5px;color:var(--lo);margin-top:13px;line-height:1.7">'
   +(Store.ok?T('記録はこの端末に保存されます。進行データがサーバーへ送られることはありません。')
@@ -5125,30 +5146,65 @@ window.KingCats={
 };
 
 /* ------------------------------------------------------- consent + ATT */
-function needConsent(){return (S.consent.ver||0)<PUBLISHER.termsVer;}
+/* 同意フラグ。localStorage の has_consented が 'true' で、かつ同意した規約の
+   版が現行（PUBLISHER.termsVer）のときだけ同意済みとみなします。規約を改定して
+   termsVer を上げると、フラグが残っていても同意画面をもう一度出します。
+   Store は localStorage の薄いラッパーで、使えない環境ではメモリに退避します。 */
+const CONSENT_KEY='has_consented';
+function needConsent(){
+ const current=(S.consent.ver||0)>=PUBLISHER.termsVer;
+ const flag=Store.get(CONSENT_KEY)==='true';
+ /* このフラグを入れる前に同意済みのプレイヤーは、もう一度聞かずに移行する */
+ if(current&&!flag){Store.set(CONSENT_KEY,'true');return false;}
+ return !(current&&flag);
+}
+/* ゲーム開始。同意直後と、同意済みで起動したときの両方からここを通ります。
+   広告の選択 → （許可時のみ）ATT → チュートリアル／ログインボーナス、の順。 */
+function startGame(){askAdsConsent();}
+/* 同意画面の要約。全文（利用規約・プライバシーポリシー）と食い違わないこと。
+   全文側の条文を変えたら、ここも必ず見直してください。 */
+function consentSummaryHTML(){
+ const li=(h,t)=>'<li><b>'+h+'</b>'+t+'</li>';
+ if(LANG==='en')return ''
+  +'<p class="lead">Before you play <b>'+PUBLISHER.appNameEn+'</b>, please read the key points below together with our Terms of Use and Privacy Policy.</p>'
+  +'<h4>Key points</h4><ul>'
+  +li('No account needed','Play straight away. You never create an account or enter personal details.')
+  +li('Your save data','Progress is stored on this device (and, on iOS with iCloud turned on, in your own iCloud). We run no server and collect no play data. We cannot recover data lost by resetting the device or deleting the app.')
+  +li('Gacha and sardines','No cash ever goes directly into Call a Cat. Draws use sardines or an optional ad, and the odds are always shown on the draw screen. Sardines come from playing or optional ads; they are never sold and cannot be cashed out or transferred.')
+  +li('Paid items','You can buy ad removal, premium cats, themes, outfits, and tool or shard packs, each as a single purchase. Nothing renews or charges you automatically.')
+  +li('Ads and your data','The free version shows Google AdMob ads. To serve them, Google may use your advertising identifier and other device information. You can change personalised ads in Settings in the game or on your device.')
+  +li('Under-18s','If you are under 13, read this screen with a parent or guardian before agreeing. If you are a minor, ask a parent or guardian before buying anything.')
+  +li('Flashing lights','If flashing lights bother you, turn effects down in Settings.')
+  +'</ul><h4>Terms and privacy in brief</h4><ul>'
+  +li('Terms of Use','The app is provided as is. Non-consumable items such as Remove Ads (permanent) and premium cats can be recovered with Restore Purchases on the same store account. Timed ad-off passes and tool or shard packs cannot be restored. Our liability is as set out in the Terms of Use.')
+  +li('Privacy','We do not collect personal information ourselves. Data handled by advertising (Google AdMob), leaderboards and achievements (Game Center, iOS) and save sync (iCloud, iOS) is governed by each provider’s own terms and privacy policy.')
+  +'</ul>';
+ return ''
+  +'<p class="lead">『'+PUBLISHER.appName+' — 王様猫を探せ』をお楽しみいただく前に、以下の重要事項と、利用規約・プライバシーポリシーをご確認ください。</p>'
+  +'<h4>重要事項の確認</h4><ul>'
+  +li('アカウント登録不要','アカウントの作成や個人情報の入力なしで、すぐにプレイを始められます。')
+  +li('セーブデータの管理','ゲームの進行データはお使いの端末内に保存されます（iOSでiCloudを有効にしている場合は、ご自身のiCloudにも保存されます）。開発者はサーバーを持たず、プレイデータを収集しません。端末の初期化やアプリの削除で失われたデータは、開発者側では復元できません。')
+  +li('ガチャとゲーム内通貨','ガチャ（猫を呼ぶ機能）に現金を直接使う仕組みはありません。ガチャはゲーム内通貨「煮干し」または任意の広告視聴で利用でき、提供割合はガチャ画面でいつでも確認できます。「煮干し」はプレイや任意の広告視聴で入手でき、販売はしておらず、換金・譲渡もできません。')
+  +li('有料アイテム','広告非表示、特別な猫、テーマ、着せ替え、道具やかけらのパックなど、1回ごとに購入する有料アイテムがあります。自動で更新・課金されるものはありません。')
+  +li('広告の表示とデータ利用','無料版ではGoogle AdMobによる広告が表示されます。広告配信のため、広告識別子などの端末情報がGoogleに利用される場合があります。興味に合わせた広告の設定は、ゲーム内の「設定」や端末の設定から変更できます。')
+  +li('未成年のお客様へ','13歳未満の方は、保護者の方と一緒にこの画面の内容を確認してから同意してください。未成年の方が有料アイテムを購入する場合は、事前に保護者の同意を得てください。')
+  +li('光の点滅について','光の点滅が苦手な方は、「設定」から演出を弱められます。')
+  +'</ul><h4>利用規約・プライバシーポリシー（要約）</h4><ul>'
+  +li('利用規約','本アプリは現状のまま提供されます。「広告オフ（永久）」や特別な猫などの非消費型アイテムは、同じストアアカウントで「購入を復元」を行うと再取得できます（期間限定の広告オフ、道具・かけらのパックは対象外です）。開発者が負う責任の範囲は、利用規約の定めによります。')
+  +li('プライバシー','開発者が個人情報を直接取得することはありません。広告配信（Google AdMob）、ランキング・実績（Game Center／iOS）、セーブデータの同期（iCloud／iOS）で扱われる情報は、各提供元の規約とプライバシーポリシーに従って取り扱われます。')
+  +'</ul>';
+}
 /* Consent is two layers on purpose: a short summary nobody can claim they
-   did not read, and the complete text one tap away inside the same dialog.
-   The Agree button stays disabled until the full text has actually been
-   scrolled to the end, which is what "informed" is supposed to mean and
-   what both stores increasingly look for. */
+   did not read, and the complete text one tap away. When PUBLISHER.termsUrl
+   is filled in, "read in full" opens that page in a new tab (or the system
+   browser, via the native shell). With no URL, or while offline, the full
+   text opens inside the dialog instead, so it is always readable. */
 function openConsent(){
  const body=$('cnBody'),full=$('cnFull'),hint=$('cnHint'),note=$('cnNote'),
        read=$('cnRead'),ok=$('cnOk'),back=$('cnBack'),title=$('cnTitle');
- body.innerHTML=
-  '<p>'+(LANG==='en'?'Before you play <b>'+PUBLISHER.appNameEn+'':'『'+PUBLISHER.appName)+T('』で遊ぶ前に、')
-  +T('<b>利用規約</b>と<b>プライバシーポリシー</b>への同意をお願いします。</p>')
-  +'<ul style="margin:10px 0 10px 18px;line-height:1.9">'
-  +T('<li>アカウント登録は不要です。</li>')
-  +T('<li>進行データは<b>この端末の中</b>に保存されます。')
-  +T('（iCloudをオンにしている場合は Apple のiCloudにも保存されます）</li>')
-  +T('<li>開発者はサーバーを持たず、プレイ内容を集めません。</li>')
-  +T('<li>無料版では Google AdMob の広告を表示します。広告のために')
-  +T('広告識別子などが使われることがあります。</li>')
-  +T('<li>アプリ内には買い切りの有料アイテムがあります。</li>')
-  +T('<li>猫の抽選に<b>現金は使えません</b>。確率は抽選画面に常時表示しています。</li>')
-  +T('<li>光の点滅が苦手な方は「設定」から演出を弱められます。</li>')
-  +T('<li>13歳未満のかたは保護者のかたと一緒に読んでください。</li>')
-  +'</ul>';
+ const consentTitle=LANG==='en'?'Before you play '+PUBLISHER.appNameEn
+  :'『'+PUBLISHER.appName+'』ご利用前の確認と同意のお願い';
+ body.innerHTML=consentSummaryHTML();
  let reading=false;
  function paint(){
   body.style.display=reading?'none':'';
@@ -5158,35 +5214,46 @@ function openConsent(){
   ok.classList.toggle('hide',reading);
   back.classList.toggle('hide',!reading);
   note.style.display=reading?'none':'';
-  title.textContent=reading?T('利用規約とプライバシーポリシー'):T('利用規約とプライバシー');
+  title.textContent=reading?T('利用規約とプライバシーポリシー'):consentTitle;
  }
- /* Opening the full text swaps the dialog into a reading mode; the ONLY
-    button then is "back", so there is never a way to end up stranded in
-    the small print with no route to the consent screen. */
- read.onclick=()=>{
-  A.click();
+ function showFullInside(){
   full.innerHTML=legalHTML();
   reading=true;paint();
   full.scrollTop=0;
-  try{$('ovConsent').querySelector('.ovc').scrollTop=0;}catch(e){}
+ }
+ /* Opening the full text inside the dialog swaps it into a reading mode; the
+    ONLY button then is "back", so there is never a way to end up stranded
+    in the small print with no route to the consent screen. */
+ read.onclick=()=>{
+  A.click();
+  const u=PUBLISHER.termsUrl;
+  if(!u||navigator.onLine===false){showFullInside();return;}
+  if(native('openUrl',{url:u}))return;          /* iOS / Android shell */
+  let w=null;
+  try{w=window.open(u,'_blank');}catch(e){}
+  if(w){try{w.opener=null;}catch(e){}}
+  else showFullInside();                        /* blocked: fall back to in-app text */
  };
  back.onclick=()=>{
   A.click();
   reading=false;paint();
   full.innerHTML='';
-  try{$('ovConsent').querySelector('.ovc').scrollTop=0;}catch(e){}
+  body.scrollTop=0;
  };
  hint.textContent=T('↑ 読み終えたら、この下のボタンで同意画面にもどれます。');
  back.textContent=T('同意画面にもどる');
- read.textContent=T('全文を読む（利用規約・プライバシーポリシー）');
+ read.textContent=T('全文を読む');
  reading=false;paint();
+ body.scrollTop=0;
  $('ovConsent').classList.add('on');
  ok.onclick=()=>{
+  ok.onclick=null;                              /* a double tap must not start the game twice */
   S.consent.ver=PUBLISHER.termsVer;S.consent.at=new Date().toISOString();
   S.consent.lang=LANG;save();
+  Store.set(CONSENT_KEY,'true');
   $('ovConsent').classList.remove('on');
   A.click();
-  setTimeout(askAdsConsent,260);
+  setTimeout(startGame,260);                    /* let the dialog finish closing first */
  };
 }
 /* Ads consent first, in plain language, THEN the OS prompt. Asking the system
@@ -6317,6 +6384,52 @@ function paintParty(){
 }
 
 
+/* ------------------------------------------------------------ data wipe
+   「データを消す」は、初めて起動したときと同じ状態に戻す操作です。
+   進行データ・同意の記録・旧バージョンの保存データ・iCloud上の控えを消し、
+   タイトル画面 → スプラッシュ → 同意画面 の順でやり直します。
+   表示言語だけは引き継ぎます（消した直後に画面の言語が変わると戸惑うため）。
+   iCloud の控えを空の状態で上書きしておかないと、次の起動時の cloudLoad が
+   「クラウドの方が進んでいる」と判断して、消したデータを復元してしまいます。 */
+function wipeAllData(){
+ const lang=S.lang||LANG;
+ clearTimeout(cloudT);                         /* 保留中のiCloud送信を取り消す */
+ S=DEF();S.lang=lang;save();
+ Store.set(CONSENT_KEY,'');                    /* Store のメモも同時に空にする */
+ for(const k of[CONSENT_KEY,OLDKEY,'kingcats.v2'])
+  try{localStorage.removeItem(k);}catch(e){}
+ native('cloudSave',{key:SKEY,value:JSON.stringify(S)});
+ restartFromTitle();
+}
+/* 起動処理をまるごとやり直すのが一番確実なので、まずページを再読み込みする。
+   一部の組み込みWebViewでは reload が効かないため、1.5秒たっても
+   ページが残っていれば、その場でタイトル画面から再開する。 */
+function restartFromTitle(){
+ let leaving=false;
+ addEventListener('pagehide',()=>{leaving=true;},{once:true});
+ try{location.reload();}catch(e){}
+ setTimeout(()=>{if(!leaving)restartInPlace();},1500);
+}
+function restartInPlace(){
+ try{closeSheet();}catch(e){}
+ closeDrawer();
+ document.querySelectorAll('.ov.on').forEach(o=>o.classList.remove('on'));
+ document.body.classList.remove('playing');
+ if(!$('title')&&!$('splash'))document.body.insertAdjacentHTML('afterbegin',BOOT_SCREENS);
+ applyTheme();refreshBanner();paintTop();goHome();buildDrawer();
+ runBootScreens();
+}
+/* タイトル → スプラッシュ → 同意（未同意なら）→ ゲーム開始 */
+function runBootScreens(){
+ runTitle(()=>splashGo(()=>{
+  if(needConsent())setTimeout(openConsent,220);
+  else startGame();
+ }));
+}
+/* 起動直後のタイトルとスプラッシュの原本。どちらも表示後にDOMから外されるので、
+   その場で再開するときのために最初の状態を控えておく。 */
+const BOOT_SCREENS=($('title')?$('title').outerHTML:'')+($('splash')?$('splash').outerHTML:'');
+
 /* ------------------------------------------------------------------ boot */
 $('menuBtn').onclick=()=>{A.unlock();buildDrawer();openDrawer();};
 $('drawerScrim').onclick=closeDrawer;
@@ -6348,10 +6461,7 @@ if(MIGRATED)setTimeout(()=>toast(T('パズルを作り直しました。猫・�
 requestAnimationFrame(frame);
 GC.auth();native('cloudLoad',{key:SKEY});
 checkAchv();
-runTitle(()=>splashGo(()=>{
- if(needConsent())setTimeout(openConsent,220);
- else afterAds();
-}));
+runBootScreens();
 /* one local notification a day keeps a puzzle game alive; the shell decides
    whether the OS actually allows it */
 native('schedule',{hour:20,body:T('今日の一問が届いています🐟')});
