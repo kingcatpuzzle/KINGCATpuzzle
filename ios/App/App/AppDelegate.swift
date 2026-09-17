@@ -1,5 +1,7 @@
 import UIKit
 import Capacitor
+import WebKit
+import StoreKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -7,38 +9,99 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
         return true
     }
 
-    func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        return ApplicationDelegateProxy.shared.application(app, open: url, options: options)
     }
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
+    }
+}
+
+// Custom ViewController
+class ViewController: CAPBridgeViewController, WKScriptMessageHandler {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // 画面いっぱいに表示（余白オフ）
+        webView?.scrollView.contentInsetAdjustmentBehavior = .never
+        
+        // JSメッセージハンドラ "native" の登録
+        webView?.configuration.userContentController.add(self, name: "native")
     }
 
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard let body = message.body as? [String: Any],
+              let action = body["action"] as? String else { return }
+
+        switch action {
+        case "entitlements":
+            checkEntitlements()
+        case "purchase":
+            if let id = body["id"] as? String {
+                purchaseItem(id: id)
+            }
+        case "restore":
+            restorePurchases()
+        case "cloudSave":
+            if let key = body["key"] as? String, let value = body["value"] as? String {
+                NSUbiquitousKeyValueStore.default.set(value, forKey: key)
+                NSUbiquitousKeyValueStore.default.synchronize()
+            }
+        case "cloudLoad":
+            let val = NSUbiquitousKeyValueStore.default.string(forKey: body["key"] as? String ?? "") ?? ""
+            evaluateJS("window.KingCats.cloudLoaded('\(val)')")
+        default:
+            break
+        }
     }
 
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    // 所有権確認 (StoreKit 2)
+    func checkEntitlements() {
+        Task {
+            var ownedIDs: [String] = []
+            for await result in Transaction.currentEntitlements {
+                if case .verified(let transaction) = result, transaction.revocationDate == nil {
+                    ownedIDs.append(transaction.productID)
+                }
+            }
+            let json = (try? String(data: JSONSerialization.data(withJSONObject: ownedIDs), encoding: .utf8)) ?? "[]"
+            evaluateJS("window.KingCats.entitlements(\(json))")
+        }
     }
 
-    func applicationWillTerminate(_ application: UIApplication) {
-        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    // 購入処理 (StoreKit 2)
+    func purchaseItem(id: String) {
+        Task {
+            do {
+                let products = try await Product.products(for: [id])
+                if let product = products.first {
+                    let result = try await product.purchase()
+                    if case .success(let verification) = result, case .verified(_) = verification {
+                        evaluateJS("window.KingCats.purchaseDone('\(id)', true)")
+                        return
+                    }
+                }
+            } catch {}
+            evaluateJS("window.KingCats.purchaseDone('\(id)', false)")
+        }
     }
 
-    func application(_ application: UIApplication,
-                     configurationForConnecting connectingSceneSession: UISceneSession,
-                     options: UIScene.ConnectionOptions) -> UISceneConfiguration {
-        let config = UISceneConfiguration(name: "Default Configuration",
-                                          sessionRole: connectingSceneSession.role)
-        config.delegateClass = SceneDelegate.self
-        return config
+    // 復元処理 (StoreKit 2)
+    func restorePurchases() {
+        Task {
+            try? await AppStore.sync()
+            checkEntitlements()
+        }
+    }
+
+    func evaluateJS(_ script: String) {
+        DispatchQueue.main.async {
+            self.webView?.evaluateJavaScript(script, completionHandler: nil)
+        }
     }
 }
