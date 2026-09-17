@@ -2421,11 +2421,20 @@ const starTot=()=>Object.values(S.stars).reduce((a,b)=>a+b,0);
 const dexN=()=>Object.keys(S.dex).length;
 const guildLv=()=>Math.min(GUILD_RANKS.length-1,Math.floor((dexN()*2+starTot()/6)/8));
 const guildProg=()=>{const v=dexN()*2+starTot()/6,lv=guildLv();return{cur:v-lv*8,need:8,lv};};
-const slots=()=>S.cleared>=500?4:S.cleared>=200?3:S.cleared>=60?2:1;
+/* Party size. Six, because there are six premium outfits and each one can be
+   worn by one cat at a time — a player who buys them all can have every one
+   of them working at once. The steps are early enough that the outfits are
+   usable long before the late stages. */
+const SLOT_STEPS=[50,150,300,500,750];   /* the sixth slot is a long-run goal */
+const slots=()=>1+SLOT_STEPS.filter(n=>S.cleared>=n).length;
+const slotsNext=()=>SLOT_STEPS.find(n=>S.cleared<n)||null;
 /* What an outfit is worth. Gacha outfits are a nudge; paid outfits are the
    reason to buy one. Both only count while that cat is actually in the
    party, so dressing a cat you never bring changes nothing. */
-const PCOS_COIN={pc_crown:2.0,pc_wing:1.5,pc_cape:1.0,pc_witch:1.5,pc_kanzashi:1.0,pc_tiara:2.0};
+/* Six outfits can be worn at once, so each is worth less on its own than when
+   only one cat could wear anything: +60/45/30% instead of +200/150/100%.
+   All six come to +270%, and the total sardine bonus is capped anyway. */
+const PCOS_COIN={pc_crown:0.6,pc_tiara:0.6,pc_wing:0.45,pc_witch:0.45,pc_cape:0.3,pc_kanzashi:0.3};
 function cosBonus(catId){
  const w=cosOf(catId);
  if(!w)return 0;
@@ -2435,11 +2444,20 @@ function cosBonus(catId){
 }
 function knacks(){const o={coin:0,fish:0,undo:0,hint:0,paw:0,swap:0,
   revive:0,firstHint:0,star:0};
- for(const id of S.equip){const p=allCats().find(x=>x.id===id);if(!p)continue;
+ /* never count more cats than the party has slots for */
+ for(const id of S.equip.slice(0,slots())){const p=allCats().find(x=>x.id===id);if(!p)continue;
   o.coin+=cosBonus(id);
   const k=KNACK[p.a];if(!k)continue;for(const q in o)if(k[q])o[q]+=k[q];}
  o.coin+=guildLv()*.04;
- /* extra ★3 moves do not stack: two such cats are not a free star */
+ /* Bonuses stack — that is the point of a bigger party and of owning several
+    outfits — but each one has a ceiling, so a full party is a strong team
+    rather than a different game. The caps bind only near a complete
+    collection; ordinary parties never reach them. */
+ o.coin=Math.min(4,o.coin);             /* sardines: at most 5x */
+ o.undo=Math.min(3,o.undo);o.hint=Math.min(3,o.hint);
+ o.paw=Math.min(2,o.paw);o.swap=Math.min(2,o.swap);
+ o.fish=Math.min(8,o.fish);
+ o.revive=Math.min(2,o.revive);
  o.star=Math.min(1,o.star);o.firstHint=Math.min(1,o.firstHint);
  return o;}
 function catSkin(p){
@@ -3961,13 +3979,19 @@ function openGuild(){sheetPush(()=>openGuild());sheet(T('猫軍'),b=>{
   +'<div style="font-size:21px;font-weight:900;margin-top:3px">'+GUILD_RANKS[gp.lv]+'</div>'
   +'<div class="qbar" style="margin-top:8px"><i style="width:'+clamp(gp.cur/gp.need*100,4,100)+'%"></i></div>'
   +'<div style="font-size:11px;color:var(--lo);margin-top:7px;line-height:1.65">'
-  +T('猫を集めて★を稼ぐと猫軍ランクが上がり、全体ボーナスが付きます。<br>')
-  +T('今のボーナス： 🐟＋')+(gp.lv*4)+'%</div></div>'));
+ +T('猫を集めて★を稼ぐと猫軍ランクが上がり、全体ボーナスが付きます。<br>')
+ +T('今のボーナス： 🐟＋')+(gp.lv*4)+'%'
+ +'<br>'+JE('いまの合計： 🐟＋'+Math.round(knacks().coin*100)+'%（上限 ＋400%）',
+            'Party total: 🐟+'+Math.round(knacks().coin*100)+'% (cap +400%)')
+ +'</div></div>'));
  b.appendChild(el('div','','<div style="height:14px"></div>'));
  b.appendChild(el('div','','<div style="font-weight:800;font-size:13.5px;margin-bottom:3px">'
   +T('連れて行く猫（')+S.equip.length+' / '+slots()+'）</div>'
   +'<div style="font-size:11px;color:var(--lo);margin-bottom:9px">'
-  +T('タップで選ぶ／外す。枠はステージ60・200・500で増えます。</div>')));
+  +JE('タップで選ぶ／外す。'+(slotsNext()?'つぎの枠は '+slotsNext()+'ステージ クリアで。':'枠はすべて開いています。')
+    +'着せ替えの効果は、連れている猫のぶんだけ重なります。',
+    'Tap to add or remove. '+(slotsNext()?'Next slot at '+slotsNext()+' stages cleared. ':'Every slot is open. ')
+    +'Outfit bonuses add up across the cats you bring.')+'</div>'));
  const g=el('div','dexG');
  for(const p of allCats()){
   const have=!!S.dex[p.id],eq=S.equip.indexOf(p.id)>=0;
