@@ -2195,10 +2195,21 @@ const IAP=[
  ...[[2,500],[3,750],[4,1100],[5,1450]].map(([n,y])=>({id:'themes_r'+n, yen:y, cat:'theme', rest:{g:'themes6',n},
   set:()=>THEMES.filter(t=>t.buy).map(t=>t.buy),
   t:JE('残りのテーマ '+n+'種','The other '+n+' themes'), d:JE('まだ持っていないテーマをまとめて。','Every theme you do not have yet.')})),
- {id:'bundle2', yen:6650, cat:'bundle', set:()=>IAP.filter(x=>!x.set).map(x=>x.id),
+ {id:'bundle2', yen:6600, cat:'bundle', set:()=>IAP.filter(x=>!x.set).map(x=>x.id),
   t:T('全部入り'), d:JE('広告オフ永久 ＋ 特別な猫6匹 ＋ テーマ6種 ＋ 特別な着せ替え6種。','Remove Ads forever + 6 cats + 6 themes + 6 outfits.')},
 ];
 const IAPBY=id=>IAP.find(x=>x.id===id);
+/* App Store yen price points: ¥10 steps up to ¥2,000, ¥100 steps from there
+   to ¥15,000. A price off those steps cannot be chosen in App Store Connect,
+   so the code checks its own list and complains loudly during development. */
+function isAppleYenPoint(y){
+ if(y<50)return false;
+ if(y<=2000)return y%10===0;
+ if(y<=15000)return y%100===0;
+ return y%500===0;
+}
+try{const bad=IAP.filter(x=>!isAppleYenPoint(x.yen));
+ if(bad.length)console.warn('[IAP] prices not selectable in App Store Connect:',bad.map(x=>x.id+' ¥'+x.yen).join(', '));}catch(e){}
 /* discount shown to players: rounded down to a 5% step, never up */
 /* The set offer that fits what this player already owns: the full set if
    they own none, "the other n" if they own some, nothing if one or none is
