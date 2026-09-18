@@ -416,15 +416,20 @@ body[data-theme="sora"] #starfield{opacity:.25}
 /* Fixed, not min-height: a costume reveal and a cat reveal have to open at
    exactly the same size or the card visibly jumps between draws. */
 #revealHero{height:168px;display:flex;align-items:center;justify-content:center;position:relative}
-#revealHero canvas{width:135px;height:135px}
-#adBanner{flex:none;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;
- font-size:10px;color:var(--lo);background:rgba(13,17,32,.94);border-top:1px solid transparent;
- position:relative;z-index:66;transition:height .22s ease;
- backdrop-filter:blur(10px);white-space:nowrap}
-#adBanner.on{height:var(--adH,50px);border-top-color:var(--line)}
+#revealHero canvas{width:135px;height:135px;position:relative;z-index:1}
+/* the backdrop behind a reveal: rarity decides how much of it there is, the
+   cat's own aura colour decides what it looks like */
+#revealHero canvas.rvBg{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+#adBanner{flex:none;height:0;overflow:hidden;background:rgba(9,12,24,.99);
+ position:relative;z-index:66;transition:height .22s ease;padding-bottom:var(--safe-b)}
+#adSlot{height:var(--adH,50px);display:flex;align-items:center;justify-content:center;
+ font-size:10px;color:var(--lo);white-space:nowrap}
+#adBanner.on{height:calc(var(--adH,50px) + var(--safe-b));border-top:1px solid var(--line)}
+/* with an ad below it, the tab bar no longer needs the home-indicator gap */
+body.hasAd #tabBar{padding-bottom:0}
 /* on device the native banner covers this strip; its placeholder text would
    only show through the gaps while an ad loads, so it is hidden there */
-body.native #adBanner{color:transparent;background:rgba(9,12,24,.99)}
+body.native #adSlot{color:transparent}
 #toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + var(--tabH) + var(--bannerH) + 22px);transform:translateX(-50%) translateY(12px);
  z-index:99;padding:10px 17px;border-radius:99px;background:rgba(10,14,28,.96);
  border:1px solid var(--line-s);font-size:12.5px;font-weight:800;opacity:0;pointer-events:none;
@@ -488,6 +493,22 @@ body.native #adBanner{color:transparent;background:rgba(9,12,24,.99)}
 .setShow .pc b{font-size:20px;color:#ffd76b;margin-right:2px}
 .setShow .s3d{font-size:10.5px;color:var(--lo);margin:2px 0 8px}
 #pinchC{text-align:center;max-width:370px}
+#lifeC{text-align:center;max-width:340px}
+.lfHd .lf1{font-size:20px;font-weight:900}
+.lfHd .lf2{font-size:26px;letter-spacing:4px;color:#ff6f8f;margin:8px 0 4px}
+.lfHd .lf3{font-size:12px;color:var(--mid);margin-bottom:12px}
+.pill.life{color:#ff9db1;font-size:15px;font-weight:900;padding:6px 12px;gap:4px;
+ background:linear-gradient(120deg,rgba(255,110,140,.22),rgba(21,27,48,.92));
+ border-color:rgba(255,110,140,.45)}
+.pill.life i{font-style:normal;font-size:10px;font-weight:800;color:var(--lo);margin-left:2px}
+.pill.life.full{color:#ffc2cf}
+.pill.life.low{animation:lifeLow 1.6s ease-in-out infinite}
+.pill.life.empty{color:#ffd0d8;background:rgba(255,110,140,.3);border-color:rgba(255,110,140,.75)}
+@keyframes lifeLow{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@media (prefers-reduced-motion:reduce){.pill.life.low{animation:none}}
+/* the same figure on the result card, right above the buttons that spend it */
+.lifeLine{flex:1 0 100%;text-align:center;font-size:11.5px;font-weight:800;color:#ff9db1;margin:2px 0 -2px}
+.lifeLine span{color:var(--lo);font-weight:700;margin-left:6px}
 .shopGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:9px}
 .gItem{padding:10px;border-radius:16px;background:var(--glass);border:1px solid rgba(255,255,255,.12);
  display:flex;flex-direction:column;align-items:center;text-align:center;box-shadow:var(--lift)}
@@ -726,6 +747,8 @@ body.native #adBanner{color:transparent;background:rgba(9,12,24,.99)}
 .dexC .cb.lk{opacity:.38}
 .cosCell .rr{font-size:9px;margin-top:1px}
 .oddR.dim{opacity:.45}
+.chapLife{display:block;font-size:11px;font-weight:800;color:#ff9db1;margin-top:3px}
+.chapLife i{font-style:normal;color:var(--lo);font-weight:700}
 .oddSplit{display:flex;gap:8px;margin:0 0 10px}
 .oddSplit div{flex:1;padding:9px 6px;border-radius:13px;text-align:center;
  background:var(--glass);border:1px solid var(--line);box-shadow:var(--lift)}
@@ -844,7 +867,7 @@ body.hasAd{--bannerH:var(--adH,50px)}
   <button id="menuBtn" aria-label="メニュー"><span></span><span></span><span></span></button>
   <button id="topAva" aria-label="プロフィール"><canvas width="96" height="96"></canvas></button>
   <div id="topTitle"><div class="t1"></div><div class="t2"></div></div>
-  <div id="topRight"><div class="pill">🐟 <span id="coinV">0</span></div></div>
+  <div id="topRight"><div class="pill life" id="lifePill">♥ <span id="lifeV">5</span><i id="lifeT"></i></div><div class="pill">🐟 <span id="coinV">0</span></div></div>
  </div>
  <div id="main">
   <div class="screen on" id="scHome"><div id="homeScroll">
@@ -886,7 +909,6 @@ body.hasAd{--bannerH:var(--adH,50px)}
    <div id="itemBar"></div>
   </div>
  </div>
- <div id="adBanner"></div>
  <div id="tabBar">
   <button class="tab" data-t="home"><div class="ic">🏠</div><div class="lb"></div></button>
   <button class="tab" data-t="guild"><div class="ic">🏛</div><div class="lb"></div></button>
@@ -894,6 +916,9 @@ body.hasAd{--bannerH:var(--adH,50px)}
   <button class="tab" data-t="shop"><div class="ic">🛒</div><div class="lb"></div></button>
   <button class="tab" data-t="more"><div class="ic">☰</div><div class="lb"></div><span class="dot" id="tabDotM"></span></button>
  </div>
+ <!-- the ad sits UNDER the tab bar: a native banner pinned to the bottom of
+      the screen then lands here instead of covering the tabs -->
+ <div id="adBanner"><div id="adSlot"></div></div>
 </div>
 
 <div id="drawerScrim"></div>
@@ -914,6 +939,7 @@ body.hasAd{--bannerH:var(--adH,50px)}
  <linearGradient id="starFoil" x1="0" y1="0" x2="1" y2="1">
   <stop offset="0" stop-color="#fff6d8"/><stop offset=".45" stop-color="#ffd76b"/>
   <stop offset=".72" stop-color="#c9932a"/><stop offset="1" stop-color="#ffe9a8"/></linearGradient></defs></svg>
+<div class="ov" id="ovLife"><div class="ovc card" id="lifeC" role="dialog" aria-modal="true"></div></div>
 <div class="ov" id="ovPinch"><div class="ovc card" id="pinchC" role="dialog" aria-modal="true" aria-labelledby="pkTitle"></div></div>
 
 <div class="ov" id="ovTut"><div class="ovc card" style="text-align:center">
@@ -1028,7 +1054,7 @@ function paintStatic(){
  set('btnHow',T('遊び方'));
  set('sQuest',T('猫軍の任務'));set('sMile',T('★報酬'));
  set('kMoves',T('手数 ／ ★★★'));set('kCats',T('残り 猫'));set('kScore',T('得点'));
- set('adBanner',T('— 広告バナー（買い切りで消せます）—'));
+ set('adSlot',T('— 広告バナー（買い切りで消せます）—'));
  set('gEye',T('猫を呼ぶ'));set('gClose',T('閉じる'));
  set('cNo',T('いいえ'));set('cYes',T('はい'));
  set('cnEye',T('はじめに'));set('cnTitle',T('利用規約とプライバシー'));
@@ -2109,7 +2135,7 @@ const RCOL=['','','','var(--r3)','var(--r4)','var(--r5)'];
    occurrence. Per-cat probabilities are derived from these and shown in
    full inside the draw screen, which Japanese platform guidance expects
    and which players ask for anyway. */
-const ODDS={3:.90,4:.08,5:.02};
+const ODDS={3:.92,4:.07,5:.01};
 const rarePool=r=>PARTNERS.filter(p=>p.r===r);
 const catOdds=p=>ODDS[p.r]/rarePool(p.r).length;
 /* In-game currency is never sold, which is what keeps this clear of
@@ -2302,6 +2328,83 @@ function themeScrim(g,bx,by,bw,bh,cell){
 function setTheme(id){S.theme=id;save();applyTheme();}
 /* one place decides whether ads run */
 function adsOff(){return owns('noads');}
+/* ------------------------------------------------------------------ lives
+   One heart per attempt, five at most, one back every eight minutes. Hearts
+   are what makes a session end on a high note rather than on a grind, and
+   they give the ad and the shop something to offer. Nothing about them is a
+   wall: a stuck player still has the timer, three ad refills a day, sardines,
+   and the letters the game sends every ten stages. */
+const LIFE_MAX=10, LIFE_REGEN_MS=8*60*1000, LIFE_AD_CAP=3, LIFE_FISH=200;
+function lifeTick(){
+ const L=S.life||(S.life={n:LIFE_MAX,at:0});
+ if(L.n>=LIFE_MAX){L.at=0;return L.n;}
+ const now=Date.now();
+ if(!L.at)L.at=now;
+ while(L.n<LIFE_MAX&&now-L.at>=LIFE_REGEN_MS){L.n++;L.at+=LIFE_REGEN_MS;}
+ if(L.n>=LIFE_MAX)L.at=0;
+ return L.n;
+}
+const lifeN=()=>lifeTick();
+function lifeLeftMs(){
+ lifeTick();
+ const L=S.life;
+ return L.n>=LIFE_MAX?0:Math.max(0,LIFE_REGEN_MS-(Date.now()-L.at));
+}
+function lifeSpend(){
+ lifeTick();
+ const L=S.life;
+ if(L.n<=0)return false;
+ if(L.n>=LIFE_MAX)L.at=Date.now();   /* the timer starts at the first spend */
+ L.n--;save();paintTop();
+ return true;
+}
+/* Letters and refills may push past the cap and the excess never expires.
+   While the count is above the cap the timer stays off — natural recovery
+   only ever fills up to LIFE_MAX, and picks up again once play drops below. */
+function lifeAdd(n){lifeTick();S.life.n+=n;if(S.life.n>=LIFE_MAX)S.life.at=0;save();paintTop();}
+function lifeAdLeft(){
+ if(!S.lifeAd||S.lifeAd.day!==today())S.lifeAd={day:today(),n:0};
+ return Math.max(0,LIFE_AD_CAP-S.lifeAd.n);
+}
+function noteLifeAd(){lifeAdLeft();S.lifeAd.n++;save();}
+const lifeClock=ms=>{const t=Math.ceil(ms/1000);
+ return Math.floor(t/60)+':'+String(t%60).padStart(2,'0');};
+/* the screen shown instead of a stage when the hearts have run out */
+function openLifeGate(){
+ const ov=$('ovLife'), box=$('lifeC');
+ box.innerHTML='';
+ const paint=()=>{
+  const left=lifeLeftMs();
+  box.innerHTML='';
+  box.appendChild(el('div','lfHd','<div class="lf1">'+JE('ライフがありません','Out of hearts')+'</div>'
+   +'<div class="lf2">♥ '+lifeN()+' / '+LIFE_MAX+'</div>'
+   +'<div class="lf3">'+(left?JE('つぎの回復まで <b>'+lifeClock(left)+'</b>','Next heart in <b>'+lifeClock(left)+'</b>')
+                              :JE('まもなく回復します','A heart is on its way'))+'</div>'));
+  const acts=el('div','pkActs');
+  if(lifeAdLeft()>0){
+   const a=el('button','btn mag wide',adsOff()
+    ?JE('♥ ＋1 を受け取る（今日あと'+lifeAdLeft()+'）','Take ♥ +1 ('+lifeAdLeft()+' left today)')
+    :JE('📺 広告を見て ♥ ＋1（今日あと'+lifeAdLeft()+'）','📺 Watch an ad for ♥ +1 ('+lifeAdLeft()+' left today)'));
+   a.onclick=()=>{A.click();playAd(()=>{noteLifeAd();lifeAdd(1);paint();});};
+   acts.appendChild(a);}
+  const f=el('button','btn gold wide',JE('🐟'+LIFE_FISH+' で ♥ ＋1','🐟'+LIFE_FISH+' for ♥ +1'));
+  if(S.coins<LIFE_FISH)f.disabled=true;
+  f.onclick=()=>{A.click();if(S.coins<LIFE_FISH)return;
+   S.coins-=LIFE_FISH;lifeAdd(1);paintTop();paint();};
+  acts.appendChild(f);
+  const no=el('button','pkNo',JE('とじる','Close'));
+  no.onclick=()=>{A.click();clearInterval(tmr);ov.classList.remove('on');};
+  acts.appendChild(no);
+  box.appendChild(acts);
+ };
+ const tmr=setInterval(()=>{
+  if(!ov.classList.contains('on')){clearInterval(tmr);return;}
+  if(lifeN()>0){clearInterval(tmr);ov.classList.remove('on');toast(JE('ライフが回復しました','A heart is back'));return;}
+  paint();
+ },1000);
+ paint();
+ ov.classList.add('on');
+}
 /* Mark products owned, expanding sets ("the other 5 cats", bundles) into
    what they contain. Used by both the restore button and the silent launch
    check. Returns how many known products were in the list. */
@@ -2342,9 +2445,9 @@ function refreshBanner(){
    WKWebView / WebView points), measured from the top and from the bottom of
    the web view, and the native side places the banner there. */
 function sendBannerRect(){
- const el2=$('adBanner');if(!el2)return;
+ const el2=$('adSlot');if(!el2)return;   /* the ad area itself, without the safe-area gap */
  const r=el2.getBoundingClientRect();
- native('bannerRect',{show:el2.classList.contains('on'),
+ native('bannerRect',{show:$('adBanner').classList.contains('on'),
   top:Math.round(r.top),bottom:Math.round(window.innerHeight-r.bottom),
   height:Math.round(r.height),width:Math.round(r.width)});
 }
@@ -2375,7 +2478,7 @@ const DEF=()=>({v:4,coins:120,themes:{},
  adDay:'',adUsed:0,tut:false,qDay:'',qDone:{},
  login:{day:'',streak:0},dc:{day:'',done:false},ms:{},rev:0,
  trial:{day:'',best:0,bestDay:0,paid:false,paidDay:''},medals:{},
- mail:{claim:{},read:{}},noteSeen:'',
+ mail:{claim:{},read:{},gift:[]},noteSeen:'',life:{n:10,at:0},lifeAd:{day:'',n:0},
  consent:{ver:0,at:'',ads:null,att:null},ach:{},lang:'',theme:'none',
  stat:{pops:0,chain2:0,chain3:0,clears:0,stars:0,maxChain:0,plays:0},
  set:{vib:true,fx:true,soundV:85,musicV:70}});
@@ -3068,6 +3171,8 @@ function frame(now){
  if($('scPlay').classList.contains('on')&&G.ctx)draw(now);
  if($('scHome').classList.contains('on'))drawHero(now);
  if(!document.hidden){animAvatars(now);animLive(now);}
+ /* the hearts pill ticks down once a second, not sixty times */
+ if(now-lifeT>1000){lifeT=now;paintLife();}
  requestAnimationFrame(frame);
 }
 function blendView(a,b,t){
@@ -3143,6 +3248,9 @@ function draw(now){
   g.beginPath();g.roundRect(bx+c*V.cell+m,by+r*V.cell+m,V.cell-m*2,V.cell-m*2,V.cell*.16);g.fill();}
  themeScrim(g,bx,by,bw,bh,V.cell);
  themeFx(g,TH,bx,by,bw,bh,V.cell,now);
+ /* the party's own light, INSIDE the board — the wash behind the frame was
+    invisible under the opaque floor, which is why the stage looked bare */
+ partyStageFx(g,bx,by,bw,bh,V.cell,now);
  g.restore();
  drawWalls(g,bx,by,bw,bh,V.cell,wallDir,wallIn);
 
@@ -3612,14 +3720,17 @@ function adFor(k){
    JE('ショップを見る','Open the shop'),()=>openItemShop());
   return;}
  confirmBox(nm+T('がありません'),
-  T('広告を見ると ')+nm+T('を1つもらえます。')
+  (adsOff()?JE('広告オフ特典として ','Ad-free bonus: ')+nm+JE('を1つ受け取れます。',' — take one.')
+           :T('広告を見ると ')+nm+T('を1つもらえます。'))
   +'<br><span style="font-size:11px;color:var(--lo)">'+JE('今日あと '+left+' 回','Left today: '+left)+'</span>',
-  T('広告を見る'),()=>playAd(()=>{noteAdItem();G.free[k]=(G.free[k]||0)+1;paintItems();tip(nm+' ＋1');}));
+  adsOff()?JE('受け取る','Take'):T('広告を見る'),()=>playAd(()=>{noteAdItem();G.free[k]=(G.free[k]||0)+1;paintItems();tip(nm+' ＋1');}));
 }
 
 /* ---------------------------------------------------------------- start/end */
 function startStage(n,daily,trial){
  const d=STAGES[n-1];if(!d)return;
+ /* a trial run pays once at the start, not once per problem */
+ if(!trial&&!lifeSpend()){openLifeGate();return;}
  G.stage=n;G.W=d.w;G.H=d.h;
  G.st=decodeBoard(d.b,d.w,d.h);G.ox=0;G.oy=0;
  G.par=d.p;G.moves=0;G.daily=!!daily;G.dead=false;G.trialOn=!!trial;WM=new Map();
@@ -3644,7 +3755,7 @@ function startStage(n,daily,trial){
  const ci=Math.floor((n-1)/PER_CH);
  paintPlayParty();
  $('playTitle').firstElementChild.textContent=
-  (G.trialOn?T('👑 王の試練 ')+(TR.idx+1)+T('問め — '):G.daily?T('★ 今日の一問 — '):'')+T('ステージ ')+n;
+  (G.trialOn?T('👑 王の試練 ')+(TR.idx+1)+JE('問目 — ',' — '):G.daily?T('★ 今日の一問 — '):'')+T('ステージ ')+n;
  $('playTitle').lastElementChild.textContent=(CHAPTERS[ci]?CHAPTERS[ci].ja:'')+' ／ '+d.w+'×'+d.h
   +T(' ／ ★★★ は ')+starTgt()+T('手以内');
  $('tipLine').textContent='';
@@ -3683,7 +3794,12 @@ function win(){
   S.stat.stars=(S.stat.stars||0)+(st-prev);}
  if(G.stage>S.cleared)S.cleared=G.stage;
  if(G.maxChain>=3){coins+=G.maxChain*2;rw.push([G.maxChain+T('連鎖'),'🐟'+G.maxChain*2]);}
- if(first&&G.stage%10===0){S.items.undo+=2;S.items.hint+=1;rw.push(['↩︎','＋2']);rw.push(['💡','＋1']);}
+ if(first&&G.stage%10===0){S.items.undo+=2;S.items.hint+=1;rw.push(['↩︎','＋2']);rw.push(['💡','＋1']);
+  mailGift({id:'life_'+G.stage,lives:10,
+   ja:{t:'ステージ'+G.stage+' 達成のごほうび',
+       b:'ここまでよく来てくれました。\nライフを10 お届けします。'},
+   en:{t:'Stage '+G.stage+' reward',
+       b:'Thanks for coming this far.\nHere are 10 hearts.'}});}
  if(first&&G.stage%50===0){S.items.paw+=1;S.items.swap+=1;rw.push(['🐾','＋1']);rw.push(['🔁','＋1']);}
  if(G.daily&&S.dc.day===today()&&!S.dc.done){
   S.dc.done=true;S.dcClears=(S.dcClears||0)+1;coins+=20;rw.push([T('今日の一問'),'🐟20']);}
@@ -3740,9 +3856,9 @@ function result(won,stars,rw,best,coins){
     reward is already shown, never blocking the next stage. */
  if(won&&coins>0){
   const row=el('div','dblRow');
-  row.innerHTML='<div class="ic">📺</div><div class="g">'
-   +'<div class="t">'+JE('広告を見て 🐟2倍','Watch an ad: 🐟×2')+'</div></div>';
-  const go=el('button','btn mag sm',T('見る'));
+  row.innerHTML='<div class="ic">'+(adsOff()?'🎁':'📺')+'</div><div class="g">'
++'<div class="t">'+(adsOff()?JE('🐟2倍を受け取る','Take 🐟×2'):JE('広告を見て 🐟2倍','Watch an ad: 🐟×2'))+'</div></div>';
+  const go=el('button','btn mag sm',adsOff()?JE('受け取る','Take'):T('見る'));
   go.onclick=()=>{go.disabled=true;
    playAd(()=>{const g2=addCoins(coins,'exact');
     r.appendChild(el('div','pill','🐟 ＋'+fmt(g2)));
@@ -3758,15 +3874,14 @@ go.remove();toast('🐟 ＋'+fmt(g2));});};
    if(adItemsLeft()<=0){openItemShop();return;}
    playAd(()=>{noteAdItem();G.free.undo=(G.free.undo||0)+1;useItem('undo');});};
   b.appendChild(u);}
- /* enough sardines for a draw: say so right where they were just earned */
- if(won&&S.coins>=COST1){
-  const gb=el('button','btn mag wide',JE('🐾 猫を呼ぶ','🐾 Call cats'));
-  gb.onclick=()=>{close();A.click();goHome();openGacha();};
-  b.appendChild(gb);}
+ /* how many hearts are left, right above the buttons that spend one */
+ {const left=lifeLeftMs();
+  b.appendChild(el('div','lifeLine','♥ '+lifeN()+' / '+LIFE_MAX
+   +(left?'<span>'+JE('つぎの回復まで '+lifeClock(left),'next in '+lifeClock(left))+'</span>':'')));}
  if(won&&!G.daily&&G.stage<TOTAL){
-  const nx=el('button','btn gold',T('次へ'));
+  const nx=el('button','btn gold',T('次へ')+'（♥-1）');
   nx.onclick=()=>{close();maybeAd(()=>startStage(G.stage+1));};b.appendChild(nx);}
- const rt=el('button','btn ghost',T('もう一度'));
+ const rt=el('button','btn ghost',T('もう一度')+'（♥-1）');
  rt.onclick=()=>{close();startStage(G.stage);};b.appendChild(rt);
  if(!won&&skipAllowed()){
   const sk=el('button','btn ghost wide',
@@ -3783,7 +3898,7 @@ go.remove();toast('🐟 ＋'+fmt(g2));});};
 let curCh=0;
 function showScreen(id){for(const s of document.querySelectorAll('.screen'))s.classList.toggle('on',s.id===id);}
 function paintTop(){$('coinV').textContent=fmt(S.coins);
- paintTopAva();
+ paintTopAva();paintLife();
  const sp=$('shardPill');
  if(sp){sp.style.display=(S.shard||0)>0?'flex':'none';
   sp.lastElementChild.textContent=fmt(S.shard||0);}}
@@ -3840,7 +3955,11 @@ function paintHome(){
   cs.appendChild(b);});
  setTimeout(()=>{const on=cs.querySelector('.chip.on');
   if(on)cs.scrollLeft=on.offsetLeft-40;},0);
- $('chapTitle').textContent=CHAPTERS[curCh].ja;
+ {const left=lifeLeftMs();
+  $('chapTitle').innerHTML=CHAPTERS[curCh].ja
+   +'<span class="chapLife">♥ '+lifeN()+' / '+LIFE_MAX
+   +(left?' <i>'+JE('つぎ '+lifeClock(left),'next '+lifeClock(left))+'</i>':'')
+   +JE('　1ステージ ♥-1','　♥-1 per stage')+'</span>';}
  const g=$('grid');g.innerHTML='';
  for(let i=CHAPTERS[curCh].from;i<=CHAPTERS[curCh].to;i++){
   const open=i<=S.cleared+1,st=S.stars[i]||0;
@@ -4062,7 +4181,7 @@ function openGacha(){sheetPush(()=>openGacha());sheet(T('猫を呼ぶ'),b=>{
  gb.appendChild(b1);gb.appendChild(b10);
  dc.appendChild(gb);b.appendChild(dc);
  const r2=el('div','row');
- r2.innerHTML=T('<div class="g"><div class="t">広告を見て呼ぶ</div>')
+ r2.innerHTML='<div class="g"><div class="t">'+(adsOff()?JE('無料で呼ぶ','Free draw'):T('広告を見て呼ぶ'))+'</div>'
   +T('<div class="s">今日あと ')+left+T(' 回（毎日3回まで無料）</div></div>');
  const b2=el('button','btn mag sm',T('動画を見る'));b2.disabled=left<=0;
  b2.onclick=()=>playAd(()=>{S.adUsed++;save();gacha();});
@@ -4078,9 +4197,20 @@ function openGacha(){sheetPush(()=>openGacha());sheet(T('猫を呼ぶ'),b=>{
   +'<div style="font-weight:800;font-size:13.5px;margin-bottom:6px">'+T('排出情報')+'</div>'));
  /* the first thing anyone wants to know: what am I actually rolling for */
  const sp=el('div','oddSplit');
- sp.innerHTML='<div><b>78%</b><span>'+T('猫が出る')+'</span></div>'
-  +'<div><b>22%</b><span>'+T('着せ替えが出る')+'</span></div>';
+ /* worked out from the same constants the draw uses, so the sign can never
+    drift away from the odds */
+ const pTh=Math.round(THEME_RATE*100);
+ const cosW=COS_W[3]+COS_W[4]+COS_W[5], totW=cosW+COS_W.cat;
+ const pCosInner=Math.round(cosW/totW*100);
+ sp.innerHTML='<div><b>'+pTh+'%</b><span>'+JE('テーマ','Theme')+'</span></div>'
+  +'<div><b>'+(100-pTh)+'%</b><span>'+JE('猫の抽選','Cat draw')+'</span></div>';
  b.appendChild(sp);
+ b.appendChild(el('div','','<div style="font-size:10.5px;color:var(--lo);line-height:1.6;margin:-4px 0 10px">'
+  +JE('猫の抽選で <b>まだ仲間でない猫</b> が当たれば、その猫が仲間になります。<br>'
+     +'<b>すでに仲間の猫</b>が当たったときは、'+pCosInner+'% でその猫の着せ替え、'+(100-pCosInner)+'% でメダルのかけらになります。',
+      'If the cat drawn is <b>new</b>, she joins you. If she is <b>already a friend</b>, '
+     +pCosInner+'% of the time you get one of her outfits and '+(100-pCosInner)+'% medal shards.')
+  +'</div>'));
 
  const seg=el('div','seg oddSeg');
  const catBox=el('div'), cosBox=el('div');
@@ -4100,7 +4230,7 @@ function openGacha(){sheetPush(()=>openGacha());sheet(T('猫を呼ぶ'),b=>{
 
  /* ---- cats ---- */
  catBox.appendChild(el('div','oddNote',
-  T('★3 90％ ／ ★4 8％ ／ ★5 2％。ショップの特別な猫は ここからは出ません。<br>')
+  JE('★3 92％ ／ ★4 7％ ／ ★5 1％。ショップの特別な猫は ここからは出ません。<br>','★3 92% / ★4 7% / ★5 1%. Premium cats from the shop never appear here.<br>')
   +JE('すでに仲間の猫は <b>メダルのかけら</b>に変わります — ★3 🔷1 ／ ★4 🔷4 ／ ★5 🔷12。かけらは交換所で★4の猫や道具と交換できます。',
       'A cat you already have <b>turns into medal shards</b> — ★3 🔷1 / ★4 🔷4 / ★5 🔷12. Trade shards for a ★4 cat or tools at the exchange.')));
  for(const r of[5,4,3]){
@@ -4201,7 +4331,11 @@ function rollCat(min){
    35/25/10 across her ★3, ★4 and ★5 outfits. Groups she has already
    completed drop out and their share is redistributed, so the last outfit
    never becomes unreachable. */
-const COS_W={cat:30,3:35,4:25,5:10};
+/* Once the cat rolled is already a friend and still has outfits to win, this
+   decides what the draw actually hands over. Cats were coming in faster than
+   they meant anything, so the cat share is the smaller one now: 20% keeps the
+   cat (and turns into shards), 80% is one of her outfits. */
+const COS_W={cat:20,3:40,4:28,5:12};
 function rollOne(min){
  const rar=rollRarity(min);
  if(min)return{kind:'cat',rar,p:rollCat(min).p};
@@ -4317,6 +4451,66 @@ function pickFour(it){sheetPush(()=>pickFour(it));sheet(T('★4の猫を選ぶ')
    consolation, a theme is the rare surprise. Themes are checked last and at
    the lowest rate, and an outfit can only appear for a cat you already
    have — so the sequence a player experiences is always cat first. */
+/* Backdrop for a reveal. ★3 is a soft wash of the cat's colour, ★4 adds a
+   turning fan of light, ★5 adds an orbit and thicker motes, and a paid cat
+   brings its own particles (snow, rain, gems, petals, embers, aurora). */
+function revealBg(rar,skinId){
+ const hero=$('revealHero');
+ const K=skinId?SKINS[skinId]:null;
+ const col=(K&&K.aura)||RARC[Math.min(5,Math.max(3,rar))]||'#8899bb';
+ const bg=el('canvas');bg.className='rvBg';bg.width=420;bg.height=252;
+ hero.appendChild(bg);
+ liveDraw(bg,(g,now)=>drawRevealBg(g,420,252,rar,col,K&&K.fxp,now),true);
+}
+function drawRevealBg(g,W,H,rar,col,fxp,now){
+ const t=now/1000,cx=W/2,cy=H*.52;
+ g.save();
+ const rg=g.createRadialGradient(cx,cy,0,cx,cy,W*.46);
+ rg.addColorStop(0,hexA(col,rar>=5?.5:rar>=4?.34:.2));
+ rg.addColorStop(.6,hexA(col,rar>=5?.16:.08));
+ rg.addColorStop(1,hexA(col,0));
+ g.fillStyle=rg;g.fillRect(0,0,W,H);
+ if(rar>=4){
+  g.save();g.globalCompositeOperation='lighter';g.translate(cx,cy);g.rotate(t*.18);
+  const gr=g.createLinearGradient(0,0,0,-H*.62);
+  gr.addColorStop(0,hexA(col,.30));gr.addColorStop(1,hexA(col,0));
+  g.fillStyle=gr;
+  for(let i=0;i<10;i++){g.rotate(Math.PI/5);
+   g.beginPath();g.moveTo(-W*.035,0);g.lineTo(0,-H*.62);g.lineTo(W*.035,0);g.closePath();g.fill();}
+  g.restore();}
+ if(rar>=5){
+  g.save();g.translate(cx,cy+H*.16);g.rotate(-.12);
+  g.strokeStyle=hexA(col,.7);g.lineWidth=2.4;
+  g.beginPath();g.ellipse(0,0,W*.30,H*.09,0,0,Math.PI*2);g.stroke();
+  const a=(t*1.4)%(Math.PI*2);
+  g.fillStyle='#fff';g.globalAlpha=.9;
+  g.beginPath();g.arc(Math.cos(a)*W*.30,Math.sin(a)*H*.09,3.4,0,7);g.fill();
+  g.restore();}
+ const n=rar>=5?12:rar>=4?7:4;
+ for(let i=0;i<n;i++){
+  const ph=(t*(.16+(i%5)*.03)+i/n)%1;
+  const x=cx+Math.sin(i*2.3+t*.6)*W*.42, y=H*1.02-ph*H*1.15;
+  const k=(rar>=5?7:5)*(.7+.3*Math.sin(i*1.7)), al=Math.sin(ph*Math.PI)*(rar>=5?.95:.7);
+  g.globalAlpha=al;
+  if(fxp==='snow'){g.strokeStyle='#fff';g.lineWidth=1.4;
+   for(let j=0;j<3;j++){const a2=j*Math.PI/3;
+    g.beginPath();g.moveTo(x-Math.cos(a2)*k,y-Math.sin(a2)*k);g.lineTo(x+Math.cos(a2)*k,y+Math.sin(a2)*k);g.stroke();}}
+  else if(fxp==='rain'){g.fillStyle=col;g.beginPath();
+   g.moveTo(x,y-k*1.3);g.quadraticCurveTo(x+k*.8,y+k*.2,x,y+k*.9);
+   g.quadraticCurveTo(x-k*.8,y+k*.2,x,y-k*1.3);g.fill();}
+  else if(fxp==='ember'){const er=g.createRadialGradient(x,y,0,x,y,k*1.4);
+   er.addColorStop(0,'rgba(255,244,190,1)');er.addColorStop(.4,'rgba(255,146,60,.9)');
+   er.addColorStop(1,'rgba(255,80,40,0)');g.fillStyle=er;
+   g.beginPath();g.arc(x,y,k*1.4,0,7);g.fill();}
+  else if(fxp==='petal'){g.save();g.translate(x,y);g.rotate(t*1.4+i);
+   g.fillStyle='#FFB3CF';g.beginPath();g.ellipse(0,0,k,k*.6,0,0,7);g.fill();g.restore();}
+  else if(fxp==='gem'){g.fillStyle=col;g.beginPath();
+   g.moveTo(x,y-k);g.lineTo(x+k*.7,y);g.lineTo(x,y+k);g.lineTo(x-k*.7,y);g.closePath();g.fill();}
+  else if(fxp==='aurora'){g.fillStyle=i%2?'#8FFFD0':'#C9A8FF';star4(g,x,y,k*.8);}
+  else{g.fillStyle=col;star4(g,x,y,k*.8);}
+ }
+ g.restore();
+}
 function gacha(){
  /* themes stay the rare surprise and are checked on their own low gate */
  const t0=rollTheme();
@@ -4328,6 +4522,7 @@ function gacha(){
  save();A.reveal(rar);
  if(rar>=4)flashLayer('flashGold',500);
  $('revealHero').innerHTML='';
+ revealBg(rar,catSkin(p));
  const cv=el('canvas');cv.width=cv.height=320;
  drawCat(cv.getContext('2d'),150,192,208,p.k,{mood:'happy',glow:rar>=4,
   rays:rar>=5,sparkle:rar>=5,skin:catSkin(p),now:performance.now()});
@@ -4473,7 +4668,7 @@ function setShow(b,setId,thumb,tw,th){
  sc.appendChild(bb);b.appendChild(sc);
 }
 /* canvases that keep moving: in the open sheet, or (always) in an open overlay */
-const LIVE=[];
+const LIVE=[];let lifeT=0;
 /* which canvases are actually on screen, kept up to date by the browser
    rather than measured every frame */
 const LIVE_VIS=new WeakMap();
@@ -4677,7 +4872,7 @@ function openShop(){sheetPush(()=>openShop());sheet(T('ショップ'),b=>{
  setShow(b,'themes6',(g,now,id)=>drawThemePreview(g,120,90,THEMES.find(x=>x.buy===id),now),120,90);
 
  /* ---- 4. ads ---- */
- shopSec(b,T('広告を消す'),T('リワード広告（自分から見るもの）は残ります。'));
+ shopSec(b,T('広告を消す'),JE('買うと、広告そのものが出なくなります。「広告を見て〇〇」のボーナスは、広告なしでそのまま受け取れます。','No ads at all. The “watch an ad” bonuses are simply handed to you instead.'));
  {const it=IAPBY('noads');
   const r=el('div','row hi');r.dataset.iap='noads';
   r.innerHTML='<div class="g"><div class="t">'+it.t
@@ -5448,6 +5643,9 @@ function adFinish(ok){
  else if(!ok)toast(T('動画が最後まで再生されませんでした'));
 }
 function playAd(done){
+ /* Ad removal removes the ads, not the rewards: someone who paid gets the
+    same bonus handed over without a video. */
+ if(adsOff()){toast(JE('広告オフ特典：そのまま受け取りました','Ad-free: reward granted'));done&&done();return;}
  $('adOv').classList.add('on');
  if(native('showRewarded',{placement:'reward'})){
   adCb=done; adKind='rewarded';
@@ -5550,12 +5748,14 @@ const MAILBOX=[
   ja:{t:'『キングキャッツ』へようこそ',
       b:'遊んでくださって ありがとうございます。\n'
        +'おしらせやプレゼントは、このメールボックスに届きます。\n\n'
-       +'はじめのごあいさつに どうぞ。まずは猫を呼んでみてください。'},
+       +'はじめのごあいさつに どうぞ。ライフは30、上限をこえて持てます。\n'
+       +'まずは猫を呼んでみてください。'},
   en:{t:'Welcome to KING CAT',
       b:'Thank you for playing.\n'
        +'Notices and gifts arrive here in your mailbox.\n\n'
-       +'Here is something to get you started — go and call your first cats.'},
-   fish:300, items:{hint:2,undo:2}},
+       +'Here are 30 hearts (they may sit above the cap) to get you started.\n'
+       +'Go and call your first cats.'},
+   fish:300, lives:30, items:{hint:2,undo:2}},
 ];
 const mailBy=id=>MAILBOX.find(m=>m.id===id);
 /* today() yields "2026-9-2", which does not sort, so expiry is compared on
@@ -5565,13 +5765,22 @@ function mailLive(m){
  const d=new Date(m.until+'T23:59:59');
  return isNaN(d)?true:Date.now()<=d.getTime();
 }
-const mailList=()=>MAILBOX.filter(mailLive);
+/* letters the game writes as you play, kept in the save next to the fixed ones */
+function mailGift(m){
+ S.mail.gift=S.mail.gift||[];
+ if(S.mail.gift.some(x=>x.id===m.id))return;
+ S.mail.gift.unshift(m);
+ if(S.mail.gift.length>30)S.mail.gift.length=30;
+ save();paintTabBadge();
+}
+const mailList=()=>(S.mail.gift||[]).concat(MAILBOX).filter(mailLive);
 const mailUnclaimed=()=>mailList().filter(m=>!S.mail.claim[m.id]).length;
 function mailTxt(m){return (LANG==='en'&&m.en)?m.en:m.ja;}
 function mailRewardBits(m){
  const out=[];
  if(m.fish)out.push('🐟 '+fmt(m.fish));
  if(m.shard)out.push('🔷 '+fmt(m.shard));
+ if(m.lives)out.push('♥ '+m.lives);
  const nm={undo:T('巻き戻し'),hint:T('ヒント'),paw:T('猫パンチ'),swap:T('入れ替え')};
  for(const k in(m.items||{}))out.push(nm[k]+' ＋'+m.items[k]);
  return out;
@@ -5583,6 +5792,7 @@ function mailClaim(m){
  S.mail.claim[m.id]=1;S.mail.read[m.id]=1;
  if(m.fish)addCoins(m.fish,'exact');
  if(m.shard)addShard(m.shard);
+ if(m.lives)lifeAdd(m.lives);
  for(const k in(m.items||{}))S.items[k]=(S.items[k]||0)+m.items[k];
  save();paintTop();paintTabBadge();
  return true;
@@ -6290,6 +6500,7 @@ function trialNext(){
 }
 function startTrial(){
  if(!trialOpen()){toast(T('ステージ ')+TRIAL_UNLOCK+T(' クリアで開きます'));return;}
+ if(!lifeSpend()){openLifeGate();return;}
  TR.idx=0;TR.on=true;TR.moves=0;TR.score=0;TR.seen=[];
  $('sheet').classList.remove('on');closeDrawer();
  toast(T('王の試練 ― 行けるところまで！'));
@@ -7051,6 +7262,18 @@ function paintRankCard(){
  box.appendChild(card);
 }
 /* the icon in the top bar; cheap enough to repaint whenever the top bar is */
+/* hearts pill: the count, and how long until the next one */
+function paintLife(){
+ const v=$('lifeV');if(!v)return;
+ const n=lifeN(), left=lifeLeftMs();
+ v.textContent=n;
+ const t=$('lifeT');
+ if(t)t.textContent=(n<LIFE_MAX&&left)?' '+lifeClock(left):'';
+ const pill=$('lifePill');
+ if(pill){pill.classList.toggle('empty',n<=0);
+  pill.classList.toggle('low',n>0&&n<=2);
+  pill.classList.toggle('full',n>=LIFE_MAX);}
+}
 function paintTopAva(){
  const b=$('topAva');if(!b)return;
  const cv=b.firstElementChild;
@@ -7329,9 +7552,8 @@ const cosOf=catId=>{
    the pool is tiny and the old rate meant a full roster still took hundreds
    of draws to dress. */
 /* Published, and deliberately ordered: cat > outfit > theme.
-   62% cat / ~28% outfit (only once its cat is yours) / ~10% theme, and any
-   pool that is empty simply hands the draw back to the cats. */
-const COS_RATE=.28;
+   theme first (10%), then a cat; if that cat is already a friend and has
+   outfits left, the draw usually becomes one of her outfits (see COS_W). */
 /* Only outfits belonging to cats you already have, and only ones you have
    not won yet. Empty pool means every pull is a cat. */
 function cosPool(){return COSTUMES.filter(c=>S.dex[c.cat]&&!S.cos[c.id]);}
@@ -7348,6 +7570,7 @@ function cosGacha(){
    exactly the size a cat would have occupied. */
 function revealTheme(t){
  const hero=$('revealHero');hero.innerHTML='';
+ revealBg(t.r,null);
  const cv=el('canvas');cv.width=cv.height=320;
  const g=cv.getContext('2d');
  const S0=250,x0=(320-S0)/2,y0=(320-S0)/2;
@@ -7371,6 +7594,7 @@ function revealTheme(t){
 function revealCos(c){
  const hero=$('revealHero');hero.innerHTML='';
  const p=COSCAT(c)||PARTNERS[0];
+ revealBg(c.r,catSkin(p));
  const cv=el('canvas');cv.width=cv.height=320;
  drawCat(cv.getContext('2d'),150,192,208,p.k,
   {mood:'happy',cos:c.id,skin:catSkin(p),glow:true,rays:c.r>=5,sparkle:c.r>=5,
@@ -7557,14 +7781,19 @@ function partyLook(){
  /* rich 0..1 — average rarity drives how loud the show is, and the party
     size nudges it up a little so a full bench feels different from a solo */
  const rich=clamp((sum/ps.length-3)/2*.82+(ps.length-1)*.06,0,1);
- return PLOOK={tier:top,sum,rich,cols,glow,lead,
+ /* what each companion throws into the air: a paid cat brings her own
+    (snow, rain, gems, petals, embers, aurora), ★5 brings sparks, ★4 motes */
+ const fx=ps.map(p=>{const K=p.skin?SKINS[p.skin]:null;
+  return {p:K&&K.fxp?K.fxp:(p.r>=5?'spark':p.r>=4?'mote':null),
+          c:(K&&(K.aura||K.ring))||KINDS[p.k%6].fur};}).filter(x=>x.p);
+ return PLOOK={tier:top,sum,rich,cols,glow,lead,fx,
   c1:LK.ring||LK.fur,c2:(LK.aura||LK.fur),
-  motes:Math.round(5*ps.length*(.4+rich)+(top>=5?12:0))};
+  motes:Math.round(8*ps.length*(.5+rich)+(top>=5?18:0))};
 }
 let MOTES=[];
 function motesStep(dt,SZ){
  const L=partyLook();
- const want=S.set.fx?Math.min(46,L.motes):0;
+ const want=S.set.fx?Math.min(70,L.motes):0;
  while(MOTES.length<want)MOTES.push({x:Math.random()*SZ,y:Math.random()*SZ,
   r:SZ*(.004+Math.random()*.007*(1+L.rich)),vy:-(4+Math.random()*13),
   ph:Math.random()*6.283,sp:.5+Math.random(),
@@ -7579,45 +7808,181 @@ function motesStep(dt,SZ){
 function drawPartyBg(g,SZ){
  const L=partyLook();
  if(!L.tier)return;
- const now=performance.now();
- const n=L.glow.length, base=.07+.15*L.rich;
- g.save();g.globalCompositeOperation='lighter';
+ const now=performance.now(), t=now/1000, fx=S.set.fx;
+ const n=L.glow.length, base=.10+.20*L.rich;
+ g.save();
+ /* 1. a deep wash so the stage is never an empty dark square */
+ const wash=g.createLinearGradient(0,0,SZ*.4,SZ);
+ wash.addColorStop(0,hexA(L.c1,.10+.06*L.rich));
+ wash.addColorStop(.55,'rgba(0,0,0,0)');
+ wash.addColorStop(1,hexA(L.c2,.09+.06*L.rich));
+ g.fillStyle=wash;g.fillRect(0,0,SZ,SZ);
+ g.globalCompositeOperation='lighter';
+ /* 2. one drifting light per companion, in that cat's colour */
  for(let i=0;i<n;i++){
-  const a=-Math.PI/2+i/n*6.283+(S.set.fx?Math.sin(now/4200+i*1.7)*.18:0);
-  const cx=SZ/2+Math.cos(a)*SZ*.36, cy=SZ/2+Math.sin(a)*SZ*.36;
+  const a=-Math.PI/2+i/n*6.283+(fx?Math.sin(t/4.2+i*1.7)*.22:0);
+  const rr=SZ*(.34+(fx?Math.sin(t/6+i)*.05:0));
+  const cx=SZ/2+Math.cos(a)*rr, cy=SZ/2+Math.sin(a)*rr;
   const gr=g.createRadialGradient(cx,cy,SZ*.02,cx,cy,SZ*.56);
   gr.addColorStop(0,L.glow[i]);gr.addColorStop(1,'rgba(0,0,0,0)');
   g.globalAlpha=base;g.fillStyle=gr;g.fillRect(0,0,SZ,SZ);}
  const g2=g.createRadialGradient(SZ/2,SZ*.42,SZ*.04,SZ/2,SZ*.52,SZ*.82);
  g2.addColorStop(0,L.c1);g2.addColorStop(1,'rgba(0,0,0,0)');
- g.globalAlpha=base*.85;g.fillStyle=g2;g.fillRect(0,0,SZ,SZ);
+ g.globalAlpha=base*.9;g.fillStyle=g2;g.fillRect(0,0,SZ,SZ);
+ /* 3. slow bands of light crossing the stage — the thing that was missing;
+    they drift, so the background moves even while the player is thinking */
+ if(fx){
+  for(let i=0;i<2;i++){
+   const off=((t*(.05+i*.02)+i*.5)%1.6-.3)*SZ;
+   const bw=SZ*(.20+.06*i);
+   g.save();g.translate(SZ/2,SZ/2);g.rotate(-.5+i*.28);g.translate(-SZ/2,-SZ/2);
+   const bg=g.createLinearGradient(off,0,off+bw,0);
+   bg.addColorStop(0,'rgba(0,0,0,0)');
+   bg.addColorStop(.5,hexA(L.glow[i%n],.09+.07*L.rich));
+   bg.addColorStop(1,'rgba(0,0,0,0)');
+   g.globalAlpha=1;g.fillStyle=bg;g.fillRect(-SZ,-SZ,SZ*3,SZ*3);
+   g.restore();}}
+ /* 4. a frame in the leader's colour from ★4 up */
  if(L.tier>=4){
-  g.globalAlpha=.09+.13*L.rich;g.strokeStyle=L.glow[0];g.lineWidth=SZ*.014;
-  g.beginPath();g.roundRect(SZ*.025,SZ*.025,SZ*.95,SZ*.95,SZ*.07);g.stroke();}
- if(L.tier>=5&&S.set.fx){
-  /* one ray per companion, in that companion's colour, so a ★5 bench looks
-     like the cats you actually picked rather than a generic light show */
-  g.translate(SZ/2,SZ/2);g.rotate(now/9000);
+  g.globalAlpha=.11+.15*L.rich;g.strokeStyle=L.glow[0];g.lineWidth=SZ*.016;
+  g.beginPath();g.roundRect(SZ*.025,SZ*.025,SZ*.95,SZ*.95,SZ*.07);g.stroke();
+  g.globalAlpha=.06+.08*L.rich;g.lineWidth=SZ*.045;g.stroke();}
+ /* 5. ★5 rays, one per companion colour */
+ if(L.tier>=5&&fx){
+  g.save();g.translate(SZ/2,SZ/2);g.rotate(t/9);
   for(let i=0;i<6;i++){
    g.rotate(6.283/6);
    const rg=g.createLinearGradient(0,0,0,-SZ*.8);
    rg.addColorStop(0,'rgba(0,0,0,0)');rg.addColorStop(.55,L.glow[i%n]);
    rg.addColorStop(1,'rgba(0,0,0,0)');
-   g.globalAlpha=.05+.045*Math.abs(Math.sin(now/900+i));
+   g.globalAlpha=.06+.05*Math.abs(Math.sin(t+i));
    g.fillStyle=rg;
    g.beginPath();g.moveTo(0,0);g.lineTo(-SZ*.085,-SZ*.8);g.lineTo(SZ*.085,-SZ*.8);
-   g.closePath();g.fill();}}
+   g.closePath();g.fill();}
+  g.restore();}
  g.restore();
+ /* 6. the cats' own weather: each companion drops what belongs to her */
+ if(fx&&L.fx.length)drawPartyWeather(g,SZ,L,t);
  if(!MOTES.length)return;
  g.save();g.globalCompositeOperation='lighter';
  for(const m of MOTES){
   const c=L.glow[m.ci%L.glow.length];
-  g.globalAlpha=.12+.20*Math.abs(Math.sin(m.ph));
+  g.globalAlpha=.14+.22*Math.abs(Math.sin(m.ph));
   g.fillStyle=c;
   if(m.st)star4(g,m.x,m.y,m.r*2.1*(1+.3*Math.sin(m.ph)),m.ph);
   else{g.beginPath();g.arc(m.x,m.y,m.r*(1+.3*Math.sin(m.ph)),0,7);g.fill();}}
  g.restore();
 }
+/* The party's light on the board itself: a tint in the leader's colour, a
+   glow along the inside edge from ★4, turning rays from ★5, and each
+   companion's own weather drifting across the floor. Everything is drawn
+   under the cats and kept faint, so the puzzle stays the clearest thing. */
+function partyStageFx(g,bx,by,bw,bh,cell,now){
+ const L=partyLook();
+ if(!L.tier)return;
+ const t=(now||0)/1000, fx=S.set.fx;
+ g.save();
+ g.beginPath();g.roundRect(bx,by,bw,bh,cell*.2);g.clip();
+ g.globalCompositeOperation='lighter';
+ /* a soft corner-to-corner tint from the two lead colours */
+ const wash=g.createLinearGradient(bx,by,bx+bw,by+bh);
+ wash.addColorStop(0,hexA(L.c1,.08+.07*L.rich));
+ wash.addColorStop(.5,'rgba(0,0,0,0)');
+ wash.addColorStop(1,hexA(L.c2,.07+.07*L.rich));
+ g.fillStyle=wash;g.fillRect(bx,by,bw,bh);
+ /* a base layer that every party gets: soft bokeh and faint paw prints, so
+    even a single ★3 companion leaves the board looking lived-in */
+ {const t2=t*.06;
+  for(let i=0;i<6;i++){
+   const sx=bx+bw*(((i*37)%10)/10+.05)+Math.sin(t2+i)*bw*.06;
+   const sy=by+bh*(((i*53)%10)/10+.05)+Math.cos(t2*1.3+i)*bh*.05;
+   const rr=Math.max(bw,bh)*(.10+((i*29)%5)/40);
+   const bo=g.createRadialGradient(sx,sy,0,sx,sy,rr);
+   bo.addColorStop(0,hexA(L.glow[i%L.glow.length],.06+.04*L.rich));
+   bo.addColorStop(1,'rgba(0,0,0,0)');
+   g.fillStyle=bo;g.beginPath();g.arc(sx,sy,rr,0,7);g.fill();}
+  g.globalAlpha=.05+.04*L.rich;g.fillStyle=L.c1;
+  for(let i=0;i<4;i++){
+   const px2=bx+bw*(((i*61)%10)/10+.06)+Math.sin(t*.2+i*2)*bw*.03;
+   const py2=by+bh*(((i*43)%10)/10+.08)-((t*.02+i/4)%1)*bh*.1;
+   const k=cell*.16;
+   g.beginPath();g.ellipse(px2,py2,k*.9,k*.7,0,0,7);g.fill();
+   for(let j=0;j<3;j++){const a2=-Math.PI/2+(j-1)*.7;
+    g.beginPath();g.arc(px2+Math.cos(a2)*k*1.2,py2+Math.sin(a2)*k*1.2,k*.34,0,7);g.fill();}}
+  g.globalAlpha=1;}
+ /* one breathing light per companion, drifting slowly over the floor */
+ const n=L.glow.length;
+ for(let i=0;i<n;i++){
+  const a=-Math.PI/2+i/n*6.283+(fx?Math.sin(t/5+i*1.6)*.3:0);
+  const cx=bx+bw/2+Math.cos(a)*bw*.36, cy=by+bh/2+Math.sin(a)*bh*.36;
+  const gr=g.createRadialGradient(cx,cy,0,cx,cy,Math.max(bw,bh)*.34);
+  gr.addColorStop(0,hexA(L.glow[i],.11+.09*L.rich));
+  gr.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=gr;g.fillRect(bx,by,bw,bh);}
+ if(L.tier>=5&&fx){
+  g.save();g.translate(bx+bw/2,by+bh/2);g.rotate(t/11);
+  for(let i=0;i<6;i++){
+   g.rotate(6.283/6);
+   const rg=g.createLinearGradient(0,0,0,-bh*.8);
+   rg.addColorStop(0,'rgba(0,0,0,0)');
+   rg.addColorStop(.5,hexA(L.glow[i%n],.08));
+   rg.addColorStop(1,'rgba(0,0,0,0)');
+   g.fillStyle=rg;
+   g.beginPath();g.moveTo(0,0);g.lineTo(-bw*.09,-bh*.85);g.lineTo(bw*.09,-bh*.85);
+   g.closePath();g.fill();}
+  g.restore();}
+ if(fx&&L.fx.length)drawPartyWeather(g,Math.max(bw,bh),L,t,bx,by,bw,bh);
+ g.globalCompositeOperation='source-over';
+ if(L.tier>=4){
+  /* a rim of the leader's colour just inside the board edge */
+  g.globalCompositeOperation='lighter';
+  g.globalAlpha=.10+.10*L.rich;g.strokeStyle=L.glow[0];
+  g.lineWidth=cell*.22;g.beginPath();
+  g.roundRect(bx+cell*.11,by+cell*.11,bw-cell*.22,bh-cell*.22,cell*.2);g.stroke();}
+ g.restore();
+}
+/* Ambient particles belonging to the cats on the bench. Kept faint and mostly
+   near the edges so the board stays the clearest thing on screen. */
+function drawPartyWeather(g,SZ,L,t,bx,by,bw,bh){
+ bx=bx||0;by=by||0;bw=bw||SZ;bh=bh||SZ;
+ g.save();
+ const per=L.tier>=5?5:4;
+ L.fx.slice(0,4).forEach((f,fi)=>{
+  for(let i=0;i<per;i++){
+   const seed=fi*7+i;
+   const sp=.05+((seed*37)%13)/100;
+   const ph=(t*sp+(seed%10)/10)%1;
+   const x=bx+bw*(((seed*53)%100)/100)+Math.sin(t*.5+seed)*bw*.05;
+   const y=f.p==='ember'?by+bh*(1.05-ph*1.15):by+bh*(ph*1.15-.07);
+   const k=SZ*(.010+((seed*17)%7)/1000), al=Math.sin(ph*Math.PI)*.55;
+   g.globalAlpha=al;
+   if(f.p==='snow'){g.strokeStyle='#fff';g.lineWidth=Math.max(1,SZ*.0035);
+    for(let j=0;j<3;j++){const a=j*Math.PI/3;
+     g.beginPath();g.moveTo(x-Math.cos(a)*k,y-Math.sin(a)*k);
+     g.lineTo(x+Math.cos(a)*k,y+Math.sin(a)*k);g.stroke();}}
+   else if(f.p==='rain'){g.strokeStyle=f.c;g.lineWidth=Math.max(1,SZ*.004);
+    g.beginPath();g.moveTo(x,y-k*1.6);g.lineTo(x+k*.3,y+k*1.6);g.stroke();}
+   else if(f.p==='ember'){g.globalCompositeOperation='lighter';
+    const er=g.createRadialGradient(x,y,0,x,y,k*1.8);
+    er.addColorStop(0,'rgba(255,240,180,.95)');er.addColorStop(.45,'rgba(255,140,60,.75)');
+    er.addColorStop(1,'rgba(255,80,40,0)');
+    g.fillStyle=er;g.beginPath();g.arc(x,y,k*1.8,0,7);g.fill();
+    g.globalCompositeOperation='source-over';}
+   else if(f.p==='petal'){g.save();g.translate(x,y);g.rotate(t*1.3+seed);
+    g.fillStyle='#FFB3CF';g.beginPath();g.ellipse(0,0,k*1.2,k*.7,0,0,7);g.fill();g.restore();}
+   else if(f.p==='gem'){g.fillStyle=f.c;g.beginPath();
+    g.moveTo(x,y-k);g.lineTo(x+k*.7,y);g.lineTo(x,y+k);g.lineTo(x-k*.7,y);g.closePath();g.fill();}
+   else if(f.p==='aurora'){g.strokeStyle=hexA(f.c,.5);g.lineWidth=SZ*.012;
+    g.beginPath();
+    for(let q=0;q<=8;q++){const xx=x-SZ*.12+q*SZ*.03,yy=y+Math.sin(q*.9+t*1.4)*SZ*.012;
+     q?g.lineTo(xx,yy):g.moveTo(xx,yy);}
+    g.stroke();}
+   else if(f.p==='spark'){g.fillStyle=f.c;star4(g,x,y,k*1.5,t+seed);}
+   else{g.fillStyle=f.c;g.beginPath();g.arc(x,y,k*.8,0,7);g.fill();}
+  }});
+ g.restore();
+}
+
 /* the party strip: who came with you, wearing what */
 function paintParty(){
  PLOOK=null;MOTES.length=0;
