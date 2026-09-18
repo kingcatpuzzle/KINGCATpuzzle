@@ -40,6 +40,8 @@ button{font-family:inherit;font-weight:800;color:inherit;background:none;border:
 #bgFX{position:fixed;inset:0;z-index:-2;overflow:hidden;
  background:radial-gradient(ellipse at 50% -12%,#1e2a5e 0%,transparent 62%),
             linear-gradient(180deg,var(--bg-0),var(--bg-2) 55%,var(--bg-0))}
+#bgCv{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .5s ease}
+body.playing #bgCv{opacity:1}
 #bgFX .blob{position:absolute;width:72vmax;height:72vmax;border-radius:50%;filter:blur(90px);
  opacity:.2;animation:drift 22s ease-in-out infinite alternate;will-change:transform}
 #bgFX .b1{background:var(--cyan);top:-28%;left:-28%}
@@ -841,7 +843,7 @@ body.hasAd{--bannerH:var(--adH,50px)}
 </style>
 </head>
 <body>
-<div id="bgFX"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div id="bgFX"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><canvas id="bgCv"></canvas></div>
 <canvas id="starfield"></canvas>
 <div id="flashGold" class="flashLayer"></div>
 <div id="flashCyan" class="flashLayer"></div>
@@ -3170,7 +3172,8 @@ function frame(now){
  fxStep(dt);motesStep(dt,G.size||360);
  if($('scPlay').classList.contains('on')&&G.ctx)draw(now);
  if($('scHome').classList.contains('on'))drawHero(now);
- if(!document.hidden){animAvatars(now);animLive(now);}
+ if(!document.hidden){animAvatars(now);animLive(now);
+  if(document.body.classList.contains('playing'))drawStageBackdrop(now);}
  /* the hearts pill ticks down once a second, not sixty times */
  if(now-lifeT>1000){lifeT=now;paintLife();}
  requestAnimationFrame(frame);
@@ -3183,7 +3186,6 @@ function draw(now){
  const g=G.ctx,SZ=G.size;
  g.save();
  g.clearRect(0,0,SZ,SZ);
- drawPartyBg(g,SZ);
  if(G.shakeT>0){const k=G.shakeAmp*(G.shakeT/.34);
   g.translate((Math.random()-.5)*k,(Math.random()-.5)*k);}
 
@@ -3248,9 +3250,6 @@ function draw(now){
   g.beginPath();g.roundRect(bx+c*V.cell+m,by+r*V.cell+m,V.cell-m*2,V.cell-m*2,V.cell*.16);g.fill();}
  themeScrim(g,bx,by,bw,bh,V.cell);
  themeFx(g,TH,bx,by,bw,bh,V.cell,now);
- /* the party's own light, INSIDE the board — the wash behind the frame was
-    invisible under the opaque floor, which is why the stage looked bare */
- partyStageFx(g,bx,by,bw,bh,V.cell,now);
  g.restore();
  drawWalls(g,bx,by,bw,bh,V.cell,wallDir,wallIn);
 
@@ -3286,6 +3285,18 @@ function draw(now){
   g.restore();}
  if(G.hint&&!an)drawHint(g,bx,by,bw,bh,V.cell,now);
  fxDraw(g);
+ /* The party's light goes UNDER everything: drawn last with destination-over,
+    it fills the space around the board — which is the part the player sees as
+    background — without touching the floor or the cats. */
+ g.save();
+ /* everywhere except the board itself: the floor keeps its own colours and
+    the cats keep their contrast, the surround gets the show */
+ g.beginPath();g.rect(0,0,SZ,SZ);
+ g.roundRect(bx-V.cell*.06,by-V.cell*.06,bw+V.cell*.12,bh+V.cell*.12,V.cell*.24);
+ g.clip('evenodd');
+ g.globalCompositeOperation='destination-over';
+ drawPartyBg(g,SZ,bx,by,bw,bh,V.cell);
+ g.restore();
  g.restore();
 }
 /* The walls are the only thing the player touches, so they get real weight:
@@ -7805,9 +7816,10 @@ function motesStep(dt,SZ){
 /* The stage takes its colour from the cats you brought: one soft light per
    companion in that cat's own coat colour, a wash in the leader's, and — for
    a ★5 bench — slow rotating rays. Higher rarity, louder show. */
-function drawPartyBg(g,SZ){
+function drawPartyBg(g,SZ,bx,by,bw,bh,cell){
  const L=partyLook();
  if(!L.tier)return;
+ const hasBoard=bx!==undefined;
  const now=performance.now(), t=now/1000, fx=S.set.fx;
  const n=L.glow.length, base=.10+.20*L.rich;
  g.save();
@@ -7842,11 +7854,21 @@ function drawPartyBg(g,SZ){
    bg.addColorStop(1,'rgba(0,0,0,0)');
    g.globalAlpha=1;g.fillStyle=bg;g.fillRect(-SZ,-SZ,SZ*3,SZ*3);
    g.restore();}}
- /* 4. a frame in the leader's colour from ★4 up */
- if(L.tier>=4){
+ /* 4. a halo around the board itself, in the leader's colour, so the space
+    behind the box glows instead of sitting flat */
+ if(hasBoard){
+  const pad=cell*(.5+1.2*L.rich);
+  g.globalAlpha=.20+.24*L.rich;g.strokeStyle=L.glow[0];g.lineWidth=cell*.5;
+  g.beginPath();g.roundRect(bx-pad*.5,by-pad*.5,bw+pad,bh+pad,cell*.4);g.stroke();
+  g.globalAlpha=.10+.14*L.rich;g.lineWidth=cell*1.5;
+  g.beginPath();g.roundRect(bx-pad,by-pad,bw+pad*2,bh+pad*2,cell*.6);g.stroke();
+  if(L.tier>=4){
+   g.globalAlpha=.14+.16*L.rich;g.strokeStyle=L.glow[Math.min(1,L.glow.length-1)];
+   g.lineWidth=Math.max(2,cell*.12);
+   g.beginPath();g.roundRect(bx-pad*1.5,by-pad*1.5,bw+pad*3,bh+pad*3,cell*.8);g.stroke();}}
+ else if(L.tier>=4){
   g.globalAlpha=.11+.15*L.rich;g.strokeStyle=L.glow[0];g.lineWidth=SZ*.016;
-  g.beginPath();g.roundRect(SZ*.025,SZ*.025,SZ*.95,SZ*.95,SZ*.07);g.stroke();
-  g.globalAlpha=.06+.08*L.rich;g.lineWidth=SZ*.045;g.stroke();}
+  g.beginPath();g.roundRect(SZ*.025,SZ*.025,SZ*.95,SZ*.95,SZ*.07);g.stroke();}
  /* 5. ★5 rays, one per companion colour */
  if(L.tier>=5&&fx){
   g.save();g.translate(SZ/2,SZ/2);g.rotate(t/9);
@@ -7873,73 +7895,73 @@ function drawPartyBg(g,SZ){
   else{g.beginPath();g.arc(m.x,m.y,m.r*(1+.3*Math.sin(m.ph)),0,7);g.fill();}}
  g.restore();
 }
-/* The party's light on the board itself: a tint in the leader's colour, a
-   glow along the inside edge from ★4, turning rays from ★5, and each
-   companion's own weather drifting across the floor. Everything is drawn
-   under the cats and kept faint, so the puzzle stays the clearest thing. */
-function partyStageFx(g,bx,by,bw,bh,cell,now){
+/* ------------------------------------------------ the screen behind the board
+   The board itself stays plain; what the party lights up is everything around
+   it. This is a separate, low-resolution canvas pinned behind the whole UI, so
+   the show fills the screen instead of the few pixels of margin the stage
+   canvas has. Half resolution: it is all soft gradients, nobody can tell. */
+let BGC=null,BGW=0,BGH=0;
+function bgCanvas(){
+ if(BGC)return BGC;
+ const cv=$('bgCv');if(!cv)return null;
+ BGC=cv.getContext('2d');bgFit();
+ addEventListener('resize',()=>{bgFit();});
+ return BGC;
+}
+function bgFit(){
+ const cv=$('bgCv');if(!cv)return;
+ BGW=Math.round(innerWidth*.38);BGH=Math.round(innerHeight*.38);
+ cv.width=BGW;cv.height=BGH;
+}
+let bgT=0;
+function drawStageBackdrop(now){
+ /* slow, soft motion: thirty frames a second is plenty and leaves the
+    board's own animation the frame time it needs */
+ if(now-bgT<33)return;bgT=now;
+ const g=bgCanvas();if(!g)return;
+ if(BGW!==Math.round(innerWidth*.38)||BGH!==Math.round(innerHeight*.38))bgFit();
+ g.clearRect(0,0,BGW,BGH);
  const L=partyLook();
  if(!L.tier)return;
- const t=(now||0)/1000, fx=S.set.fx;
+ const t=(now||0)/1000, fx=S.set.fx, S0=Math.min(BGW,BGH), n=L.glow.length;
  g.save();
- g.beginPath();g.roundRect(bx,by,bw,bh,cell*.2);g.clip();
  g.globalCompositeOperation='lighter';
- /* a soft corner-to-corner tint from the two lead colours */
- const wash=g.createLinearGradient(bx,by,bx+bw,by+bh);
- wash.addColorStop(0,hexA(L.c1,.08+.07*L.rich));
- wash.addColorStop(.5,'rgba(0,0,0,0)');
- wash.addColorStop(1,hexA(L.c2,.07+.07*L.rich));
- g.fillStyle=wash;g.fillRect(bx,by,bw,bh);
- /* a base layer that every party gets: soft bokeh and faint paw prints, so
-    even a single ★3 companion leaves the board looking lived-in */
- {const t2=t*.06;
-  for(let i=0;i<6;i++){
-   const sx=bx+bw*(((i*37)%10)/10+.05)+Math.sin(t2+i)*bw*.06;
-   const sy=by+bh*(((i*53)%10)/10+.05)+Math.cos(t2*1.3+i)*bh*.05;
-   const rr=Math.max(bw,bh)*(.10+((i*29)%5)/40);
-   const bo=g.createRadialGradient(sx,sy,0,sx,sy,rr);
-   bo.addColorStop(0,hexA(L.glow[i%L.glow.length],.06+.04*L.rich));
-   bo.addColorStop(1,'rgba(0,0,0,0)');
-   g.fillStyle=bo;g.beginPath();g.arc(sx,sy,rr,0,7);g.fill();}
-  g.globalAlpha=.05+.04*L.rich;g.fillStyle=L.c1;
-  for(let i=0;i<4;i++){
-   const px2=bx+bw*(((i*61)%10)/10+.06)+Math.sin(t*.2+i*2)*bw*.03;
-   const py2=by+bh*(((i*43)%10)/10+.08)-((t*.02+i/4)%1)*bh*.1;
-   const k=cell*.16;
-   g.beginPath();g.ellipse(px2,py2,k*.9,k*.7,0,0,7);g.fill();
-   for(let j=0;j<3;j++){const a2=-Math.PI/2+(j-1)*.7;
-    g.beginPath();g.arc(px2+Math.cos(a2)*k*1.2,py2+Math.sin(a2)*k*1.2,k*.34,0,7);g.fill();}}
-  g.globalAlpha=1;}
- /* one breathing light per companion, drifting slowly over the floor */
- const n=L.glow.length;
+ /* one soft light per companion, drifting */
  for(let i=0;i<n;i++){
-  const a=-Math.PI/2+i/n*6.283+(fx?Math.sin(t/5+i*1.6)*.3:0);
-  const cx=bx+bw/2+Math.cos(a)*bw*.36, cy=by+bh/2+Math.sin(a)*bh*.36;
-  const gr=g.createRadialGradient(cx,cy,0,cx,cy,Math.max(bw,bh)*.34);
-  gr.addColorStop(0,hexA(L.glow[i],.11+.09*L.rich));
+  const a=-Math.PI/2+i/n*6.283+(fx?Math.sin(t/5+i*1.7)*.4:0);
+  const cx=BGW/2+Math.cos(a)*BGW*.42, cy=BGH/2+Math.sin(a)*BGH*.34;
+  const gr=g.createRadialGradient(cx,cy,0,cx,cy,S0*(.55+.15*L.rich));
+  gr.addColorStop(0,hexA(L.glow[i],.16+.16*L.rich));
   gr.addColorStop(1,'rgba(0,0,0,0)');
-  g.fillStyle=gr;g.fillRect(bx,by,bw,bh);}
+  g.fillStyle=gr;g.fillRect(0,0,BGW,BGH);}
+ /* slow bands crossing the screen */
+ if(fx)for(let i=0;i<2;i++){
+  const off=((t*(.03+i*.015)+i*.5)%1.7-.35)*BGH;
+  g.save();g.translate(BGW/2,BGH/2);g.rotate(-.7+i*.35);g.translate(-BGW/2,-BGH/2);
+  const bg=g.createLinearGradient(0,off,0,off+BGH*.22);
+  bg.addColorStop(0,'rgba(0,0,0,0)');
+  bg.addColorStop(.5,hexA(L.glow[i%n],.07+.06*L.rich));
+  bg.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=bg;g.fillRect(-BGW,-BGH,BGW*3,BGH*3);g.restore();}
+ /* ★5: rays from behind the board */
  if(L.tier>=5&&fx){
-  g.save();g.translate(bx+bw/2,by+bh/2);g.rotate(t/11);
-  for(let i=0;i<6;i++){
-   g.rotate(6.283/6);
-   const rg=g.createLinearGradient(0,0,0,-bh*.8);
+  g.save();g.translate(BGW/2,BGH*.46);g.rotate(t/14);
+  for(let i=0;i<8;i++){
+   g.rotate(6.283/8);
+   const rg=g.createLinearGradient(0,0,0,-BGH*.9);
    rg.addColorStop(0,'rgba(0,0,0,0)');
-   rg.addColorStop(.5,hexA(L.glow[i%n],.08));
+   rg.addColorStop(.45,hexA(L.glow[i%n],.09));
    rg.addColorStop(1,'rgba(0,0,0,0)');
    g.fillStyle=rg;
-   g.beginPath();g.moveTo(0,0);g.lineTo(-bw*.09,-bh*.85);g.lineTo(bw*.09,-bh*.85);
+   g.beginPath();g.moveTo(0,0);g.lineTo(-BGW*.10,-BGH*.9);g.lineTo(BGW*.10,-BGH*.9);
    g.closePath();g.fill();}
   g.restore();}
- if(fx&&L.fx.length)drawPartyWeather(g,Math.max(bw,bh),L,t,bx,by,bw,bh);
- g.globalCompositeOperation='source-over';
- if(L.tier>=4){
-  /* a rim of the leader's colour just inside the board edge */
-  g.globalCompositeOperation='lighter';
-  g.globalAlpha=.10+.10*L.rich;g.strokeStyle=L.glow[0];
-  g.lineWidth=cell*.22;g.beginPath();
-  g.roundRect(bx+cell*.11,by+cell*.11,bw-cell*.22,bh-cell*.22,cell*.2);g.stroke();}
  g.restore();
+ /* the cats' own weather, falling across the whole screen */
+ if(fx&&L.fx.length){
+  g.save();
+  drawPartyWeather(g,S0,L,t,0,0,BGW,BGH);
+  g.restore();}
 }
 /* Ambient particles belonging to the cats on the bench. Kept faint and mostly
    near the edges so the board stays the clearest thing on screen. */
