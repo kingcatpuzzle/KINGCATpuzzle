@@ -108,7 +108,7 @@ body[data-theme="sora"] #starfield{opacity:.25}
 #menuBtn span{width:16px;height:2px;background:var(--mid);border-radius:2px}
 #topTitle{flex:1;min-width:0}
 #topTitle .t1{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#topTitle .t2{font-size:10.5px;color:var(--lo);font-weight:700}
+#topTitle .t2{font-size:10.5px;color:var(--lo);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #topRight{display:flex;gap:6px}
 /* the player's icon and frame, on every screen */
 #topAva{width:42px;height:42px;flex:none;padding:0;border:0;background:none;border-radius:50%;
@@ -220,11 +220,18 @@ body[data-theme="sora"] #starfield{opacity:.25}
 #playTitle{flex:1;min-width:0}
 /* Who came with you, right next to the stage number — the party bar under the
    board is easy to miss while you are looking at the puzzle. */
-#playParty{flex:none;display:flex;gap:3px;align-items:center;padding-left:6px}
-#playParty canvas{width:26px;height:26px;display:block}
+#playParty{flex:none;display:flex;gap:5px;align-items:center;padding-left:6px;max-width:58%}
+#playTitle{min-width:96px}
+.ppMore{font-size:11px;font-weight:900;color:var(--lo);padding:0 2px}
+#playParty canvas{width:42px;height:42px;display:block;border-radius:50%}
 #playParty .pp{position:relative}
-#playParty .pp i{position:absolute;right:-1px;bottom:-2px;font-size:6px;
+/* the ring says how rare the companion is without reading anything */
+#playParty .pp.r4 canvas{box-shadow:0 0 0 1.5px var(--r4),0 0 9px -1px var(--r4)}
+#playParty .pp.r5 canvas{box-shadow:0 0 0 2px var(--r5),0 0 12px 0 var(--r5)}
+#playParty .pp.paid canvas{box-shadow:0 0 0 2px var(--gold),0 0 14px 0 rgba(255,215,107,.8)}
+#playParty .pp i{position:absolute;right:-2px;bottom:-3px;font-size:8px;font-weight:900;
  font-style:normal;color:var(--gold);text-shadow:0 0 3px #000}
+@media (max-width:359px){#playParty canvas{width:34px;height:34px}}
 #playTitle .a{font-size:13.5px;font-weight:800;
  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #playTitle .b{font-size:10px;color:var(--lo);font-weight:700;
@@ -499,11 +506,13 @@ body.native #adSlot{color:transparent}
 .lfHd .lf1{font-size:20px;font-weight:900}
 .lfHd .lf2{font-size:26px;letter-spacing:4px;color:#ff6f8f;margin:8px 0 4px}
 .lfHd .lf3{font-size:12px;color:var(--mid);margin-bottom:12px}
-.pill.life{color:#ff9db1;font-size:15px;font-weight:900;padding:6px 12px;gap:4px;
+.pill.life{color:#ff9db1;font-size:14.5px;font-weight:900;padding:6px 10px;gap:3px;white-space:nowrap;
  background:linear-gradient(120deg,rgba(255,110,140,.22),rgba(21,27,48,.92));
  border-color:rgba(255,110,140,.45)}
 .pill.life i{font-style:normal;font-size:10px;font-weight:800;color:var(--lo);margin-left:2px}
 .pill.life.full{color:#ffc2cf}
+/* on narrow phones the countdown gives way; the count and the cap stay */
+@media (max-width:379px){.pill.life{font-size:13.5px;padding:6px 8px}.pill.life i{display:none}}
 .pill.life.low{animation:lifeLow 1.6s ease-in-out infinite}
 .pill.life.empty{color:#ffd0d8;background:rgba(255,110,140,.3);border-color:rgba(255,110,140,.75)}
 @keyframes lifeLow{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
@@ -733,11 +742,13 @@ body.native #adSlot{color:transparent}
  padding:3px 5px;border-radius:99px;background:rgba(255,255,255,.05);
  border:1px solid var(--line)}
 #partyBar.on{display:flex}
-.pcat{width:30px;text-align:center;position:relative}
-.pcat canvas{width:30px;height:30px;display:block;border-radius:50%}
+.pcat{width:40px;text-align:center;position:relative}
+.pcat canvas{width:40px;height:40px;display:block;border-radius:50%}
+@media (max-width:359px){.pcat,.pcat canvas{width:34px}.pcat canvas{height:34px}}
 /* the ring says how rare the companion is at a glance */
 .pcat.r4 canvas{box-shadow:0 0 0 1.5px var(--r4),0 0 7px -1px var(--r4)}
 .pcat.r5 canvas{box-shadow:0 0 0 1.5px var(--r5),0 0 9px 0 var(--r5)}
+.pcat.paid canvas{box-shadow:0 0 0 2px var(--gold),0 0 12px 0 rgba(255,215,107,.75)}
 .pcat i{display:block;font-size:6px;color:var(--gold);letter-spacing:.02em;
  margin-top:-2px;font-style:normal}
 .pcat b{position:absolute;right:-2px;bottom:4px;font-size:8px;line-height:1}
@@ -835,8 +846,13 @@ body.hasAd{--bannerH:var(--adH,50px)}
  background:var(--glass);border:1px solid var(--line);margin-bottom:7px;box-shadow:var(--lift)}
 .msRow.got{opacity:.45}
 .msRow .t{font-size:12px;font-weight:800}
-.streakG{display:flex;gap:5px;justify-content:center;margin:12px 0 4px;flex-wrap:wrap}
-.streakG div{flex:1;min-width:38px;padding:7px 2px;border-radius:11px;font-size:10px;font-weight:800;
+.rwPill{font-size:13.5px;font-weight:900;color:#3a2600;background:var(--foil);
+ border-radius:99px;padding:4px 11px}
+.streakG{display:flex;gap:4px;justify-content:center;margin:12px 0 4px}
+.streakG div b{display:block;font-size:10px;font-weight:900}
+.streakG div i{display:block;font-style:normal;font-size:9px;font-weight:800;line-height:1.35;margin-top:2px;opacity:.95}
+.streakG div u{display:block;text-decoration:none;font-size:9px;margin-top:1px}
+.streakG div{flex:1;min-width:40px;padding:6px 2px;border-radius:11px;font-size:10px;font-weight:800;
  background:rgba(255,255,255,.05);border:1px solid var(--line);text-align:center;color:var(--lo)}
 .streakG div.on{background:var(--foil);color:#3a2600;border-color:rgba(255,240,190,.6)}
 .streakG div.now{outline:2px solid var(--cyan);outline-offset:1px;color:var(--hi)}
@@ -998,7 +1014,7 @@ body.hasAd{--bannerH:var(--adH,50px)}
  <div class="eyebrow" id="dEye"></div>
  <div id="dTitle" style="font-size:22px;font-weight:900;margin-top:4px"></div>
  <div id="dArt" style="height:112px;display:flex;align-items:center;justify-content:center"></div>
- <div id="dRew" style="font-size:15px;font-weight:900;color:var(--gold)"></div>
+ <div id="dRew" style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap"></div>
  <div class="streakG" id="dStreak"></div>
  <div id="dNext" style="font-size:10.5px;color:var(--lo);margin-top:6px;line-height:1.6"></div>
  <button class="btn gold wide" id="dClose" style="margin-top:14px"></button></div></div>
@@ -2319,7 +2335,8 @@ function rollTheme(){
 }
 /* falls back to the free theme if a timed/refunded purchase ever goes away */
 function curTheme(){const t=THBY(S.theme||'none');return themeOwned(t)?t:THEMES[0];}
-function applyTheme(){document.body.dataset.theme=curTheme().id;}
+function applyTheme(){
+ WALLPAL=null;   /* wall colours are mixed from the theme */document.body.dataset.theme=curTheme().id;}
 /* Whatever the theme does to the floor, the cats sit on top of a slightly
    darkened, slightly desaturated板 so the silhouettes always read. A theme
    that makes the puzzle harder to see is a theme that gets switched off and
@@ -3299,9 +3316,37 @@ function draw(now){
  g.restore();
  g.restore();
 }
-/* The walls are the only thing the player touches, so they get real weight:
-   a thicker slab, rollers along the face, a shadow cast into the box, and a
-   hot leading edge that brightens as it bites in. */
+/* Wall colours follow the theme. They used to be a fixed slate blue with a
+   gold face while moving, which sat oddly on a red-gold tatami or a green
+   riverside: the box looked like it came from another game. Now the slab is
+   mixed from the theme's own edge colour and its floor, and the moving wall
+   is the same material lit up rather than a different one. */
+function hexToRgb(h){
+ h=String(h).replace('#','');
+ if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+ const n=parseInt(h,16);
+ return isNaN(n)?[140,150,190]:[(n>>16)&255,(n>>8)&255,n&255];
+}
+const mixHex=(a,b,t)=>{
+ const A=hexToRgb(a),B=hexToRgb(b);
+ return 'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')';
+};
+let WALLPAL=null;
+function wallPal(){
+ const TH=curTheme(), id=TH.id;
+ if(WALLPAL&&WALLPAL.id===id)return WALLPAL;
+ const edge=(TH.lux&&TH.lux.edge)||'#8ea0d6';
+ const hot=(TH.lux&&TH.lux.edge2)||'#ffffff';
+ WALLPAL={id,
+  /* resting slab: the theme's colour, darkened into metal */
+  a1:mixHex(edge,'#ffffff',.22), a2:mixHex(edge,'#1b2340',.55), a3:mixHex(edge,'#080b16',.78),
+  /* the same metal with the light on it */
+  h1:mixHex(hot,'#ffffff',.55), h2:mixHex(edge,'#ffffff',.55),
+  h3:mixHex(edge,'#8a6b18',.35), h4:mixHex(edge,'#2a2008',.6),
+  roll:mixHex(edge,'#ffffff',.45), hotRoll:mixHex(hot,'#ffffff',.4),
+  glow:hot};
+ return WALLPAL;
+}
 function drawWalls(g,bx,by,bw,bh,cell,dir,inAmt){
  const t=cell*.3,a=inAmt||0,off=a*cell*.46;
  const W=[{d:'left', x:bx-t+(dir==='left'?off:0), y:by-t,w:t,h:bh+t*2},
@@ -3324,10 +3369,11 @@ function drawWalls(g,bx,by,bw,bh,cell,dir,inAmt){
    g.fill();g.restore();}
   const grd=hz?g.createLinearGradient(0,wl.y,0,wl.y+wl.h)
               :g.createLinearGradient(wl.x,0,wl.x+wl.w,0);
-  if(act){grd.addColorStop(0,'#fff6d8');grd.addColorStop(.36,'#ffd76b');
-   grd.addColorStop(.72,'#d9a338');grd.addColorStop(1,'#8f6414');}
-  else{grd.addColorStop(0,'#5a6aa6');grd.addColorStop(.5,'#3b4778');
-   grd.addColorStop(1,'#232b4c');}
+  const P=wallPal();
+  if(act){grd.addColorStop(0,P.h1);grd.addColorStop(.36,P.h2);
+   grd.addColorStop(.72,P.h3);grd.addColorStop(1,P.h4);}
+  else{grd.addColorStop(0,P.a1);grd.addColorStop(.5,P.a2);
+   grd.addColorStop(1,P.a3);}
   g.fillStyle=grd;
   g.beginPath();g.roundRect(wl.x,wl.y,wl.w,wl.h,t*.3);g.fill();
   /* rollers */
@@ -3338,7 +3384,7 @@ function drawWalls(g,bx,by,bw,bh,cell,dir,inAmt){
    const cy=hz?wl.y+wl.h/2:wl.y+wl.h*(i+.5)/n;
    g.globalAlpha=.34;g.fillStyle='#0a0d1a';
    g.beginPath();g.arc(cx,cy,t*.26,0,7);g.fill();
-   g.globalAlpha=.5;g.fillStyle=act?'#fff3cf':'#8ea0d6';
+   g.globalAlpha=.5;g.fillStyle=act?P.hotRoll:P.roll;
    g.beginPath();g.arc(cx-t*.05,cy-t*.06,t*.12,0,7);g.fill();}
   g.restore();
   g.strokeStyle='rgba(255,255,255,.26)';g.lineWidth=1.3;
@@ -3346,8 +3392,8 @@ function drawWalls(g,bx,by,bw,bh,cell,dir,inAmt){
   /* hot leading edge */
   if(act){
    g.save();g.globalAlpha=.35+.65*a;
-   g.strokeStyle='#fff8e0';g.lineWidth=Math.max(1.6,cell*.05*(.5+a));
-   g.shadowColor='#ffd76b';g.shadowBlur=cell*.5*a;
+   g.strokeStyle=P.h1;g.lineWidth=Math.max(1.6,cell*.05*(.5+a));
+   g.shadowColor=P.glow;g.shadowBlur=cell*.5*a;
    g.beginPath();
    if(wl.d==='left'){g.moveTo(wl.x+wl.w,wl.y+t*.3);g.lineTo(wl.x+wl.w,wl.y+wl.h-t*.3);}
    else if(wl.d==='right'){g.moveTo(wl.x,wl.y+t*.3);g.lineTo(wl.x,wl.y+wl.h-t*.3);}
@@ -4697,7 +4743,10 @@ function liveDraw(cv,fn,always){
 }
 function animLive(now){
  if(!LIVE.length)return;
- const open=$('sheet').classList.contains('on'), home=$('scHome').classList.contains('on')&&!open;
+ const open=$('sheet').classList.contains('on');
+ /* 'home' canvases run on the home screen and on the play screen (the party
+    strip lives there), but never behind an open sheet */
+ const home=!open&&($('scHome').classList.contains('on')||document.body.classList.contains('playing'));
  for(let i=LIVE.length-1;i>=0;i--){const L=LIVE[i];
   if(!L.cv.isConnected){LIVE.splice(i,1);if(LIVE_IO)LIVE_IO.unobserve(L.cv);continue;}
   if(!(L.home?home:L.always?!!L.cv.closest('.ov.on'):open))continue;
@@ -5944,10 +5993,11 @@ function maybeAskReview(){
 
 /* ---------------------------------------------------------- login bonus */
 const LOGIN=[
- /* v1.3: ~70% of the old sardines. Day 7 stays clearly the best day of the
-    week, which is the only thing this table has to get right. */
- {fish:10},{fish:15},{item:'hint',n:2,fish:7},{fish:22},
- {item:'undo',n:3,fish:12},{fish:32},{item:'paw',n:1,item2:'swap',n2:1,fish:50}];
+ /* Seven days, day 7 clearly the best. Every day's contents are written out
+    in the dialog, so a player can see on day 1 what day 7 holds. */
+ {fish:10},{fish:15},{item:'hint',n:2,fish:7,lives:2},{fish:22},
+ {item:'undo',n:3,fish:12,lives:3},{fish:32},
+ {item:'paw',n:1,item2:'swap',n2:1,fish:50,lives:5}];
 const dayNum=d=>Math.floor(new Date(d).getTime()/864e5);
 function checkLogin(){
  const t=today();
@@ -5958,6 +6008,24 @@ function checkLogin(){
  showLogin();
  return true;
 }
+/* "🐟 10" / "💡 ＋2" — the same short form in the big line, in the seven-day
+   strip and in tomorrow's preview, so nothing is left as a vague "アイテム" */
+function loginBits(r){
+ const out=[];
+ if(r.fish)out.push('🐟 '+r.fish);
+ if(r.item)out.push(ITEM_IC[r.item]+' ＋'+r.n);
+ if(r.item2)out.push(ITEM_IC[r.item2]+' ＋'+r.n2);
+ if(r.lives)out.push('♥ ＋'+r.lives);
+ return out;
+}
+function loginNames(r){
+ const out=[];
+ if(r.fish)out.push(JE('煮干し ','Sardines ')+r.fish);
+ if(r.item)out.push(itemName(r.item)+' ＋'+r.n);
+ if(r.item2)out.push(itemName(r.item2)+' ＋'+r.n2);
+ if(r.lives)out.push(JE('ライフ ＋','Hearts +')+r.lives);
+ return out;
+}
 function showLogin(){
  const i=S.login.streak-1,r=LOGIN[i];
  $('dTitle').textContent=S.login.streak+T('日目');
@@ -5965,26 +6033,26 @@ function showLogin(){
  const cv=el('canvas');cv.width=cv.height=230;cv.style.width='112px';cv.style.height='112px';
  drawCat(cv.getContext('2d'),115,124,180,S.login.streak%6,{mood:'happy',glow:S.login.streak>=7});
  art.appendChild(cv);
- const parts=[];
- if(r.fish)parts.push('🐟 '+r.fish);
- if(r.item)parts.push(itemName(r.item)+' ＋'+r.n);
- if(r.item2)parts.push(itemName(r.item2)+' ＋'+r.n2);
- $('dRew').textContent=parts.join('　／　');
+ $('dRew').innerHTML=loginNames(r).map(x=>'<span class="rwPill">'+x+'</span>').join('');
+ /* the whole week, with what each day gives */
  const g=$('dStreak');g.innerHTML='';
  LOGIN.forEach((x,k)=>{
-  const d=el('div','',(k+1)+T('日')+(x.item?'<br>🎁':'<br>🐟'));
+  const d=el('div','','<b>'+(k+1)+T('日')+'</b>'
+   +'<i>'+loginBits(x).join('<br>')+'</i>'
+   +(k<S.login.streak-1?'<u>✓</u>':''));
   if(k<S.login.streak)d.classList.add('on');
   if(k===i)d.classList.add('now');
   g.appendChild(d);});
- $('dNext').textContent=S.login.streak>=7
+ $('dNext').innerHTML=S.login.streak>=7
   ? T('7日そろいました！ 明日からまた1日目に戻ります。')
-  : T('明日来ると ')+(S.login.streak+1)+T('日目（')+
-    (LOGIN[S.login.streak].item?T('アイテム'):'🐟 '+LOGIN[S.login.streak].fish)+')';
+  : JE('明日来ると '+(S.login.streak+1)+'日目：','Tomorrow, day '+(S.login.streak+1)+': ')
+    +'<b style="color:var(--gold)">'+loginNames(LOGIN[S.login.streak]).join(' ／ ')+'</b>';
  $('dClose').onclick=()=>{
   $('ovDaily').classList.remove('on');
   if(r.fish)addCoins(r.fish);
   if(r.item){S.items[r.item]=(S.items[r.item]||0)+r.n;}
   if(r.item2){S.items[r.item2]=(S.items[r.item2]||0)+r.n2;}
+  if(r.lives)lifeAdd(r.lives);   /* gift hearts may sit above the cap */
   save();A.coin();paintHome();paintTop();};
  $('ovDaily').classList.add('on');
 }
@@ -7118,6 +7186,25 @@ function drawFrame(g,cx,cy,r,id,now){
   g.strokeStyle='rgba(255,233,168,.55)';g.lineWidth=r*.07;g.stroke();
   g.strokeStyle='#FFF7DD';g.lineWidth=Math.max(1,r*.028);g.stroke();g.restore();}
  if(f.crown)drawCrown(g,0,-r*.98,r*.62,Math.max(1.1,r*.04));
+ /* Points keep showing after the frame itself stops changing: the more 🏆 a
+    player has, the more light the frame carries. Four steps, so it is felt
+    without turning the icon into a firework. */
+ {const pt=S.prof.pt||0;
+  const lv=pt>=200?4:pt>=120?3:pt>=60?2:pt>=25?1:0;
+  if(lv){
+   const col=f.glow||f.b||'#FFD76B';
+   g.save();g.globalCompositeOperation='lighter';
+   /* a breath of light that grows with the points */
+   g.globalAlpha=(.10+.05*lv)*(.75+.25*Math.sin(t*1.6));
+   const pg=g.createRadialGradient(0,0,r*.86,0,0,r*(1.12+.05*lv));
+   pg.addColorStop(0,hexA(col,0));pg.addColorStop(.5,col);pg.addColorStop(1,hexA(col,0));
+   g.fillStyle=pg;g.beginPath();g.arc(0,0,r*(1.12+.05*lv),0,7);g.fill();
+   /* and motes circling it, one more per step */
+   g.globalAlpha=.9;g.fillStyle='#ffffff';
+   for(let i=0;i<lv*2;i++){
+    const a=t*.5+i*6.283/(lv*2), d=r*(1.06+.05*Math.sin(t*1.3+i));
+    star4(g,Math.cos(a)*d,Math.sin(a)*d,r*.05*(.7+.3*Math.sin(t*2+i)),a);}
+   g.restore();}}
  if(f.sparks){g.fillStyle='#ffffff';
   for(let i=0;i<6;i++){const u=t*.45+i/6,ph=u%1,a=i*1.9+Math.floor(u)*2.3,d=r*(1.0+ph*.18);
    g.globalAlpha=Math.sin(ph*Math.PI);star4(g,Math.cos(a)*d,Math.sin(a)*d,r*.055);}
@@ -7277,9 +7364,12 @@ function paintRankCard(){
 function paintLife(){
  const v=$('lifeV');if(!v)return;
  const n=lifeN(), left=lifeLeftMs();
- v.textContent=n;
+ /* always shows the ceiling, so "7 / 10" makes the cap obvious; over the cap
+    (gift hearts) the timer slot says so instead of counting down */
+ v.textContent=n+'/'+LIFE_MAX;
  const t=$('lifeT');
- if(t)t.textContent=(n<LIFE_MAX&&left)?' '+lifeClock(left):'';
+ if(t)t.textContent=n>LIFE_MAX?'＋'
+  :(n<LIFE_MAX&&left)?' '+lifeClock(left):'';
  const pill=$('lifePill');
  if(pill){pill.classList.toggle('empty',n<=0);
   pill.classList.toggle('low',n>0&&n<=2);
@@ -7417,14 +7507,20 @@ function openRank(){sheetPush(()=>openRank());sheet(T('★ランキング'),b=>{
 function paintPlayParty(){
  const bar=$('playParty');if(!bar)return;
  bar.innerHTML='';
- for(const p of partyCats()){
-  const d=el('div','pp');
-  const cv=el('canvas');cv.width=cv.height=72;
-  drawCat(cv.getContext('2d'),72*.47,72*.60,72*.62,p.k,
-   {cos:cosOf(p.id),skin:catSkin(p),glow:!!catSkin(p),now:performance.now()});
+ /* at most four faces up here; the rest are counted, so the stage name
+    always keeps its room */
+ const ps=partyCats(), show=ps.slice(0,4), more=ps.length-show.length;
+ for(const p of show){
+  const K=p.skin?SKINS[p.skin]:null;
+  const d=el('div','pp r'+p.r+(K&&K.paid?' paid':''));
+  const cv=el('canvas');cv.width=cv.height=128;
+  /* live, so the rarity effects actually play while the stage is on screen */
+  liveDraw(cv,(g,now)=>drawCat(g,128*.47,128*.60,128*.62,p.k,
+   {cos:cosOf(p.id),skin:catSkin(p),now}),'home');
   d.appendChild(cv);
   d.appendChild(el('i','','★'+p.r));
   bar.appendChild(d);}
+ if(more>0)bar.appendChild(el('div','ppMore','+'+more));
 }
 
 /* ---------------------------------------------------------- promo strip */
@@ -8018,11 +8114,12 @@ function paintParty(){
  if(!ps.length){bar.classList.remove('on');return;}
  bar.classList.add('on');
  for(const p of ps){
-  const d=el('div','pcat r'+p.r);
-  const cv=el('canvas');cv.width=cv.height=96;
+  const K=p.skin?SKINS[p.skin]:null;
+  const d=el('div','pcat r'+p.r+(K&&K.paid?' paid':''));
+  const cv=el('canvas');cv.width=cv.height=128;
   const worn=cosOf(p.id);
-  drawCat(cv.getContext('2d'),96*.47,96*.60,96*.62,p.k,
-   {cos:worn,skin:catSkin(p),glow:p.r>=5,now:performance.now()});
+  liveDraw(cv,(g,now)=>drawCat(g,128*.47,128*.60,128*.62,p.k,
+   {cos:worn,skin:catSkin(p),now}),'home');
   d.appendChild(cv);
   d.appendChild(el('i','',''+'★'.repeat(p.r)));
   if(worn)d.appendChild(el('b','','👗'));
