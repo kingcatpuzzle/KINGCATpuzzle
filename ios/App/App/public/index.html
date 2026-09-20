@@ -424,11 +424,21 @@ body[data-theme="sora"] #starfield{opacity:.25}
 @keyframes sp{to{transform:rotate(360deg)}}
 /* Fixed, not min-height: a costume reveal and a cat reveal have to open at
    exactly the same size or the card visibly jumps between draws. */
-#revealHero{height:168px;display:flex;align-items:center;justify-content:center;position:relative}
+#revealHero{height:196px;display:flex;align-items:center;justify-content:center;position:relative}
 #revealHero canvas{width:135px;height:135px;position:relative;z-index:1}
 /* the backdrop behind a reveal: rarity decides how much of it there is, the
    cat's own aura colour decides what it looks like */
 #revealHero canvas.rvBg{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+/* the animated draw: one canvas holds the build-up, the burst and the cat */
+#revealHero canvas.rvStage{position:absolute;inset:0;width:100%;height:100%;z-index:1;cursor:pointer}
+#revealHero .rvSkip{position:absolute;right:2px;bottom:-2px;z-index:3;font:inherit;font-size:10.5px;
+ font-weight:800;color:var(--lo);background:rgba(255,255,255,.07);border:1px solid var(--line);
+ border-radius:99px;padding:3px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#revealHero .rvSkip:active{transform:scale(.94)}
+.rvHide{opacity:0}
+.rvIn{animation:rvIn .5s cubic-bezier(.2,1.5,.35,1) both}
+@keyframes rvIn{0%{opacity:0;transform:translateY(8px) scale(.9)}100%{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.rvIn{animation:none}}
 #adBanner{flex:none;height:0;overflow:hidden;background:rgba(9,12,24,.99);
  position:relative;z-index:66;transition:height .22s ease;padding-bottom:var(--safe-b)}
 #adSlot{height:var(--adH,50px);display:flex;align-items:center;justify-content:center;
@@ -4508,17 +4518,6 @@ function pickFour(it){sheetPush(()=>pickFour(it));sheet(T('★4の猫を選ぶ')
    consolation, a theme is the rare surprise. Themes are checked last and at
    the lowest rate, and an outfit can only appear for a cat you already
    have — so the sequence a player experiences is always cat first. */
-/* Backdrop for a reveal. ★3 is a soft wash of the cat's colour, ★4 adds a
-   turning fan of light, ★5 adds an orbit and thicker motes, and a paid cat
-   brings its own particles (snow, rain, gems, petals, embers, aurora). */
-function revealBg(rar,skinId){
- const hero=$('revealHero');
- const K=skinId?SKINS[skinId]:null;
- const col=(K&&K.aura)||RARC[Math.min(5,Math.max(3,rar))]||'#8899bb';
- const bg=el('canvas');bg.className='rvBg';bg.width=420;bg.height=252;
- hero.appendChild(bg);
- liveDraw(bg,(g,now)=>drawRevealBg(g,420,252,rar,col,K&&K.fxp,now),true);
-}
 function drawRevealBg(g,W,H,rar,col,fxp,now){
  const t=now/1000,cx=W/2,cy=H*.52;
  g.save();
@@ -4568,6 +4567,140 @@ function drawRevealBg(g,W,H,rar,col,fxp,now){
  }
  g.restore();
 }
+/* ------------------------------------------------------------ the draw
+   A draw used to be: overlay on, cat already there. Nothing to wait for and
+   nothing to hope for. Now every draw runs a build-up whose length and
+   loudness come from the rarity — three rings and a soft chime for a ★3, a
+   long charge, colour shift and shockwave for a ★5 — and the cat lands with
+   a pop. A tap skips straight to the result for people who draw in bulk. */
+let RV=null;
+function revealStage(rar,skinId,paint){
+ const hero=$('revealHero');
+ if(RV){cancelAnimationFrame(RV.raf);RV=null;}
+ hero.innerHTML='';
+ const K=skinId?SKINS[skinId]:null;
+ const col=(K&&K.aura)||RARC[Math.min(5,Math.max(3,rar))]||'#8899bb';
+ /* The canvas is stretched to fill the box by CSS, so its pixel shape has to
+    match the box's shape or the cat comes out wide. */
+ const box=hero.getBoundingClientRect();
+ const W=440, H=Math.max(200,Math.round(W*(box.height||196)/(box.width||300)));
+ const CX=W/2, CY=H*.5;
+ const cv=el('canvas');cv.width=W;cv.height=H;cv.className='rvStage';
+ hero.appendChild(cv);
+ const tip=el('button','rvSkip',JE('スキップ ▶','Skip ▶'));
+ hero.appendChild(tip);
+ const g=cv.getContext('2d');
+ /* longer than before: the wait is the point of a draw */
+ const CHARGE=S.set.fx?(rar>=5?2200:rar>=4?1450:900):150, BURST=300, POP=520;
+ for(const id of['gName','gRare','gDesc'])
+  {const e=$(id);e.classList.add('rvHide');e.classList.remove('rvIn');}
+ const t0=performance.now();
+ let fired=false, beat=0, skipMs=0;
+ const show=()=>{for(const id of['gName','gRare','gDesc'])
+  {const e=$(id);e.classList.remove('rvHide');e.classList.add('rvIn');}};
+ function step(now){
+  const t=now-t0+skipMs;
+  g.clearRect(0,0,W,H);
+  if(t<CHARGE){
+   const u=t/CHARGE;
+   /* a chime on every ring, so the ★5's longer charge is also a longer tune */
+   const beats=rar>=5?6:rar>=4?4:3;
+   const b=Math.floor(u*beats);
+   if(b>beat){beat=b;A.click();vib(8);}
+   drawCharge(g,W,H,col,rar,u,now);
+  }else if(t<CHARGE+BURST){
+   const u=(t-CHARGE)/BURST;
+   if(!fired){
+    fired=true;A.reveal(rar);vib(rar>=5?70:rar>=4?40:20);
+    flashLayer(rar>=5?'flashMag':rar>=4?'flashGold':'flashCyan',rar>=5?560:420);
+    if(rar>=4)confetti(rar>=5?42:24,G.size||360);
+    show();
+   }
+   drawRevealBg(g,W,H,rar,col,K&&K.fxp,now);
+   drawBurst(g,W,H,col,u,rar);
+   paintAt(g,now,.55+u*.75);
+  }else{
+   const u=Math.min(1,(t-CHARGE-BURST)/POP);
+   drawRevealBg(g,W,H,rar,col,K&&K.fxp,now);
+   /* overshoot, then settle */
+   const sc=u>=1?1:1.30-.30*(1-Math.pow(1-u,3))-.06*Math.sin(u*Math.PI*2)*(1-u);
+   paintAt(g,now,sc);
+   if(u>=1&&tip.parentNode)tip.remove();
+  }
+  RV.raf=requestAnimationFrame(step);
+ }
+ function paintAt(g,now,scale){
+  g.save();g.translate(CX,CY);g.scale(scale,scale);g.translate(-CX,-CY);
+  paint(g,now,CX,CY,Math.min(W,H)*.78);g.restore();
+ }
+ RV={raf:requestAnimationFrame(step)};
+ /* skip: the button, or a tap anywhere on the stage */
+ const skip=()=>{
+  const t=performance.now()-t0+skipMs;
+  if(t<CHARGE){skipMs+=CHARGE-t;A.click();}
+ };
+ cv.onclick=skip;
+ tip.onclick=e=>{e.stopPropagation();skip();};
+}
+/* the build-up: rings closing in, dust pulled to the middle, and a glow that
+   grows. ★5 shifts from cold blue to its own colour on the way. */
+function drawCharge(g,W,H,col,rar,u,now){
+ const cx=W/2, cy=H*.52, t=now/1000;
+ const cold='#7f9cff';
+ const c=rar>=5?mixHex(cold,col,Math.min(1,u*1.6)):rar>=4?mixHex(cold,col,u):col;
+ g.save();
+ const gr=g.createRadialGradient(cx,cy,0,cx,cy,W*.45*(.4+u*.8));
+ gr.addColorStop(0,hexA(c,.12+.5*u));gr.addColorStop(1,hexA(c,0));
+ g.fillStyle=gr;g.fillRect(0,0,W,H);
+ /* rings closing in: one per rarity step, offset in time */
+ const rings=rar>=5?4:rar>=4?3:2;
+ for(let i=0;i<rings;i++){
+  const rp=(u*rings-i);
+  if(rp<0||rp>1)continue;
+  const rr=W*.52*(1-rp*.78);
+  g.globalAlpha=.20+.55*rp;
+  g.strokeStyle=c;g.lineWidth=2+4*rp;
+  g.beginPath();g.arc(cx,cy,rr,0,Math.PI*2);g.stroke();
+ }
+ /* the summoning circle */
+ g.globalAlpha=.25+.45*u;
+ g.strokeStyle=c;g.lineWidth=2;
+ g.save();g.translate(cx,cy);g.rotate(t*(.5+rar*.15));
+ g.beginPath();g.ellipse(0,H*.16,W*.20*(1+u*.2),H*.05*(1+u*.2),0,0,Math.PI*2);g.stroke();
+ for(let i=0;i<8+rar*2;i++){
+  const a=i*Math.PI*2/(8+rar*2);
+  g.beginPath();
+  g.moveTo(Math.cos(a)*W*.19,H*.16+Math.sin(a)*H*.047);
+  g.lineTo(Math.cos(a)*W*.22,H*.16+Math.sin(a)*H*.055);g.stroke();}
+ g.restore();
+ /* dust pulled inwards */
+ g.globalCompositeOperation='lighter';
+ const n=10+rar*6;
+ for(let i=0;i<n;i++){
+  const a=i*2.399+t*.5, d=W*.55*(1-u)*(.5+((i*37)%10)/12);
+  const x=cx+Math.cos(a)*d, y=cy+Math.sin(a)*d*.6;
+  g.globalAlpha=.25+.6*u;
+  g.fillStyle=i%3?c:'#ffffff';
+  star4(g,x,y,(2+rar*.8)*(.6+u),a);
+ }
+ g.restore();
+}
+/* the moment it lands */
+function drawBurst(g,W,H,col,u,rar){
+ const cx=W/2, cy=H*.52;
+ g.save();g.globalCompositeOperation='lighter';
+ g.globalAlpha=(1-u)*.9;
+ const fl=g.createRadialGradient(cx,cy,0,cx,cy,W*.6*(.3+u));
+ fl.addColorStop(0,'#ffffff');fl.addColorStop(.4,hexA(col,.8));fl.addColorStop(1,hexA(col,0));
+ g.fillStyle=fl;g.fillRect(0,0,W,H);
+ g.globalAlpha=(1-u);
+ g.strokeStyle='#ffffff';g.lineWidth=6*(1-u)+1;
+ g.beginPath();g.arc(cx,cy,W*.55*u,0,Math.PI*2);g.stroke();
+ if(rar>=4){
+  g.globalAlpha=(1-u)*.8;g.strokeStyle=hexA(col,.9);g.lineWidth=3;
+  g.beginPath();g.arc(cx,cy,W*.42*u,0,Math.PI*2);g.stroke();}
+ g.restore();
+}
 function gacha(){
  /* themes stay the rare surprise and are checked on their own low gate */
  const t0=rollTheme();
@@ -4577,20 +4710,19 @@ function gacha(){
  const res=grantCat(one.p,one.rar);
  const p=res.p,rar=res.rar,dupe=res.dupe,shard=res.shard;
  save();A.reveal(rar);
- if(rar>=4)flashLayer('flashGold',500);
- $('revealHero').innerHTML='';
- revealBg(rar,catSkin(p));
- const cv=el('canvas');cv.width=cv.height=320;
- drawCat(cv.getContext('2d'),150,192,208,p.k,{mood:'happy',glow:rar>=4,
-  rays:rar>=5,sparkle:rar>=5,skin:catSkin(p),now:performance.now()});
- $('revealHero').appendChild(cv);
+ revealStage(rar,catSkin(p),(g,now,cx,cy,size)=>
+  drawCat(g,cx,cy+size*.10,size,p.k,{mood:'happy',skin:catSkin(p),now}));
  $('gName').textContent=catName(p);
  const gr=$('gRare');gr.textContent='★'.repeat(rar);gr.style.color=RCOL[rar];
  $('gDesc').innerHTML=(dupe?T('<b>すでに仲間 → 🔷＋')+shard+T('（かけら）</b>')
   :T('<b style="color:var(--green)">はじめまして！</b>'))+'<br>'+p.job+'　'+KNACK[p.a].ja;
  $('ovGacha').classList.add('on');
- $('gClose').onclick=()=>{$('ovGacha').classList.remove('on');
+ $('gClose').onclick=()=>{closeReveal();
   if($('sheet').classList.contains('on'))openGacha();};
+}
+function closeReveal(){
+ if(RV){cancelAnimationFrame(RV.raf);RV=null;}
+ $('ovGacha').classList.remove('on');
 }
 /* Ten at once. Slot 10 is floored at ★4 so a ten-draw always feels like an
    event; every other slot uses the published odds untouched. */
@@ -7570,46 +7702,37 @@ function cosGacha(){
 /* A theme has no cat to show, so the reveal paints a little board swatch at
    exactly the size a cat would have occupied. */
 function revealTheme(t){
- const hero=$('revealHero');hero.innerHTML='';
- revealBg(t.r,null);
- const cv=el('canvas');cv.width=cv.height=320;
- const g=cv.getContext('2d');
- const S0=250,x0=(320-S0)/2,y0=(320-S0)/2;
- g.fillStyle=t.floor;g.beginPath();g.roundRect(x0,y0,S0,S0,22);g.fill();
- const n=3,cs=S0/n,m=cs*.06;
- for(let r=0;r<n;r++)for(let c=0;c<n;c++){
-  g.fillStyle=(r+c)%2?t.cA:t.cB;
-  g.beginPath();g.roundRect(x0+c*cs+m,y0+r*cs+m,cs-m*2,cs-m*2,cs*.16);g.fill();}
- drawCat(g,160,168,120,0,{king:true,glow:true,mood:'happy',now:performance.now()});
- hero.appendChild(cv);
+ revealStage(t.r,null,(g,now,cx,cy,size)=>{
+  const S0=size*.92,x0=cx-S0/2,y0=cy-S0/2;
+  g.fillStyle=t.floor;g.beginPath();g.roundRect(x0,y0,S0,S0,16);g.fill();
+  const n=3,cs=S0/n,m=cs*.06;
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+   g.fillStyle=(r+c)%2?t.cA:t.cB;
+   g.beginPath();g.roundRect(x0+c*cs+m,y0+r*cs+m,cs-m*2,cs-m*2,cs*.16);g.fill();}
+  themeFx(g,t,x0,y0,S0,S0,cs,now,true);
+  drawCat(g,cx,cy-S0*.06,S0*.52,0,{king:true,mood:'happy',now});
+ });
  $('gName').textContent=t.ja;
  const gr=$('gRare');gr.textContent='★'.repeat(t.r);gr.style.color=RCOL[t.r];
  $('gDesc').innerHTML=T('<b style="color:var(--cyan)">あたらしいテーマ！</b>')
   +'<br>'+t.d+T('<br>ショップの「テーマ」から切り替えられます。');
  if(t.r>=4)flashLayer('flashGold',500);
  $('ovGacha').classList.add('on');
- $('gClose').onclick=()=>{$('ovGacha').classList.remove('on');
+ $('gClose').onclick=()=>{closeReveal();
   if($('sheet').classList.contains('on'))openGacha();};
- confetti(24,G.size||360);
 }
 function revealCos(c){
- const hero=$('revealHero');hero.innerHTML='';
  const p=COSCAT(c)||PARTNERS[0];
- revealBg(c.r,catSkin(p));
- const cv=el('canvas');cv.width=cv.height=320;
- drawCat(cv.getContext('2d'),150,192,208,p.k,
-  {mood:'happy',cos:c.id,skin:catSkin(p),glow:true,rays:c.r>=5,sparkle:c.r>=5,
-   now:performance.now()});
- hero.appendChild(cv);
+ revealStage(c.r,catSkin(p),(g,now,cx,cy,size)=>
+  drawCat(g,cx,cy+size*.10,size,p.k,{mood:'happy',cos:c.id,skin:catSkin(p),now}));
  $('gName').textContent=c.ja;
  const gr=$('gRare');gr.textContent='★'.repeat(c.r);gr.style.color=RCOL[c.r];
  $('gDesc').innerHTML=T('<b style="color:var(--cyan)">あたらしい着せ替え！</b>')
   +'<br>'+T('猫軍の画面で ')+catName(p)+T(' に着せられます。');
  if(c.r>=4)flashLayer('flashGold',500);
  $('ovGacha').classList.add('on');
- $('gClose').onclick=()=>{$('ovGacha').classList.remove('on');
+ $('gClose').onclick=()=>{closeReveal();
   if($('sheet').classList.contains('on'))openGacha();};
- confetti(24,G.size||360);
 }
 /* The wardrobe: every cat you own, whether her outfit has turned up yet, and
    a switch to put it on. Reached from the menu and from the corps screen. */
