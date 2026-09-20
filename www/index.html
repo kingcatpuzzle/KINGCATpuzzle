@@ -3865,7 +3865,7 @@ function win(){
  if(mv===undefined||G.moves<mv)S.moves[G.stage]=G.moves;
  const best=S.moves[G.stage];   /* shortest clear so far, shown on the result card only */
  const got=addCoins(coins);
- rankTick();checkQuests();checkMiles();checkAchv();pushScores();cloudPush();save();
+ rankTick();checkQuests();checkMiles();checkAchv();save();
  if(st>=3)maybeAskReview();
  /* let CLEAR! land on the board before the result card covers it */
  setTimeout(()=>result(true,st,rw,best,got),850);
@@ -4207,7 +4207,7 @@ function openGuild(){sheetPush(()=>openGuild());sheet(T('猫軍'),b=>{
    +'<div class="pill">🐟'+q.fish+'</div>';
   b.appendChild(r);}
  b.appendChild(el('div','','<div style="font-size:10.5px;color:var(--lo);margin-top:12px;line-height:1.7">'
-  +T('※ 猫軍はこの端末の中だけのものです。順位くらべは Game Center を使います。</div>')));
+  +JE('※ 猫軍も記録も、この端末の中だけのものです。</div>','※ Your squad and your records live only on this device.</div>')));
 },'guild');}
 
 const COST1=100, COST10=900;   /* ten draws for the price of nine */
@@ -5112,27 +5112,13 @@ function openSettings(){sheetPush(()=>openSettings());sheet(T('設定'),b=>{
  const trb=el('button','btn ghost sm',T('開く'));
  trb.onclick=()=>{if(!native('attSettings'))toast(T('この環境では開けません'));};
  tr.appendChild(trb);b.appendChild(tr);
- const cl=el('div','row');
- cl.innerHTML=T('<div class="g"><div class="t">iCloud 同期</div>')
-  +'<div class="s">'+cloudState+'</div></div>';
- const clb=el('button','btn ghost sm',T('今すぐ同期'));
- clb.onclick=()=>{if(native('cloudSave',{key:SKEY,value:JSON.stringify(S)}))
-   {cloudState=T('保存しました');toast(T('iCloud に保存しました'));}
-  else toast(T('この環境では同期できません'));openSettings();};
- cl.appendChild(clb);b.appendChild(cl);
- const gc=el('div','row');
- gc.innerHTML='<div class="g"><div class="t">Game Center</div>'
-  +T('<div class="s">ランキングと実績を同期します</div></div>');
- const gcb2=el('button','btn ghost sm',T('開く'));
- gcb2.onclick=()=>GC.open('leaderboards');
- gc.appendChild(gcb2);b.appendChild(gc);
  b.appendChild(el('div','','<div style="height:10px"></div>'));
  const rs=el('button','btn ghost wide',T('データを消す'));
  rs.onclick=()=>confirmBox(T('データを消す'),
   T('すべての進行データを消します。元に戻せません。')
   +(LANG==='en'
-    ?'<br><br>The copy in iCloud is cleared too, and the game restarts from the title screen. Paid items come back on their own the next time the game starts.'
-    :'<br><br>iCloudの控えも消え、タイトル画面からやり直しになります。購入済みのアイテムは、次に起動したときに自動で戻ります。'),
+    ?'<br><br>The game restarts from the title screen. Paid items come back on their own the next time the game starts.'
+    :'<br><br>タイトル画面からやり直しになります。購入済みのアイテムは、次に起動したときに自動で戻ります。'),
   T('消す'),wipeAllData);
  b.appendChild(rs);
  b.appendChild(el('div','','<div style="font-size:10.5px;color:var(--lo);margin-top:13px;line-height:1.7">'
@@ -5183,9 +5169,8 @@ function legalJA(F,U){
  +'（iOS）または「保護者による使用制限」（Android）により、アプリ内課金を'
  +'制限することができます。</p>'
  +'<p><b>第5条（アカウントと進行データ）</b> 本アプリはアカウント登録を必要としません。'
- +'進行データは利用者の端末内、および利用者が iCloud を有効にしている場合には利用者'
- +'ご自身の iCloud アカウントにのみ保存され、当方はこれを保有しません。'
- +'端末の初期化、本アプリの削除、iCloud の設定変更、OS の不具合その他の事由により'
++'進行データは利用者の端末内にのみ保存され、当方はこれを保有しません。'
++'端末の初期化、本アプリの削除、OS の不具合その他の事由により'
  +'進行データが失われた場合、当方はこれを復元することができず、'
  +'当該損失について責任を負いません。</p>'
  +'<p><b>第6条（有料アイテム）</b> 有料アイテムの売買契約は、利用者と Apple または Google'
@@ -5279,7 +5264,7 @@ function legalJA(F,U){
  +'本アプリの「設定」から「派手な演出」をオフにすると、'
  +'画面の点滅および揺れを抑えることができます。</p>'
  +'<p><b>第18条（通信料等）</b> 本アプリの本編はオフラインで動作しますが、'
- +'広告の取得、ストア決済、iCloud 同期および Game Center の利用には'
+ +'広告の取得およびストア決済には'
  +'通信が発生します。これらに要する通信料は利用者の負担となります。</p>'
  +'<p><b>第19条（反社会的勢力の排除）</b> 利用者は、自らが暴力団、'
  +'暴力団員、暴力団準構成員、総会屋その他これらに準ずる者（以下「反社会的勢力」）'
@@ -5324,12 +5309,8 @@ function legalJA(F,U){
  +'所持アイテムおよびキャラクター、各種設定、本規約への同意日時、'
  +'ならびに購入済みアイテムの識別子は、端末のローカルストレージに'
  +'保存されます。これらは端末外に送信されません。</p>'
- +'<p><b>3. Apple iCloud</b> 利用者が iCloud を有効にしている場合、'
- +'前項の進行データは、Apple の提供する iCloud キーバリューストアを通じて'
- +'<b>利用者ご自身の iCloud アカウント</b>に保存されます。'
- +'保存先は利用者のアカウントであり、当方はこれを参照できません。'
- +'Apple による取扱いは Apple のプライバシーポリシー'
- +'（apple.com/legal/privacy）によります。</p>'
++'<p><b>3. 端末外への送信</b> 進行データが端末外に送信されることはありません。'
++'クラウド同期やアカウント連携の機能はありません。</p>'
  +'<p><b>4. 広告事業者が取得する情報</b> 無料版では Google の AdMob により'
  +'広告が配信されます。AdMob は、広告の配信、表示回数の制御、'
  +'不正防止および効果測定のため、広告識別子（iOS の IDFA、'
@@ -5341,9 +5322,7 @@ function legalJA(F,U){
  +'「Google のサービスを使用するパートナーによるデータ使用」'
  +'（policies.google.com/technologies/partner-sites）'
  +'をご確認ください。</p>'
- +'<p><b>5. Game Center</b> 利用者がランキングまたは実績を利用する場合、'
- +'Apple がプレイヤーIDおよびスコアを取り扱います。'
- +'当方はプレイヤーIDと個人を結びつける情報を保有しません。</p>'
+
  +'<p><b>6. 利用目的</b> 端末内データは、進行状況の保存および表示のためにのみ'
  +'利用します。広告識別子等は、前記4に記載した広告配信・測定の目的で'
  +'広告事業者が利用します。当方はこれらの情報を第三者に提供しません'
@@ -5357,7 +5336,7 @@ function legalJA(F,U){
  +'<p><b>8. 保存期間</b> 端末内のデータは、'
  +'利用者が本アプリを削除するまで保存されます。'
  +'本アプリの「設定 → データを消す」からいつでも消去できます。'
- +'iCloud 上の複製は、端末の iCloud 設定から削除できます。</p>'
+ +'</p>'
  +'<p><b>9. 同意の撤回と選択</b> 「設定 → 広告とプライバシー」から、'
  +'興味に合わせた広告の許可をいつでも変更できます。'
  +'iOS では、端末の「設定 → プライバシーとセキュリティ → トラッキング」'
@@ -5403,8 +5382,7 @@ function legalJA(F,U){
  +'順位は、その日（0時〜24時）に獲得した★の数のみで決まります。</p>'
  +'<h4>利用している第三者サービス</h4><ul>'
  +'<li>Google AdMob（広告配信・効果測定）</li>'
- +'<li>Apple Game Center（ランキング・実績／iOSのみ）</li>'
- +'<li>Apple iCloud キーバリューストア（進行データの同期／iOSのみ）</li>'
+
  +'<li>Apple App Store ／ Google Play（課金処理）</li></ul>'
  +'<p style="font-size:11px">当方はこれら以外の解析ツール、'
  +'クラッシュレポート送信、SNS連携および行動履歴の収集を'
@@ -5467,8 +5445,8 @@ function legalEN(F,U){
  +'to directing you to the refund process of Apple or Google. Parents can restrict in-app '
  +'purchases through Screen Time (iOS) or Parental Controls (Android).</p>'
  +'<p><b>5. No account; your progress.</b> The App requires no account. Progress is stored '
- +'only on your device and, if you have iCloud enabled, in your own iCloud account. '
- +'We hold no copy. If progress is lost through a device reset, deleting the App, an iCloud '
++'only on your device. '
++'We hold no copy. If progress is lost through a device reset, deleting the App, '
  +'setting change or an operating-system fault, we cannot recover it and are not liable '
  +'for the loss.</p>'
  +'<p><b>6. Paid items.</b> The contract of sale for a paid item is between you and Apple '
@@ -5542,7 +5520,7 @@ function legalEN(F,U){
  +'sit well back from the screen, and take a 10–15 minute break every hour. Turning off '
  +'"Big effects" in Settings reduces flashing and screen shake.</p>'
  +'<p><b>18. Data charges.</b> The game itself runs offline, but advertising, store '
- +'payments, iCloud sync and Game Center require a network connection. Any data charges are '
+ +'payments require a network connection. Any data charges are '
  +'yours.</p>'
  +'<p><b>19. Organised crime exclusion.</b> You represent that you are not a member or '
  +'associate of an organised crime group and that you will not let such a group use your '
@@ -5573,8 +5551,8 @@ function legalEN(F,U){
  +'<p><b>2. Stored only on your device.</b> Stage progress, stars, items and characters '
  +'owned, settings, the date you accepted these Terms, and the identifiers of items you have '
  +'purchased are held in your device\'s local storage. None of it leaves the device.</p>'
- +'<p><b>3. Apple iCloud.</b> With iCloud enabled, that same progress is stored through '
- +'Apple\'s iCloud key-value store in <b>your own iCloud account</b>. It is your account and '
++'<p><b>3. Nothing leaves the device.</b> Progress is never transmitted. There is no cloud '
++'sync and no account linking. '
  +'we cannot read it. Apple\'s handling is governed by apple.com/legal/privacy.</p>'
  +'<p><b>4. Collected by the ad provider.</b> The free version serves ads through Google '
  +'AdMob. To deliver ads, cap how often you see them, prevent fraud and measure performance, '
@@ -5582,7 +5560,7 @@ function legalEN(F,U){
  +'address, device and OS information, and records of ads shown and tapped. Google handles '
  +'this as an independent controller. See policies.google.com/privacy and '
  +'policies.google.com/technologies/partner-sites.</p>'
- +'<p><b>5. Game Center.</b> If you use leaderboards or achievements, Apple handles your '
+ +'<p><b>5. Records.</b> Medals and scores are kept in the save on your device. Apple handles your '
  +'player ID and scores. We hold nothing that links a player ID to a person.</p>'
  +'<p><b>6. Purpose.</b> On-device data is used only to save and show your progress. '
  +'Advertising identifiers are used by the ad provider for the purposes in section 4. '
@@ -5592,8 +5570,7 @@ function legalEN(F,U){
  +'safeguards each company applies, please consult their published material. You can refuse '
  +'personalised advertising at any time (section 9).</p>'
  +'<p><b>8. Retention.</b> On-device data is kept until you delete the App. You can erase it '
- +'at any time under Settings → Erase data. An iCloud copy can be removed from your '
- +'device\'s iCloud settings.</p>'
++'at any time under Settings → Erase data.</p>'
  +'<p><b>9. Withdrawing consent, and your choices.</b> You can change your personalised-ads '
  +'choice at any time under Settings → Ads and privacy. On iOS you can also refuse tracking '
  +'under Settings → Privacy &amp; Security → Tracking. On Android you can delete your '
@@ -5623,8 +5600,7 @@ function legalEN(F,U){
 
  +'<h4>Third-party services used</h4><ul>'
  +'<li>Google AdMob (advertising and measurement)</li>'
- +'<li>Apple Game Center (leaderboards and achievements, iOS only)</li>'
- +'<li>Apple iCloud key-value store (progress sync, iOS only)</li>'
+
  +'<li>Apple App Store / Google Play (payment processing)</li></ul>'
  +'<p style="font-size:11px">Beyond these, the App embeds no analytics, no crash reporting, '
  +'no social network integration and no behavioural tracking of any kind.</p>'
@@ -6184,26 +6160,10 @@ function paintTabBadge(){
 
 /* ==========================================================================
    PLATFORM SERVICES
-   Three things a no-server game still gets for free from the OS: Game Center
-   (leaderboards and achievements with no backend of our own), iCloud
-   key-value storage (progress survives a new phone, which is the single
-   biggest source of one-star reviews), and the ATT prompt that AdMob needs.
-   All three go through native() and degrade to nothing in a browser.
+   The game keeps no server and no platform accounts: records live in the save
+   on this device. The only thing left here is the ATT prompt that AdMob needs,
+   and it degrades to nothing in a browser.
    ========================================================================== */
-const LB={stars:'lb_stars',cleared:'lb_cleared',trial:'lb_trial'};
-const GC={
- ready:false,
- auth(){this.ready=native('gc_auth');return this.ready;},
- score(board,value){if(value>0)native('gc_score',{board,value});},
- achieve(id,percent){native('gc_achieve',{id,percent:percent===undefined?100:percent});},
- open(view){if(!native('gc_open',{view:view||'leaderboards'}))
-   toast(T('この端末では Game Center を開けません'));}
-};
-function pushScores(){
- GC.score(LB.stars,starTot());
- GC.score(LB.cleared,S.cleared);
- GC.score(LB.trial,S.trial.best||0);
-}
 /* ---------------------------------------------------------------- 実績 */
 /* m = medal tier: 1 bronze, 2 silver, 3 gold, 4 platinum. The tier is what
    the player collects; the achievement is just how they earn it. */
@@ -6257,8 +6217,7 @@ function checkAchv(){
   const v=Math.min(a.f(),a.n);
   if(S.ach[a.id])continue;
   if(v>=a.n){S.ach[a.id]=1;any=true;
-   GC.achieve(a.id,100);medalPopup(a);A.quest();}
-  else GC.achieve(a.id,Math.round(v/a.n*100));
+   medalPopup(a);A.quest();}
  }
  if(any)save();
 }
@@ -6293,13 +6252,9 @@ function openAchv(){sheetPush(()=>openAchv());sheet(T('メダルと記録'),b=>{
   +'<div style="display:flex;gap:12px;justify-content:center;font-size:12px;font-weight:800">'
   +'<span>🥉 '+medalN(1)+'</span><span>🥈 '+medalN(2)+'</span>'
   +'<span>🥇 '+medalN(3)+'</span><span>💎 '+medalN(4)+'</span></div></div>'));
- const gcb=el('button','btn gold wide',T('🏆 Game Center を開く'));
- gcb.style.marginTop='10px';
- gcb.onclick=()=>{GC.open('leaderboards');};
- b.appendChild(gcb);
  b.appendChild(el('div','','<div style="font-size:11px;color:var(--lo);line-height:1.7;margin:10px 0 4px">'
-  +T('記録は端末内に保存され、Game Center に対応した端末では')
-  +T('そちらにも送られます。<b>サーバーは使いません。</b></div>')));
+  +JE('メダルと記録は、この端末の中に保存されます。<b>サーバーは使いません。</b>',
+      'Medals and records live in this device\'s save. <b>No server is involved.</b>')+'</div>'));
  /* earned first, then the nearest three unearned, then the rest — a wall of
     thirty locked rows tells the player nothing about what to do next */
  const order=ACHV.slice().sort((x,y)=>{
@@ -6324,67 +6279,7 @@ function openAchv(){sheetPush(()=>openAchv());sheet(T('メダルと記録'),b=>{
   b.appendChild(r);}
 });}
 
-/* -------------------------------------------------- iCloud key-value sync */
-let cloudT=null,cloudState='—';
-function cloudPush(){
- clearTimeout(cloudT);
- cloudT=setTimeout(()=>{
-  if(native('cloudSave',{key:SKEY,value:JSON.stringify(S)}))cloudState=T('保存しました');
- },3500);
-}
-/* the native side calls window.KingCats.cloudLoad(jsonString) once iCloud
-   reports a payload. We never blindly overwrite: whichever save is further
-   along wins, so opening the app on an old phone cannot erase a new one. */
-function progressOf(o){
- try{return (o.cleared||0)*4+Object.values(o.stars||{}).reduce((a,b)=>a+b,0);}
- catch(e){return -1;}
-}
 window.KingCats={
- cloudLoad(json){
-  try{
-   const o=JSON.parse(json);
-   /* This checked for v===2 while DEF() has written v:4 for two releases, so
-      every iCloud payload was being rejected as "no cloud save" and a new
-      phone silently started from zero. Compare against the live save version
-      via DEF() so a future bump cannot reintroduce the same silent failure. */
-   if(!o||o.v!==DEF().v){cloudState=T('同期データなし');return false;}
-   if(progressOf(o)<=progressOf(S)){cloudState=T('この端末が最新です');return false;}
-   S=Object.assign(DEF(),o);
-   S.set=Object.assign(DEF().set,o.set||{});
-   migrateAudio();
-   S.items=Object.assign(DEF().items,o.items||{});
-   S.stat=Object.assign(DEF().stat,o.stat||{});
-   S.consent=Object.assign(DEF().consent,o.consent||{});
-   S.trial=Object.assign(DEF().trial,o.trial||{});
-   S.mail=Object.assign(DEF().mail,o.mail||{});
-   S.mail.claim=S.mail.claim||{};S.mail.read=S.mail.read||{};
-   save();cloudState=T('iCloudから復元しました');
-   toast(T('iCloud から進行データを復元しました'));
-   paintTop();goHome();
-   return true;
-  }catch(e){cloudState=T('復元に失敗しました');return false;}
- },
- setLang(l){setLang(l);},
- /* AdMob callbacks. The native layer calls rewardEarned() only when the user
-    watched to the end, and adClosed() when the ad goes away for any reason. */
- rewardEarned(){adFinish(true);},
- adClosed(){if(adCb)adFinish(false);},
- adFailed(){if(adCb)adFinish(false);else $('adOv').classList.remove('on');},
- /* StoreKit finished a purchase or a restore. ids is an array of product
-    identifiers the player is now entitled to. */
- purchaseDone(id,ok){
-  if(ok){grantIAP(id);toast(T('購入しました'));}
-  else toast(T('購入は完了しませんでした'));
-  const cb=BUY_CB;BUY_CB=null;
-  if(ok&&cb&&cb.id===id){cb.fn();return;}
-  if(typeof paintItems==='function'&&G&&G.free)paintItems();
-  if($('sheet').classList.contains('on'))openShop();
- },
- restoreDone(ids){
-  const n=applyEntitlements(ids);
-  toast(n?T('購入を復元しました'):T('復元できる購入はありませんでした'));
-  if($('sheet').classList.contains('on'))openShop();
- },
  /* Silent version for launch: StoreKit 2's current entitlements are read
     without a password prompt, so purchases come back on their own after a
     wiped save, a reinstall or a new phone — no button needed. */
@@ -6401,8 +6296,7 @@ window.KingCats={
   if(h)document.documentElement.style.setProperty('--adH',h+'px');
   document.body.classList.toggle('adLoaded',!!(o&&o.loaded));
   setTimeout(sendBannerRect,260);
- },
- cloudState(){return cloudState;}
+ }
 };
 
 /* ------------------------------------------------------- consent + ATT */
@@ -6426,7 +6320,7 @@ function consentSummaryHTML(){
   +'<p class="lead">Before you play <b>'+PUBLISHER.appNameEn+'</b>, please read the key points below together with our Terms of Use and Privacy Policy.</p>'
   +'<h4>Key points</h4><ul>'
   +li('No account needed','Play straight away. You never create an account or enter personal details.')
-  +li('Your save data','Progress is stored on this device (and, on iOS with iCloud turned on, in your own iCloud). We run no server and collect no play data. We cannot recover data lost by resetting the device or deleting the app.')
+  +li('Your save data','Progress is stored on this device only. We run no server and collect no play data. We cannot recover data lost by resetting the device or deleting the app.')
   +li('Gacha and sardines','No cash ever goes directly into Call a Cat. Draws use sardines or an optional ad, and the odds are always shown on the draw screen. Sardines come from playing or optional ads; they are never sold and cannot be cashed out or transferred.')
   +li('Paid items','Ad removal, premium cats, themes and outfits are sold as one-time purchases. Tools and in-game currency are never sold, and nothing renews or charges you automatically.')
   +li('Ads and your data','The free version shows Google AdMob ads. To serve them, Google may use your advertising identifier and other device information. You can change personalised ads in Settings in the game or on your device.')
@@ -6434,13 +6328,13 @@ function consentSummaryHTML(){
   +li('Flashing lights','If flashing lights bother you, turn effects down in Settings.')
   +'</ul><h4>Terms and privacy in brief</h4><ul>'
   +li('Terms of Use','The app is provided as is. Every paid item is non-consumable and can be recovered with Restore Purchases on the same store account. Our liability is as set out in the Terms of Use.')
-  +li('Privacy','We do not collect personal information ourselves. Data handled by advertising (Google AdMob), leaderboards and achievements (Game Center, iOS) and save sync (iCloud, iOS) is governed by each provider’s own terms and privacy policy.')
+  +li('Privacy','We do not collect personal information ourselves. Data handled by advertising (Google AdMob) is governed by that provider’s own terms and privacy policy.')
   +'</ul>';
  return ''
   +'<p class="lead">『'+PUBLISHER.appName+' — 王様猫を探せ』をお楽しみいただく前に、以下の重要事項と、利用規約・プライバシーポリシーをご確認ください。</p>'
   +'<h4>重要事項の確認</h4><ul>'
   +li('アカウント登録不要','アカウントの作成や個人情報の入力なしで、すぐにプレイを始められます。')
-  +li('セーブデータの管理','ゲームの進行データはお使いの端末内に保存されます（iOSでiCloudを有効にしている場合は、ご自身のiCloudにも保存されます）。開発者はサーバーを持たず、プレイデータを収集しません。端末の初期化やアプリの削除で失われたデータは、開発者側では復元できません。')
+  +li('セーブデータの管理','ゲームの進行データはお使いの端末内にのみ保存されます。開発者はサーバーを持たず、プレイデータを収集しません。端末の初期化やアプリの削除で失われたデータは、開発者側では復元できません。')
   +li('ガチャとゲーム内通貨','ガチャ（猫を呼ぶ機能）に現金を直接使う仕組みはありません。ガチャはゲーム内通貨「煮干し」または任意の広告視聴で利用でき、提供割合はガチャ画面でいつでも確認できます。「煮干し」はプレイや任意の広告視聴で入手でき、販売はしておらず、換金・譲渡もできません。')
   +li('有料アイテム','広告非表示、特別な猫、テーマ、着せ替えを買い切りで販売しています。道具やゲーム内通貨の販売はなく、自動で更新・課金されるものもありません。')
   +li('広告の表示とデータ利用','無料版ではGoogle AdMobによる広告が表示されます。広告配信のため、広告識別子などの端末情報がGoogleに利用される場合があります。興味に合わせた広告の設定は、ゲーム内の「設定」や端末の設定から変更できます。')
@@ -6448,7 +6342,7 @@ function consentSummaryHTML(){
   +li('光の点滅について','光の点滅が苦手な方は、「設定」から演出を弱められます。')
   +'</ul><h4>利用規約・プライバシーポリシー（要約）</h4><ul>'
   +li('利用規約','本アプリは現状のまま提供されます。有料アイテムはすべて買い切りの非消費型で、同じストアアカウントで「購入を復元」を行うと再取得できます。開発者が負う責任の範囲は、利用規約の定めによります。')
-  +li('プライバシー','開発者が個人情報を直接取得することはありません。広告配信（Google AdMob）、ランキング・実績（Game Center／iOS）、セーブデータの同期（iCloud／iOS）で扱われる情報は、各提供元の規約とプライバシーポリシーに従って取り扱われます。')
+  +li('プライバシー','開発者が個人情報を直接取得することはありません。広告配信（Google AdMob）で扱われる情報は、提供元の規約とプライバシーポリシーに従って取り扱われます。')
   +'</ul>';
 }
 /* Consent is two layers on purpose: a short summary nobody can claim they
@@ -6632,7 +6526,7 @@ function trialResult(cleared){
     same score twice pays exactly once, on the run that first got there. */
  let coins=0;
  if(allBest)coins=addCoins(Math.round(done*7+TR.score/23)+40);   /* v1.3: ~70% */
- checkAchv();pushScores();cloudPush();save();
+ checkAchv();save();
  $('rRibbon').textContent='TRIAL OVER';
  $('rRibbon').style.background=cleared?'var(--foil)':'rgba(255,255,255,.08)';
  $('rRibbon').style.color=cleared?'#3a2600':'var(--mid)';
@@ -8129,19 +8023,15 @@ function paintParty(){
 
 /* ------------------------------------------------------------ data wipe
    「データを消す」は、初めて起動したときと同じ状態に戻す操作です。
-   進行データ・同意の記録・旧バージョンの保存データ・iCloud上の控えを消し、
+   進行データ・同意の記録・旧バージョンの保存データを消し、
    タイトル画面 → スプラッシュ → 同意画面 の順でやり直します。
-   表示言語だけは引き継ぎます（消した直後に画面の言語が変わると戸惑うため）。
-   iCloud の控えを空の状態で上書きしておかないと、次の起動時の cloudLoad が
-   「クラウドの方が進んでいる」と判断して、消したデータを復元してしまいます。 */
+   表示言語だけは引き継ぎます（消した直後に画面の言語が変わると戸惑うため）。 */
 function wipeAllData(){
  const lang=S.lang||LANG;
- clearTimeout(cloudT);                         /* 保留中のiCloud送信を取り消す */
  S=DEF();S.lang=lang;save();
  Store.set(CONSENT_KEY,'');                    /* Store のメモも同時に空にする */
  for(const k of[CONSENT_KEY])
   try{localStorage.removeItem(k);}catch(e){}
- native('cloudSave',{key:SKEY,value:JSON.stringify(S)});
  restartFromTitle();
 }
 /* 起動処理をまるごとやり直すのが一番確実なので、まずページを再読み込みする。
@@ -8202,14 +8092,12 @@ paintStars();buildDrawer();bindTabs();paintTop();goHome();bindInput();
 document.addEventListener('visibilitychange',()=>{if(document.hidden)try{save();}catch(e){}});
 addEventListener('pagehide',()=>{try{save();}catch(e){}});
 requestAnimationFrame(frame);
-GC.auth();native('cloudLoad',{key:SKEY});
 checkAchv();
 native('entitlements');   /* purchases come back by themselves; see KingCats.entitlements */
 runBootScreens();
 /* one local notification a day keeps a puzzle game alive; the shell decides
    whether the OS actually allows it */
 native('schedule',{hour:20,body:T('今日の一問が届いています🐟')});
-pushScores();
 
 </script>
 <script type="module" src="ads.js"></script>
