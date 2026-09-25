@@ -250,6 +250,13 @@ body[data-theme="sora"] #starfield{opacity:.25}
  padding:0 3px;position:relative}
 #stage{position:relative;touch-action:none}
 #cv{display:block}
+.pawTap{position:fixed;z-index:120;width:44px;height:44px;margin:0;pointer-events:none;
+ opacity:0;animation:pawTap .62s cubic-bezier(.2,.9,.3,1) forwards}
+.pawTap svg{width:100%;height:100%;display:block;fill:rgba(255,255,255,.55);transform:rotate(var(--pawRot,0deg));
+ filter:drop-shadow(0 0 6px rgba(255,255,255,.35))}
+@keyframes pawTap{0%{opacity:.85;transform:translate(-50%,-50%) scale(.45)}
+ 45%{opacity:.6}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}
+body.fx-off .pawTap{display:none}
 #comboPopup{position:absolute;left:50%;top:28%;transform:translate(-50%,-50%) scale(.5);
  font-size:36px;font-weight:900;opacity:0;pointer-events:none;z-index:3;white-space:nowrap;
  background:var(--foil);-webkit-background-clip:text;background-clip:text;color:transparent;
@@ -368,6 +375,21 @@ body[data-theme="sora"] #starfield{opacity:.25}
 .tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:9.5px;font-weight:900;
  background:var(--green);color:#04301a;margin-left:5px}
 .tag.n{background:var(--magenta);color:#fff}
+.yardCard{margin-bottom:14px}
+.yardStage{position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.14);
+ box-shadow:var(--lift)}
+.yardStage canvas{width:100%;height:auto;aspect-ratio:760/440;display:block;touch-action:none}
+.yardBar{display:flex;gap:7px;margin-top:8px}
+.yardBar .btn{flex:1}
+.yardTip{font-size:10.5px;color:var(--lo);line-height:1.6;margin-top:7px}
+.yardBig{width:130px;height:130px;display:block;margin:0 auto 4px}
+.yardRow{display:flex;align-items:center;gap:10px;padding:9px;border-radius:15px;margin-bottom:8px;
+ background:var(--glass);border:1px solid var(--line)}
+.yardRow.on{border-color:var(--cyan)}
+.yardRow canvas{width:104px;height:59px;border-radius:9px;flex:none}
+.yardRow .yi{flex:1;min-width:0}
+.yardRow .t{font-size:13px;font-weight:900}
+.yardRow .s{font-size:10.5px;color:var(--lo);margin-top:2px}
 .dexG{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
 .dexC{padding:8px 5px;border-radius:15px;border:1px solid var(--line);background:var(--glass);
  text-align:center;box-shadow:var(--lift);position:relative}
@@ -424,6 +446,9 @@ body[data-theme="sora"] #starfield{opacity:.25}
 @keyframes sp{to{transform:rotate(360deg)}}
 /* Fixed, not min-height: a costume reveal and a cat reveal have to open at
    exactly the same size or the card visibly jumps between draws. */
+#gCount{position:absolute;top:12px;right:14px;font-size:11px;font-weight:900;color:var(--lo)}
+#gCount b{color:var(--gold);font-size:14px}
+#ovGacha .ovc{position:relative}
 #revealHero{height:196px;display:flex;align-items:center;justify-content:center;position:relative}
 #revealHero canvas{width:135px;height:135px;position:relative;z-index:1}
 /* the backdrop behind a reveal: rarity decides how much of it there is, the
@@ -979,11 +1004,13 @@ body.hasAd{--bannerH:var(--adH,50px)}
 
 <div class="ov" id="ovGacha"><div class="ovc card" style="text-align:center">
  <div class="eyebrow" id="gEye"></div>
+ <div id="gCount"></div>
  <div id="revealHero"></div>
  <div id="gName" style="font-size:19px;font-weight:900"></div>
  <div id="gRare" style="font-size:13px;letter-spacing:.18em"></div>
  <div id="gDesc" style="font-size:11.5px;color:var(--mid);margin-top:6px;line-height:1.7"></div>
- <button class="btn gold wide" id="gClose" style="margin-top:15px"></button></div></div>
+ <button class="btn gold wide" id="gClose" style="margin-top:15px"></button>
+ <button class="btn ghost sm wide hide" id="gSkipAll" style="margin-top:7px"></button></div></div>
 
 <div class="ov" id="ovGacha10"><div class="ovc card"
  style="text-align:center;max-height:88vh;display:flex;flex-direction:column">
@@ -1133,16 +1160,41 @@ function paintStatic(){
    and support URLs. */
 const PUBLISHER={
  appName:T('キングキャッツ'), appNameEn:'KING CAT', version:'1.0.0',
- seller:'',          /* 販売事業者名（個人なら氏名） */
- rep:'',             /* 運営責任者 */
- address:'',         /* 所在地（請求があれば遅滞なく開示、と記載する運用も可） */
- contact:'',         /* 電話番号 */
- email:'',           /* 問い合わせ先メール */
- privacyUrl:'',      /* プライバシーポリシーの公開URL */
- termsUrl:'',        /* 利用規約の公開URL */
- supportUrl:'',      /* サポートページ */
+ seller:'kingcat',                 /* 販売事業者名 */
+ rep:'SEUNGEON HAM',               /* 運営責任者 */
+ address:'〒220-0072 神奈川県横浜市西区浅間町1丁目4番3号 ウィザードビル402',
+ contact:'請求があった場合、遅滞なく開示いたします',   /* 電話番号の欄 */
+ email:'kingcatpuzzle@gmail.com',  /* 問い合わせ先メール */
+ privacyUrl:'https://sites.google.com/view/kingcatinfo',
+ termsUrl:'https://sites.google.com/view/kingcatinfo',
+ supportUrl:'https://sites.google.com/view/kingcatinfo',
  termsVer:1          /* 規約を改定したら +1。同意を取り直します */
 };
+/* ------------------------------------------------------------------- AdMob
+   The SDK itself lives on the native side, but the ad unit ids live here so
+   there is one place to read them and one place to change them. They are sent
+   to the native layer at startup (ad_config) and repeated on every request, so
+   the native code never has to hard-code a string of its own.
+
+   Ad unit ids are not secrets — they ship inside every copy of the app — but
+   test-device ids are per-device: keep the list to the phones you test on and
+   empty it before release, or those devices will only ever see test ads.
+
+   The APP id (ca-app-pub-9887025755159214~XXXXXXXXXX, note the tilde) is NOT
+   set here: it belongs in Info.plist as GADApplicationIdentifier. */
+const ADS={
+ banner:      'ca-app-pub-9887025755159214/7136735433',   /* KINGCAT_banner_home */
+ interstitial:'ca-app-pub-9887025755159214/1884408756',   /* KINGCAT_interstitial_stageend */
+ rewarded:    'ca-app-pub-9887025755159214/6123036666',   /* KINGCAT_rewarded */
+ /* Google's own demo units. Switch with ADS.test=true while wiring the native
+    side up: demo ads always fill and never risk the account. */
+ demo:{banner:'ca-app-pub-3940256099942544/2435281174',
+       interstitial:'ca-app-pub-3940256099942544/4411468910',
+       rewarded:'ca-app-pub-3940256099942544/1712485313'},
+ test:false,
+ testDevices:['0F45FC0C-DDA5-4170-8DD8-2C6BDA702240']
+};
+const adUnit=k=>(ADS.test?ADS.demo:ADS)[k];
 const $=i=>document.getElementById(i);
 /* inline ja/en pair for strings that have no entry in the T() dictionary */
 const JE=(ja,en)=>LANG==='en'?en:ja;
@@ -2464,7 +2516,7 @@ function refreshBanner(){
  const on=!adsOff();
  $('adBanner').classList.toggle('on',on);
  document.body.classList.toggle('hasAd',on);
- native('banner',{show:on});
+ native('banner',{show:on,unit:adUnit('banner')});
  /* wait for the strip's height transition, then say exactly where it is */
  setTimeout(sendBannerRect,260);
 }
@@ -2507,7 +2559,7 @@ const DEF=()=>({v:4,coins:120,themes:{},
  adDay:'',adUsed:0,tut:false,qDay:'',qDone:{},
  login:{day:'',streak:0},dc:{day:'',done:false},ms:{},rev:0,
  trial:{day:'',best:0,bestDay:0,paid:false,paidDay:''},medals:{},
- mail:{claim:{},read:{},gift:[]},noteSeen:'',life:{n:10,at:0},lifeAd:{day:'',n:0},
+ mail:{claim:{},read:{},gift:[]},noteSeen:'',yard:{bg:'grass',on:[],pos:{},bought:{grass:1}},life:{n:10,at:0},lifeAd:{day:'',n:0},
  consent:{ver:0,at:'',ads:null,att:null},ach:{},lang:'',theme:'none',
  stat:{pops:0,chain2:0,chain3:0,clears:0,stars:0,maxChain:0,plays:0},
  set:{vib:true,fx:true,soundV:85,musicV:70}});
@@ -3299,18 +3351,28 @@ function draw(now){
  if(G.mode&&!an){g.save();g.globalAlpha=.14+.08*Math.sin(now/220);
   g.fillStyle=G.mode==='paw'?'#ff5fd0':'#54e9ff';g.fillRect(0,0,SZ,SZ);g.restore();
   /* ring the cats already chosen so a two-tap item never feels ambiguous */
-  g.save();g.strokeStyle=G.mode==='paw'?'#ff5fd0':'#54e9ff';g.lineWidth=Math.max(2,V.cell*.06);
-  for(const q of G.pick){g.beginPath();
-   g.arc(px(q.c+G.ox,V),py(q.r+G.oy,V),V.cell*.46,0,7);g.stroke();}
+  const mc=G.mode==='paw'?'#ff5fd0':'#54e9ff';
+  g.save();g.strokeStyle=mc;g.lineWidth=Math.max(2,V.cell*.06);
+  for(const q of G.pick){
+   const qx=px(q.c+G.ox,V), qy=py(q.r+G.oy,V);
+   /* a paw print stamped on the chosen cat, inside a soft ring */
+   g.save();g.globalAlpha=.55+.25*Math.sin(now/200);
+   g.setLineDash([V.cell*.16,V.cell*.12]);g.lineDashOffset=-now/28;
+   g.beginPath();g.arc(qx,qy,V.cell*.46,0,7);g.stroke();g.setLineDash([]);
+   g.restore();
+   g.save();g.globalAlpha=.9;
+   drawPaw(g,qx,qy-V.cell*.02,V.cell*.2,-Math.PI/2,null,'rgba(8,10,22,.85)',Math.max(3,V.cell*.09));
+   drawPaw(g,qx,qy-V.cell*.02,V.cell*.2,-Math.PI/2,mc,null);
+   g.restore();}
   /* after the first paw tap, mark the cats that are still a legal partner */
   if(G.mode==='paw'&&G.pick.length===1){
    const want=G.pick[0].v;g.globalAlpha=.55+.25*Math.sin(now/180);g.fillStyle='#ff5fd0';
    for(let r=0;r<G.st.h;r++)for(let c=0;c<G.st.w;c++){
     if(G.st.g[r][c]!==want)continue;
     if(r===G.pick[0].r&&c===G.pick[0].c)continue;
-    g.beginPath();g.arc(px(c+G.ox,V),py(r+G.oy,V)+V.cell*.4,V.cell*.075,0,7);g.fill();}}
+    drawPaw(g,px(c+G.ox,V),py(r+G.oy,V)+V.cell*.38,V.cell*.11,-Math.PI/2,'#ff5fd0',null);}}
   g.restore();}
- if(G.hint&&!an)drawHint(g,bx,by,bw,bh,V.cell,now);
+ if(G.hint&&!an)drawHint(g,bx,by,bw,bh,V.cell,now,SZ);
  fxDraw(g);
  /* The party's light goes UNDER everything: drawn last with destination-over,
     it fills the space around the board — which is the part the player sees as
@@ -3412,18 +3474,71 @@ function drawWalls(g,bx,by,bw,bh,cell,dir,inAmt){
    g.stroke();g.restore();}
   g.restore();}
 }
-function drawHint(g,bx,by,bw,bh,cell,now){
- const pulse=.5+.5*Math.sin(now/230);
- let x,y,rot;
- if(G.hint==='left'){x=bx-cell*.62;y=by+bh/2;rot=0;}
- if(G.hint==='right'){x=bx+bw+cell*.62;y=by+bh/2;rot=Math.PI;}
- if(G.hint==='up'){x=bx+bw/2;y=by-cell*.62;rot=Math.PI/2;}
- if(G.hint==='down'){x=bx+bw/2;y=by+bh+cell*.62;rot=-Math.PI/2;}
- g.save();g.globalAlpha=.45+pulse*.55;g.translate(x,y);g.rotate(rot);
- g.translate(pulse*cell*.12,0);
- const s=cell*.34;
- g.beginPath();g.moveTo(s,0);g.lineTo(-s*.6,-s*.8);g.lineTo(-s*.6,s*.8);g.closePath();
- g.fillStyle='#ffd76b';g.strokeStyle=INK;g.lineWidth=3;g.lineJoin='round';g.fill();g.stroke();
+/* The hint. A flat triangle and a painted rectangle looked like placeholder
+   art, so this is a trail of chevrons drifting inward from the wall, over a
+   gradient that fades away from the edge. Stroked, not filled; dark under
+   gold, so it reads on any theme; and it moves, which is what makes a hint
+   feel like a hint rather than a sticker. */
+/* One paw print, pointing along rot. Used by the hint trail, the selection
+   marks and the touch ripple, so the same motif turns up everywhere. */
+function pawPath(g,x,y,k,rot){
+ g.save();g.translate(x,y);g.rotate(rot+Math.PI/2);
+ g.beginPath();
+ g.ellipse(0,k*.22,k*.52,k*.44,0,0,Math.PI*2);          /* the pad */
+ const toes=[[-.62,-.52,.26],[-.22,-.80,.24],[.22,-.80,.24],[.62,-.52,.26]];
+ for(const [tx,ty,tr] of toes){
+  g.moveTo(k*tx+k*tr,k*ty);
+  g.ellipse(k*tx,k*ty,k*tr,k*tr*1.12,0,0,Math.PI*2);}
+ g.restore();
+}
+function drawPaw(g,x,y,k,rot,fill,stroke,lw){
+ pawPath(g,x,y,k,rot);
+ if(stroke){g.strokeStyle=stroke;g.lineWidth=lw||Math.max(2,k*.22);
+  g.lineJoin='round';g.stroke();}
+ if(fill){g.fillStyle=fill;g.fill();}
+}
+function drawHint(g,bx,by,bw,bh,cell,now,SZ){
+ if(!G.hint)return;
+ const t=now/1000, pulse=.5+.5*Math.sin(now/420);
+ const P=wallPal(), gold=P.glow||'#ffd76b';
+ const dir={left:[1,0],right:[-1,0],up:[0,1],down:[0,-1]}[G.hint];
+ if(!dir)return;
+ const [dx,dy]=dir;
+ /* where the trail starts: the inner face of the wall it points away from */
+ const sx=G.hint==='left'?bx:G.hint==='right'?bx+bw:bx+bw/2;
+ const sy=G.hint==='up'?by:G.hint==='down'?by+bh:by+bh/2;
+ g.save();
+ g.beginPath();g.roundRect(bx,by,bw,bh,cell*.2);g.clip();
+ /* 1. light spilling in from that wall, fading over about two cells */
+ const gl=g.createLinearGradient(sx,sy,sx+dx*cell*2.2,sy+dy*cell*2.2);
+ gl.addColorStop(0,hexA(gold,.34+.18*pulse));
+ gl.addColorStop(.45,hexA(gold,.10+.06*pulse));
+ gl.addColorStop(1,hexA(gold,0));
+ g.fillStyle=gl;g.fillRect(bx,by,bw,bh);
+ /* 2. a hairline along the wall face */
+ g.globalAlpha=.5+.5*pulse;
+ g.strokeStyle='#fff6d8';g.lineWidth=Math.max(1.5,cell*.045);g.lineCap='round';
+ g.beginPath();
+ if(dx){g.moveTo(sx+dx*cell*.06,by+cell*.25);g.lineTo(sx+dx*cell*.06,by+bh-cell*.25);}
+ else  {g.moveTo(bx+cell*.25,sy+dy*cell*.06);g.lineTo(bx+bw-cell*.25,sy+dy*cell*.06);}
+ g.stroke();
+ g.globalAlpha=1;
+ /* 3. paw prints walking inward, left-right-left, fading as they go */
+ const ang=Math.atan2(dy,dx);
+ const k=cell*.27;
+ for(let i=0;i<3;i++){
+  const ph=((t*.75)+i/3)%1;
+  const d=cell*(.5+ph*1.3);
+  /* step to the side alternately, the way a cat actually walks */
+  const side=(i%2?1:-1)*cell*.17*(1-ph*.3);
+  const cx=sx+dx*d-dy*side, cy=sy+dy*d+dx*side;
+  const a=Math.sin(ph*Math.PI);
+  g.globalAlpha=a*.5;
+  drawPaw(g,cx,cy,k,ang,null,'rgba(8,10,22,.85)',Math.max(2.5,cell*.07));
+  g.globalAlpha=Math.min(1,a*1.25);
+  drawPaw(g,cx,cy,k,ang,i===0?'#fff6d8':gold,null);
+ }
+ g.globalAlpha=1;
  g.restore();
 }
 function showCombo(n){const b=$('comboPopup');
@@ -3431,6 +3546,28 @@ function showCombo(n){const b=$('comboPopup');
  b.classList.remove('go');void b.offsetWidth;b.classList.add('go');}
 
 /* --------------------------------------------------------------------- input */
+/* Every tap leaves a paw print behind. It is a DOM node rather than canvas
+   work, so it shows on menus and sheets too, and it never intercepts the tap
+   it is celebrating. Off with the effects setting. */
+function pawTap(x,y){
+ if(!S.set.fx)return;
+ const d=document.createElement('div');
+ d.className='pawTap';
+ d.style.left=x+'px';d.style.top=y+'px';
+ d.style.setProperty('--pawRot',(Math.random()*60-30)+'deg');
+ d.innerHTML='<svg viewBox="0 0 40 40" aria-hidden="true">'
+  +'<ellipse cx="20" cy="26" rx="10" ry="8.5"/>'
+  +'<ellipse cx="8.5" cy="15.5" rx="4.6" ry="5.4"/>'
+  +'<ellipse cx="16" cy="10" rx="4.4" ry="5.2"/>'
+  +'<ellipse cx="24" cy="10" rx="4.4" ry="5.2"/>'
+  +'<ellipse cx="31.5" cy="15.5" rx="4.6" ry="5.4"/></svg>';
+ document.body.appendChild(d);
+ setTimeout(()=>d.remove(),620);
+}
+addEventListener('pointerdown',e=>{
+ if(e.pointerType==='mouse'&&e.button!==0)return;
+ pawTap(e.clientX,e.clientY);
+},{passive:true,capture:true});
 function bindInput(){
  const s=$('stage');
  const pt=e=>{const r=s.getBoundingClientRect(),t=e.touches?e.touches[0]:e;
@@ -4158,7 +4295,360 @@ function catCv(kind,px,king,skin,cos,silhouette){const cv=el('canvas');cv.width=
   g.fillStyle='rgba(26,30,58,.92)';g.fillRect(0,0,cv.width,cv.height);g.restore();}
  return cv;}
 
+/* ------------------------------------------------------------------ 広場
+   A place to keep the cats rather than a list of them. The squad screen opens
+   on a small scene: the cats you have chosen stand around in it, wearing what
+   you put on them, and you drag them where you like. Tapping one is the fast
+   way to take it along, dress it, or send it home. Backdrops are bought with
+   the shards that duplicate draws leave behind, which finally gives those
+   shards something to be spent on that is not another tool. */
+const YARD_MAX=8;
+const YARDS=[
+ {id:'grass', cost:0, ja:JE('ひだまりの芝','Sunny Lawn'),
+  sky:['#7cc7f5','#dff2ff'], far:'#8fc98a', g1:'#86cf6d', g2:'#5aa74e', prop:'fence', fx:'pollen'},
+ {id:'engawa',cost:10, ja:JE('縁側','Veranda'),
+  sky:['#2a2118','#6b5233'], far:'#4a3a26', g1:'#d9b45c', g2:'#b3903f', prop:'shoji', fx:'leaf'},
+ {id:'night', cost:14, ja:JE('星空のベランダ','Starlit Balcony'),
+  sky:['#070b22','#2b2f6e'], far:'#1b2048', g1:'#3b4472', g2:'#232a52', prop:'city', fx:'star'},
+ {id:'sakura',cost:18, ja:JE('桜の丘','Blossom Hill'),
+  sky:['#3a2440','#8f5d7e'], far:'#6b4560', g1:'#caa0b4', g2:'#9d7189', prop:'sakura', fx:'petal'},
+ {id:'beach', cost:24, ja:JE('夕暮れの浜','Sunset Beach'),
+  sky:['#ff9f6b','#ffd9a0'], far:'#ff7f5c', g1:'#f2dcae', g2:'#d9bd88', prop:'sea', fx:'gull'},
+ {id:'cafe',  cost:30, ja:JE('ねこカフェ','Cat Café'),
+  sky:['#2a1d18','#4d372b'], far:'#3a2a21', g1:'#8a5f45', g2:'#6a4733', prop:'cafe', fx:'steam'},
+];
+const yardBy=id=>YARDS.find(y=>y.id===id)||YARDS[0];
+let YARD_NOCATS=false;   /* the shop rows show the place, not the residents */
+let YARD_T=0;
+function yardCats(){
+ S.yard.on=(S.yard.on||[]).filter(id=>S.dex[id]);
+ if(!S.yard.on.length)S.yard.on=allCats().filter(p=>S.dex[p.id]).slice(0,4).map(p=>p.id);
+ return S.yard.on.slice(0,YARD_MAX).map(id=>allCats().find(p=>p.id===id)).filter(Boolean);
+}
+function yardPos(id,i,n){
+ const q=S.yard.pos&&S.yard.pos[id];
+ if(q)return q;
+ /* spread along the ground, alternating a little nearer and further, so a
+    full yard reads as a group of cats rather than a stack */
+ const x=n===1?.5:.14+i*(.72/(n-1));
+ const y=.64+(i%2?.14:0)+(i%4>=2?.04:0);
+ return {x,y};
+}
+/* Everyone in the yard has a little life of their own: wander a few steps,
+   sit for a while, doze off now and then. A cat wearing wings takes off
+   instead, drifts across the sky and comes back down. Dropped positions are
+   just where they happen to be; dragging one puts it down and it carries on
+   from there. */
+const YARD_A={};
+const YARD_GROUND=[.60,.92];
+function yardAgent(p,i,n){
+ let a=YARD_A[p.id];
+ if(!a){
+  const q=yardPos(p.id,i,n);
+  a=YARD_A[p.id]={x:q.x,y:q.y,tx:q.x,ty:q.y,st:'idle',until:0,face:1,fly:0};
+ }
+ return a;
+}
+function yardCanFly(id){
+ const w=cosOf(id);
+ return w==='pc_wing'||(COSBY(w)&&/wing/.test(COSBY(w).art||''));
+}
+function yardTick(now,dt){
+ const cats=yardCats(), n=cats.length;
+ cats.forEach((p,i)=>{
+  const a=yardAgent(p,i,n);
+  if(a.drag)return;
+  if(now>a.until){
+   /* pick what to do next */
+   const r=Math.random();
+   if(yardCanFly(p.id)&&r<.45){
+    a.st='fly';a.until=now+6000+Math.random()*7000;
+    a.tx=.12+Math.random()*.76;a.ty=.20+Math.random()*.22;
+   }else if(r<.62){
+    a.st='walk';a.until=now+5000+Math.random()*7000;
+    a.tx=.10+Math.random()*.80;
+    a.ty=YARD_GROUND[0]+Math.random()*(YARD_GROUND[1]-YARD_GROUND[0]);
+   }else if(r<.88){
+    a.st='idle';a.until=now+4000+Math.random()*7000;a.tx=a.x;a.ty=a.y;
+   }else{
+    a.st='sleep';a.until=now+9000+Math.random()*10000;a.tx=a.x;a.ty=a.y;
+   }
+  }
+  /* a stroll, not a commute */
+  const sp=(a.st==='fly'?.030:a.st==='walk'?.034:0)*dt/1000;
+  const dx=a.tx-a.x, dy=a.ty-a.y, d=Math.hypot(dx,dy);
+  if(sp&&d>.004){
+   a.x+=dx/d*Math.min(sp,d);a.y+=dy/d*Math.min(sp,d);
+   if(Math.abs(dx)>.004)a.face=dx>0?1:-1;
+  }else if(a.st==='walk'||a.st==='fly'){a.until=Math.min(a.until,now+1800);}
+  /* wings fade in and out of the air smoothly */
+  const want=a.st==='fly'?1:0;
+  a.fly+=(want-a.fly)*Math.min(1,dt/900);
+  if(a.st!=='fly'&&a.fly<.02&&a.y<YARD_GROUND[0])
+   a.y+=Math.min(.02,(YARD_GROUND[0]-a.y));
+ });
+}
+function drawYard(g,W,H,now){
+ const y=yardBy(S.yard.bg), t=now/1000, fx=S.set.fx;
+ const R=(i,k)=>{const v=Math.sin(i*127.1+k*311.7)*43758.5453;return v-Math.floor(v);};
+ g.clearRect(0,0,W,H);
+ g.save();
+ g.beginPath();g.roundRect(0,0,W,H,W*.045);g.clip();
+ /* sky */
+ const sky=g.createLinearGradient(0,0,0,H);
+ sky.addColorStop(0,y.sky[0]);sky.addColorStop(1,y.sky[1]);
+ g.fillStyle=sky;g.fillRect(0,0,W,H);
+ const gy=H*.58;
+ /* whatever stands on the horizon */
+ g.fillStyle=y.far;
+ if(y.prop==='city'){
+  for(let i=0;i<9;i++){const bw=W*(.07+R(i,1)*.05), bh=H*(.10+R(i,2)*.22);
+   g.fillRect(W*(i/9)+W*.01,gy-bh,bw,bh);
+   g.save();g.fillStyle='rgba(255,230,150,.55)';
+   for(let j=0;j<4;j++)if(R(i,j+3)>.45)
+    g.fillRect(W*(i/9)+W*.025+((j%2)*bw*.4),gy-bh+bh*.16+Math.floor(j/2)*bh*.3,bw*.16,bh*.12);
+   g.restore();}
+ }else if(y.prop==='sea'){
+  const sg=g.createLinearGradient(0,gy-H*.34,0,gy);
+  sg.addColorStop(0,'#ff8a5c');sg.addColorStop(1,'#ffd2a0');
+  g.fillStyle=sg;g.fillRect(0,gy-H*.34,W,H*.34);
+  g.fillStyle='rgba(255,240,190,.95)';
+  g.beginPath();g.arc(W*.72,gy-H*.26,H*.11,0,7);g.fill();
+  g.strokeStyle='rgba(255,255,255,.5)';g.lineWidth=2;
+  for(let i=0;i<5;i++){const yy=gy-H*.30+i*H*.055;
+   g.beginPath();
+   for(let x=0;x<=W;x+=W/12)g.lineTo(x,yy+Math.sin(x/W*6+t*(.6+i*.1))*3);
+   g.stroke();}
+ }else if(y.prop==='sakura'){
+  for(let i=0;i<4;i++){const bx=W*(.1+i*.27), by=gy-H*.04;
+   g.fillStyle='#5b3a33';g.fillRect(bx-W*.012,by-H*.30,W*.024,H*.30);
+   g.fillStyle='rgba(255,183,208,.95)';
+   for(let j=0;j<5;j++){const a=j*1.25+i;
+    g.beginPath();g.arc(bx+Math.cos(a)*W*.055,by-H*.31+Math.sin(a)*H*.05,W*.05,0,7);g.fill();}}
+ }else if(y.prop==='shoji'){
+  g.fillStyle='#e9e0c8';g.fillRect(W*.06,H*.08,W*.88,gy-H*.08);
+  g.strokeStyle='#6b5233';g.lineWidth=Math.max(2,W*.006);
+  for(let i=1;i<4;i++){g.beginPath();g.moveTo(W*.06+i*W*.22,H*.08);g.lineTo(W*.06+i*W*.22,gy);g.stroke();}
+  for(let i=1;i<3;i++){g.beginPath();g.moveTo(W*.06,H*.08+i*(gy-H*.08)/3);g.lineTo(W*.94,H*.08+i*(gy-H*.08)/3);g.stroke();}
+  g.strokeRect(W*.06,H*.08,W*.88,gy-H*.08);
+ }else if(y.prop==='cafe'){
+  g.fillStyle='#5d4232';g.fillRect(0,0,W,gy);
+  g.fillStyle='rgba(255,214,150,.22)';g.fillRect(W*.08,H*.10,W*.36,H*.34);
+  g.strokeStyle='#8a6a4a';g.lineWidth=Math.max(2,W*.006);g.strokeRect(W*.08,H*.10,W*.36,H*.34);
+  g.fillStyle='#8a5f45';g.fillRect(W*.56,H*.16,W*.34,H*.30);
+  g.fillStyle='rgba(255,255,255,.12)';
+  for(let i=0;i<3;i++)g.fillRect(W*.58,H*.20+i*H*.09,W*.30,H*.02);
+ }else{ /* fence */
+  for(let i=0;i<8;i++){const bx=W*(.04+i*.125);
+   g.fillStyle='#e8ddc4';g.fillRect(bx,gy-H*.16,W*.035,H*.16);}
+  g.fillStyle='#e8ddc4';g.fillRect(0,gy-H*.12,W,H*.016);
+  g.fillStyle='rgba(255,255,255,.7)';g.beginPath();g.arc(W*.82,H*.16,H*.07,0,7);g.fill();
+ }
+ /* ground */
+ const gg=g.createLinearGradient(0,gy,0,H);
+ gg.addColorStop(0,y.g1);gg.addColorStop(1,y.g2);
+ g.fillStyle=gg;g.fillRect(0,gy,W,H-gy);
+ g.globalAlpha=.16;g.fillStyle='#ffffff';
+ for(let i=0;i<26;i++)
+  g.fillRect(W*R(i,5),gy+(H-gy)*R(i,6),W*.012,H*.008);
+ g.globalAlpha=1;
+ /* ambient */
+ if(fx){
+  for(let i=0;i<14;i++){
+   const ph=(t*(.05+R(i,7)*.06)+R(i,8))%1;
+   const x=W*R(i,9)+Math.sin(t+i)*W*.03;
+   const yy=y.fx==='steam'?H*(.95-ph*.7):H*(ph*1.1-.05);
+   const k=W*.012;
+   g.globalAlpha=Math.sin(ph*Math.PI)*.6;
+   if(y.fx==='petal'){g.save();g.translate(x,yy);g.rotate(t*1.4+i);
+    g.fillStyle='#ffc2d6';g.beginPath();g.ellipse(0,0,k,k*.6,0,0,7);g.fill();g.restore();}
+   else if(y.fx==='leaf'){g.save();g.translate(x,yy);g.rotate(t+i);
+    g.fillStyle='#e0823a';g.beginPath();g.ellipse(0,0,k*1.1,k*.5,0,0,7);g.fill();g.restore();}
+   else if(y.fx==='star'){g.fillStyle='#fff';star4(g,x,H*.12+R(i,10)*H*.3,k*.5*(.6+.4*Math.sin(t*2+i)),t);}
+   else if(y.fx==='steam'){g.fillStyle='rgba(255,255,255,.5)';
+    g.beginPath();g.arc(W*.2+Math.sin(t*.8+i)*W*.02,yy,k*1.4,0,7);g.fill();}
+   else if(y.fx==='gull'){g.strokeStyle='rgba(255,255,255,.8)';g.lineWidth=2;
+    const gx=W*((t*.06+R(i,11))%1.2-.1), gyy=H*(.12+R(i,12)*.2);
+    g.beginPath();g.moveTo(gx-6,gyy);g.quadraticCurveTo(gx,gyy-4,gx+0,gyy);
+    g.quadraticCurveTo(gx,gyy-4,gx+6,gyy);g.stroke();}
+   else{g.fillStyle='#fff7c0';g.beginPath();g.arc(x,yy,k*.5,0,7);g.fill();}
+  }
+  g.globalAlpha=1;
+ }
+ /* the cats, back row first */
+ const cats=YARD_NOCATS?[]:yardCats(), n=cats.length;
+ if(fx&&!YARD_NOCATS){
+  const dt=Math.min(120,now-(YARD_T||now));YARD_T=now;
+  yardTick(now,dt);
+ }
+ const list=cats.map((p,i)=>({p,a:yardAgent(p,i,n)})).sort((x,y2)=>x.a.y-y2.a.y);
+ for(const {p,a} of list){
+  const size=W*(n>5?.115:.135), x=a.x*W, yy=a.y*H;
+  const walking=a.st==='walk'&&!a.drag;
+  const step=walking?Math.sin(t*3.4)*size*.018:0;
+  const bob=fx?(a.fly>.05?Math.sin(t*1.3)*size*.035:Math.sin(t*1.0+x)*size*.016):0;
+  /* shadow shrinks and softens as a cat gains height */
+  const gy2=(a.fly>.02?YARD_GROUND[0]+.18:a.y)*H;
+  g.save();g.globalAlpha=.30*(1-a.fly*.6);g.fillStyle='#000';
+  g.beginPath();g.ellipse(x,gy2+size*.34,size*(.30-a.fly*.10),size*.09,0,0,7);g.fill();g.restore();
+  g.save();
+  g.translate(x,yy+bob+step*.3);
+  if(a.face<0)g.scale(-1,1);
+  if(a.fly>.05)g.rotate(Math.sin(t*1.3)*.035);
+  drawCat(g,0,0,size,p.k,
+   {cos:cosOf(p.id),skin:catSkin(p),mood:a.st==='sleep'?'sleep':'happy',now});
+  g.restore();
+  if(a.st==='sleep'){
+   g.save();g.globalAlpha=.55+.35*Math.sin(t*2);g.fillStyle='#fff';
+   g.font='900 '+Math.round(size*.28)+'px system-ui';g.textAlign='center';
+   g.fillText('z',x+size*.34,yy-size*.34-Math.sin(t*1.4)*size*.06);
+   g.restore();}
+  if(S.equip.includes(p.id)){
+   g.save();g.globalAlpha=.9;g.fillStyle='#ffd76b';
+   star4(g,x+size*.30,yy+bob-size*.34,size*.09,t);g.restore();}
+ }
+ g.restore();
+}
+/* the card at the top of the squad screen */
+function yardCard(){
+ const wrap=el('div','yardCard');
+ const stage=el('div','yardStage');
+ const cv=el('canvas');cv.width=760;cv.height=440;
+ stage.appendChild(cv);
+ wrap.appendChild(stage);
+ liveDraw(cv,(g,now)=>drawYard(g,760,440,now));
+ /* drag to arrange, tap to act */
+ let drag=null,moved=0;
+ const at=e=>{const r=cv.getBoundingClientRect();
+  return {x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};};
+ const pick=q=>{
+  const cats=yardCats(),n=cats.length;
+  let best=null,bd=1e9;
+  cats.forEach((p,i)=>{const a=yardAgent(p,i,n);
+   const d=Math.hypot((a.x-q.x)*1.6,(a.y-q.y));
+   if(d<bd){bd=d;best=p;}});
+  return bd<.16?best:null;
+ };
+ cv.addEventListener('pointerdown',e=>{
+  const q=at(e);const p=pick(q);
+  if(!p)return;
+  drag=p;moved=0;cv.setPointerCapture(e.pointerId);
+  const a=YARD_A[p.id];if(a)a.drag=true;
+ });
+ cv.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  const q=at(e);moved++;
+  const nx=clamp(q.x,.10,.90), ny=clamp(q.y,.30,.92);
+  S.yard.pos[drag.id]={x:nx,y:ny};
+  const a=YARD_A[drag.id];
+  if(a){a.x=nx;a.y=ny;a.tx=nx;a.ty=ny;}
+ });
+ cv.addEventListener('pointerup',e=>{
+  if(!drag)return;
+  const a=YARD_A[drag.id];
+  if(a){a.drag=false;a.until=performance.now()+900;a.st='idle';}
+  if(moved<3)openYardCat(drag.id);else save();
+  drag=null;
+ });
+ const bar=el('div','yardBar');
+ const b1=el('button','btn ghost sm',JE('🐈 猫を置く','🐈 Place cats'));
+ b1.onclick=()=>{A.click();openYardPick();};
+ const b2=el('button','btn ghost sm',JE('🎨 広場のテーマ','🎨 Backdrops'));
+ b2.onclick=()=>{A.click();openYardShop();};
+ bar.appendChild(b1);bar.appendChild(b2);
+ wrap.appendChild(bar);
+ wrap.appendChild(el('div','yardTip',
+  JE('猫たちは自分で歩きまわります。天使の羽をつけた猫は飛びます。ドラッグで移動、タップで 同行・着せ替え・片づけ。',
+     'The cats wander on their own — winged ones fly. Drag to move, tap for party, outfits or to send home.')));
+ return wrap;
+}
+function openYardCat(id){
+ const p=allCats().find(x=>x.id===id);if(!p)return;
+ sheetPush(()=>openYardCat(id));
+ sheet(catName(p),b=>{
+  const cv=el('canvas');cv.width=cv.height=260;cv.className='yardBig';
+  liveDraw(cv,(g,now)=>drawCat(g,130,158,190,p.k,{cos:cosOf(p.id),skin:catSkin(p),mood:'happy',now}));
+  b.appendChild(cv);
+  b.appendChild(el('div','','<div style="text-align:center;font-size:11.5px;color:var(--lo);margin-bottom:10px">'
+   +p.job+'　'+KNACK[p.a].ja+'</div>'));
+  const eq=S.equip.includes(p.id);
+  const b1=el('button','btn '+(eq?'ghost':'gold')+' wide',
+   eq?JE('パーティから外す','Remove from party'):JE('パーティに入れる','Add to party'));
+  b1.onclick=()=>{A.click();
+   const i=S.equip.indexOf(p.id);
+   if(i>=0)S.equip.splice(i,1);
+   else{if(S.equip.length>=slots()){toast(T('連れて行けるのは ')+slots()+T('匹まで'));return;}
+    S.equip.push(p.id);}
+   save();paintParty();sheetBack();openYardCat(id);};
+  b.appendChild(b1);
+  const b2=el('button','btn ghost wide',JE('👗 着せ替え','👗 Outfits'));
+  b2.style.marginTop='7px';
+  b2.onclick=()=>{A.click();if(!(cosHave(p.id)||anyPCos())){toast(catName(p)+T(' の着せ替えはまだ出ていません'));return;}openCosPick(p.id);};
+  b.appendChild(b2);
+  const b3=el('button','btn ghost wide',JE('広場から片づける','Send home'));
+  b3.style.marginTop='7px';
+  b3.onclick=()=>{A.click();
+   S.yard.on=S.yard.on.filter(x=>x!==p.id);save();sheetBack();};
+  b.appendChild(b3);
+ });
+}
+function openYardPick(){
+ sheetPush(()=>openYardPick());
+ sheet(JE('広場に置く猫','Cats in the yard'),b=>{
+  b.appendChild(el('div','','<div style="font-size:11.5px;color:var(--mid);line-height:1.7;margin-bottom:10px">'
+   +JE('タップで出し入れします。いちどに '+YARD_MAX+' 匹まで置けます。',
+       'Tap to add or remove. Up to '+YARD_MAX+' cats at a time.')+'</div>'));
+  const g=el('div','dexG');
+  for(const p of allCats()){
+   if(!S.dex[p.id])continue;
+   const on=S.yard.on.includes(p.id);
+   const c=el('div','dexC'+(on?' eq':''));
+   if(on)c.appendChild(el('div','eb',JE('広場に','In yard')));
+   c.appendChild(catCv(p.k,170,false,catSkin(p),cosOf(p.id)));
+   c.appendChild(el('div','nm',catName(p)));
+   c.onclick=()=>{A.click();
+    if(on)S.yard.on=S.yard.on.filter(x=>x!==p.id);
+    else{if(S.yard.on.length>=YARD_MAX){toast(JE('広場に置けるのは '+YARD_MAX+' 匹まで','Up to '+YARD_MAX+' cats'));return;}
+     S.yard.on.push(p.id);}
+    save();openYardPick();};
+   g.appendChild(c);}
+  b.appendChild(g);
+ });
+}
+function openYardShop(){
+ sheetPush(()=>openYardShop());
+ sheet(JE('広場のテーマ','Backdrops'),b=>{
+  b.appendChild(el('div','shopSt','<div class="k">'+T('持っているかけら')+'</div>'
+   +'<div class="v">🔷 '+fmt(S.shard||0)+'</div>'));
+  b.appendChild(el('div','','<div style="font-size:11.5px;color:var(--mid);line-height:1.7;margin:10px 0">'
+   +JE('ガチャで すでに仲間の猫が出たときの <b>かけら</b> で交換できます。','Trade the <b>shards</b> that duplicate draws leave behind.')+'</div>'));
+  for(const y of YARDS){
+   const own=!!(S.yard.bought&&S.yard.bought[y.id]), using=S.yard.bg===y.id;
+   const row=el('div','yardRow'+(using?' on':''));
+   const cv=el('canvas');cv.width=320;cv.height=180;
+   liveDraw(cv,(g,now)=>{const keep=S.yard.bg;S.yard.bg=y.id;drawYardPreview(g,320,180,now);S.yard.bg=keep;});
+   row.appendChild(cv);
+   const info=el('div','yi','<div class="t">'+y.ja+'</div>'
+    +'<div class="s">'+(using?JE('使用中','In use'):own?JE('持っています','Owned'):'🔷 '+y.cost)+'</div>');
+   row.appendChild(info);
+   const bt=el('button','btn '+(using?'ghost':own?'ghost':'gold')+' sm',
+    using?JE('使用中','In use'):own?JE('使う','Use'):'🔷'+y.cost);
+   bt.disabled=using||(!own&&(S.shard||0)<y.cost);
+   bt.onclick=()=>{A.click();
+    if(!own){
+     if((S.shard||0)<y.cost)return;
+     S.shard-=y.cost;S.yard.bought[y.id]=1;toast(y.ja+JE(' を手に入れました',' unlocked'));}
+    S.yard.bg=y.id;save();paintTop();openYardShop();};
+   row.appendChild(bt);
+   b.appendChild(row);}
+ });
+}
+/* the same scene without the cats, for the shop rows */
+function drawYardPreview(g,W,H,now){
+ YARD_NOCATS=true;drawYard(g,W,H,now);YARD_NOCATS=false;
+}
 function openGuild(){sheetPush(()=>openGuild());sheet(T('猫軍'),b=>{
+ b.appendChild(yardCard());
  const gp=guildProg();
  b.appendChild(el('div','card','<div style="padding:15px">'
   +T('<div class="eyebrow">猫軍ランク</div>')
@@ -4726,6 +5216,12 @@ function closeReveal(){
 }
 /* Ten at once. Slot 10 is floored at ★4 so a ten-draw always feels like an
    event; every other slot uses the published odds untouched. */
+/* A ten-draw used to dump a grid of ten cards at once: the best card in the
+   run got the same half-second as the worst. Now each one is revealed with
+   the same build-up a single draw gets, in order, with the run's best saved
+   for last — and the whole list is one tap away at any point for players who
+   just want the result. */
+let TEN=null;
 function gacha10(){
  const res=[],cos=[];
  for(let i=0;i<10;i++){
@@ -4736,6 +5232,51 @@ function gacha10(){
   res.push(grantCat(one.p,one.rar));
  }
  save();
+ /* one list, weakest first, so the run builds towards its best card */
+ const items=res.map(r=>({kind:'cat',r:r.rar,cat:r.p,dupe:r.dupe,shard:r.shard}))
+  .concat(cos.map(c=>({kind:'cos',r:c.r,cos:c})));
+ items.sort((a,b)=>a.r-b.r);
+ TEN={items,res,cos,i:0};
+ tenStep();
+}
+function tenStep(){
+ if(!TEN)return;
+ if(TEN.i>=TEN.items.length){tenSummary();return;}
+ const it=TEN.items[TEN.i], n=TEN.i+1, last=n===TEN.items.length;
+ $('gEye').textContent=T('猫を呼ぶ');
+ $('gCount').innerHTML='<b>'+n+'</b> / '+TEN.items.length;
+ if(it.kind==='cat'){
+  const p=it.cat;
+  revealStage(it.r,catSkin(p),(g,now,cx,cy,size)=>
+   drawCat(g,cx,cy+size*.10,size,p.k,{mood:'happy',skin:catSkin(p),now}));
+  $('gName').textContent=catName(p);
+  const gr=$('gRare');gr.textContent='★'.repeat(it.r);gr.style.color=RCOL[it.r];
+  $('gDesc').innerHTML=(it.dupe?T('<b>すでに仲間 → 🔷＋')+it.shard+T('（かけら）</b>')
+   :T('<b style="color:var(--green)">はじめまして！</b>'))+'<br>'+p.job+'　'+KNACK[p.a].ja;
+ }else{
+  const c=it.cos, p=COSCAT(c)||PARTNERS[0];
+  revealStage(c.r,catSkin(p),(g,now,cx,cy,size)=>
+   drawCat(g,cx,cy+size*.10,size,p.k,{mood:'happy',cos:c.id,skin:catSkin(p),now}));
+  $('gName').textContent=c.ja;
+  const gr=$('gRare');gr.textContent='★'.repeat(c.r);gr.style.color=RCOL[c.r];
+  $('gDesc').innerHTML=T('<b style="color:var(--cyan)">あたらしい着せ替え！</b>')
+   +'<br>'+JE('猫軍の画面で '+catName(p)+' に着せられます。','Put it on '+catName(p)+' from the squad screen.');
+ }
+ $('gClose').textContent=last?JE('一覧を見る','See them all'):JE('つぎへ ▶','Next ▶');
+ $('gClose').onclick=()=>{A.click();TEN.i++;closeRevealLoop();tenStep();};
+ const sk=$('gSkipAll');
+ sk.classList.toggle('hide',last);
+ sk.textContent=JE('まとめて見る','Skip to the list');
+ sk.onclick=()=>{A.click();closeRevealLoop();tenSummary();};
+ $('ovGacha').classList.add('on');
+}
+function closeRevealLoop(){if(RV){cancelAnimationFrame(RV.raf);RV=null;}}
+function tenSummary(){
+ closeRevealLoop();
+ $('ovGacha').classList.remove('on');
+ $('gCount').textContent='';
+ $('gSkipAll').classList.add('hide');
+ const res=TEN?TEN.res:[], cos=TEN?TEN.cos:[];
  const top=Math.max(0,...res.map(r=>r.rar),...cos.map(c=>c.r));
  A.reveal(top);
  if(top>=5)flashLayer('flashMag',560);else if(top>=4)flashLayer('flashGold',500);
@@ -4778,7 +5319,7 @@ function gacha10(){
   +'</span>';
  $('g10Close').textContent=T('閉じる');
  $('ovGacha10').classList.add('on');
- $('g10Close').onclick=()=>{$('ovGacha10').classList.remove('on');A.click();
+ $('g10Close').onclick=()=>{$('ovGacha10').classList.remove('on');A.click();TEN=null;
   if($('sheet').classList.contains('on'))openGacha();};
 }
 /* The old shop was one flat list of eight rows with a yen button on each,
@@ -5815,7 +6356,7 @@ function playAd(done){
     same bonus handed over without a video. */
  if(adsOff()){toast(JE('広告オフ特典：そのまま受け取りました','Ad-free: reward granted'));done&&done();return;}
  $('adOv').classList.add('on');
- if(native('showRewarded',{placement:'reward'})){
+ if(native('showRewarded',{placement:'reward',unit:adUnit('rewarded')})){
   adCb=done; adKind='rewarded';
   /* if the native side never answers (no fill, crash), never leave the
      player stuck behind the overlay */
@@ -5835,7 +6376,7 @@ function maybeAd(next){
  adN++;if(adN%3!==0){next();return;}
  lastAdAt=Date.now();
  $('adOv').classList.add('on');
- if(native('showInterstitial',{placement:'stage_end'})){
+ if(native('showInterstitial',{placement:'stage_end',unit:adUnit('interstitial')})){
   adCb=next; adKind='interstitial';
   adGuard=setTimeout(()=>{adFinish(true);},30000);   /* an interstitial has
      no reward to withhold, so a timeout should let the player continue */
@@ -8216,6 +8757,10 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)try{save();
 addEventListener('pagehide',()=>{try{save();}catch(e){}});
 requestAnimationFrame(frame);
 checkAchv();
+/* the ad units, the test-device list and which set to use, before the first
+   request goes out */
+native('ad_config',{banner:adUnit('banner'),interstitial:adUnit('interstitial'),
+ rewarded:adUnit('rewarded'),test:!!ADS.test,testDevices:ADS.testDevices||[]});
 native('entitlements');   /* purchases come back by themselves; see KingCats.entitlements */
 runBootScreens();
 /* one local notification a day keeps a puzzle game alive; the shell decides
