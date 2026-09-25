@@ -4810,7 +4810,9 @@ function openGacha(){sheetPush(()=>openGacha());sheet(T('猫を呼ぶ'),b=>{
  /* ---- costumes ---- */
  cosBox.appendChild(el('div','oddNote',
   T('着せ替えは<b>猫ごとに1着</b>。<b>その猫を仲間にしてから</b>抽選に入ります。<br>')
-  +T('着せ替えの中は ★3 70％ ／ ★4 24％ ／ ★5 6％。いま出るものが無いときは、抽選はすべて猫になります。<br>')
+  +(()=>{const w=COS_W[3]+COS_W[4]+COS_W[5],r=x=>Math.round(COS_W[x]/w*100);
+    return JE('着せ替えの中は ★3 '+r(3)+'％ ／ ★4 '+r(4)+'％ ／ ★5 '+r(5)+'％。いま出るものが無いときは、抽選はすべて猫になります。<br>',
+     'Among outfits: ★3 '+r(3)+'% / ★4 '+r(4)+'% / ★5 '+r(5)+'%. With none eligible, every draw is a cat.<br>');})()
   +T('ショップの 特別な着せ替え は ここからは出ません。')));
  const cs=el('div','oddSplit sm');
  cs.innerHTML='<div><b>'+cosOwn+'/'+COSTUMES.length+'</b><span>'+T('持っている')+'</span></div>'
@@ -6874,7 +6876,7 @@ const ACHV=[
  /* collection */
  {id:'ach_dex5',  m:1,ja:T('小隊結成'),       d:T('猫を5匹集める'),            n:5,    f:()=>dexN()},
  {id:'ach_dex',   m:2,ja:T('猫軍 満員'),      d:T('猫を13匹集める'),           n:13,   f:()=>dexN()},
- {id:'ach_dex16', m:4,ja:T('全猫集結'),       d:T('特別な猫を含む16匹すべて'), n:16,   f:()=>dexN()},
+ {id:'ach_dex16', m:4,ja:T('全猫集結'),       d:JE('猫を16匹集める','Collect 16 cats'), n:16,   f:()=>dexN()},
  {id:'ach_rank',  m:3,ja:T('伝説の猫軍'),     d:T('猫軍ランクを最高にする'),   n:5,    f:()=>guildLv()},
  /* habit */
  {id:'ach_login3',m:1,ja:T('また来たね'),     d:T('3日連続でログイン'),        n:3,    f:()=>S.login.streak||0},
@@ -7275,7 +7277,7 @@ const TIPS=[
  '行き止まりになったら、その場ですぐ知らせます。',
  '猫パンチは同じ種類を2匹。入れ替えは好きな2匹。',
  '★★★の手数は、全ステージで必ず届きます。',
- '王の試練は道具なしの5連戦。1日1回、記録が残ります。',
+ '王の試練は道具なしのエンドレス。行けるところまで挑めます。',
 ];
 function splashStep(p){const f=$('spFill');if(f)f.style.width=Math.round(p*100)+'%';}
 function splashGo(done){
@@ -8118,7 +8120,7 @@ function paintPromo(){
   c={ic:'🚫',t:JE('広告を消して遊ぶ　¥'+fmt(IAPBY('noads').yen),'Play without ads · ¥'+fmt(IAPBY('noads').yen)),
      s:JE('買い切り。機種変更しても「購入を復元」で戻ります。','One purchase, kept for good — restores on a new phone.'),go:()=>openShopAt('noads')};
  else if(trialOpen()&&(S.trial.day!==today()))
-  c={ic:'👑',t:T('今日の王の試練'),s:T('道具なしの5連戦。記録に挑戦。'),go:startTrial};
+  c={ic:'👑',t:T('今日の王の試練'),s:JE('道具なしのエンドレス。記録に挑戦。','No tools, endless — go for a record.'),go:startTrial};
  if(!c)return;
  const d=el('div','');d.id='promo';
  d.innerHTML='<div class="ic">'+c.ic+'</div><div class="g"><div class="t">'+c.t+'</div>'
