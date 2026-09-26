@@ -455,7 +455,14 @@ body.fx-off .pawTap{display:none}
    cat's own aura colour decides what it looks like */
 #revealHero canvas.rvBg{position:absolute;inset:0;width:100%;height:100%;z-index:0}
 /* the animated draw: one canvas holds the build-up, the burst and the cat */
-#revealHero canvas.rvStage{position:absolute;inset:0;width:100%;height:100%;z-index:1;cursor:pointer}
+/* The stage canvas is bigger than its box and bleeds out above and below it,
+   behind the name and the buttons, so ears, halos and the pop-in overshoot are
+   never cut off. The text sits above it. */
+#revealHero canvas.rvStage{position:absolute;left:0;right:0;top:-64px;bottom:-96px;
+ width:100%;height:calc(100% + 160px);z-index:0;cursor:pointer}
+#ovGacha #gName,#ovGacha #gRare,#ovGacha #gDesc,#ovGacha .btn,#ovGacha #gEye{position:relative;z-index:2}
+/* the effects may run to the card's edge, but not past it */
+#ovGacha .ovc{overflow:hidden}
 #revealHero .rvSkip{position:absolute;right:2px;bottom:-2px;z-index:3;font:inherit;font-size:10.5px;
  font-weight:800;color:var(--lo);background:rgba(255,255,255,.07);border:1px solid var(--line);
  border-radius:99px;padding:3px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -3010,11 +3017,16 @@ function placeParty(){
  const ph=$('playHead');
  if(bar.parentNode!==ph)ph.appendChild(bar);
 }
-const BOARD_MAX=640;   /* was 540 — tablets and desktop get a real board now */
+const BOARD_MAX=580;   /* 640 filled tablets edge to edge; one size down reads calmer */
+/* One size smaller than the space allows: the board used to take every pixel
+   of the stage, which on a phone left no breathing room around the frame and
+   made the whole screen feel cramped. 88% keeps it the dominant thing on
+   screen while letting the background and the walls' shadow show around it. */
+const BOARD_SCALE=.88;
 function layout(){
  const wrap=$('stageWrap'),cv=$('cv');
  placeParty();
- const size=Math.max(200,Math.floor(Math.min(wrap.clientWidth,wrap.clientHeight,BOARD_MAX)));
+ const size=Math.max(200,Math.floor(Math.min(wrap.clientWidth,wrap.clientHeight,BOARD_MAX)*BOARD_SCALE));
  G.size=size;
  /* The canvas margin only has to be wide enough to hold the walls (0.3 cell
     thick). It used to be a flat 8.5% of the canvas, which on a 6x6 board threw
@@ -5011,7 +5023,7 @@ function pickFour(it){sheetPush(()=>pickFour(it));sheet(T('★4の猫を選ぶ')
    the lowest rate, and an outfit can only appear for a cat you already
    have — so the sequence a player experiences is always cat first. */
 function drawRevealBg(g,W,H,rar,col,fxp,now){
- const t=now/1000,cx=W/2,cy=H*.52;
+ const t=now/1000,cx=RVC?RVC.x:W/2,cy=RVC?RVC.y:H*.52;
  g.save();
  const rg=g.createRadialGradient(cx,cy,0,cx,cy,W*.46);
  rg.addColorStop(0,hexA(col,rar>=5?.5:rar>=4?.34:.2));
@@ -5065,7 +5077,7 @@ function drawRevealBg(g,W,H,rar,col,fxp,now){
    loudness come from the rarity — three rings and a soft chime for a ★3, a
    long charge, colour shift and shockwave for a ★5 — and the cat lands with
    a pop. A tap skips straight to the result for people who draw in bulk. */
-let RV=null;
+let RV=null, RVC=null;
 function revealStage(rar,skinId,paint){
  const hero=$('revealHero');
  if(RV){cancelAnimationFrame(RV.raf);RV=null;}
@@ -5074,11 +5086,16 @@ function revealStage(rar,skinId,paint){
  const col=(K&&K.aura)||RARC[Math.min(5,Math.max(3,rar))]||'#8899bb';
  /* The canvas is stretched to fill the box by CSS, so its pixel shape has to
     match the box's shape or the cat comes out wide. */
- const box=hero.getBoundingClientRect();
- const W=440, H=Math.max(200,Math.round(W*(box.height||196)/(box.width||300)));
- const CX=W/2, CY=H*.5;
- const cv=el('canvas');cv.width=W;cv.height=H;cv.className='rvStage';
+ const cv=el('canvas');cv.className='rvStage';
  hero.appendChild(cv);
+ const hb=hero.getBoundingClientRect(), cb=cv.getBoundingClientRect();
+ const W=440, H=Math.max(200,Math.round(W*(cb.height||356)/(cb.width||360)));
+ cv.width=W;cv.height=H;
+ const sx=W/(cb.width||360);
+ /* the subject stays centred on the hero box, not on the bigger canvas */
+ const CX=((hb.left+hb.width/2)-cb.left)*sx||W/2, CY=((hb.top+hb.height/2)-cb.top)*sx||H*.45;
+ const SUB=(hb.height||196)*sx;
+ RVC={x:CX,y:CY,s:SUB};
  const tip=el('button','rvSkip',JE('スキップ ▶','Skip ▶'));
  hero.appendChild(tip);
  const g=cv.getContext('2d');
@@ -5123,7 +5140,7 @@ function revealStage(rar,skinId,paint){
  }
  function paintAt(g,now,scale){
   g.save();g.translate(CX,CY);g.scale(scale,scale);g.translate(-CX,-CY);
-  paint(g,now,CX,CY,Math.min(W,H)*.78);g.restore();
+  paint(g,now,CX,CY,SUB*.78);g.restore();
  }
  RV={raf:requestAnimationFrame(step)};
  /* skip: the button, or a tap anywhere on the stage */
@@ -5137,7 +5154,7 @@ function revealStage(rar,skinId,paint){
 /* the build-up: rings closing in, dust pulled to the middle, and a glow that
    grows. ★5 shifts from cold blue to its own colour on the way. */
 function drawCharge(g,W,H,col,rar,u,now){
- const cx=W/2, cy=H*.52, t=now/1000;
+ const cx=RVC?RVC.x:W/2, cy=RVC?RVC.y:H*.52, t=now/1000;
  const cold='#7f9cff';
  const c=rar>=5?mixHex(cold,col,Math.min(1,u*1.6)):rar>=4?mixHex(cold,col,u):col;
  g.save();
@@ -5179,7 +5196,7 @@ function drawCharge(g,W,H,col,rar,u,now){
 }
 /* the moment it lands */
 function drawBurst(g,W,H,col,u,rar){
- const cx=W/2, cy=H*.52;
+ const cx=RVC?RVC.x:W/2, cy=RVC?RVC.y:H*.52;
  g.save();g.globalCompositeOperation='lighter';
  g.globalAlpha=(1-u)*.9;
  const fl=g.createRadialGradient(cx,cy,0,cx,cy,W*.6*(.3+u));
