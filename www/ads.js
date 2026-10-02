@@ -2,7 +2,7 @@
 const AdMob = window.Capacitor?.Plugins?.AdMob;
 
 // 開発・TestFlight検証中は true（App Store公開時に false へ変更）
-const TESTING = true;
+const TESTING = false;
 
 // 広告ユニットID（TESTINGがtrueの時はGoogle公式テストIDを使用）
 const BANNER_ID       = TESTING ? 'ca-app-pub-3940256099942544/2934735716' : 'ca-app-pub-9887025755159214/7136735433';
