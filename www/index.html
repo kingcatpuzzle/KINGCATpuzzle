@@ -289,6 +289,20 @@ body.fx-off .pawTap{display:none}
 .ov{position:fixed;inset:0;z-index:76;display:none;align-items:center;justify-content:center;
  padding:16px;background:rgba(4,6,14,.82);backdrop-filter:blur(8px)}
 .ov.on{display:flex}
+/* first-launch language picker: above the title screen, both languages shown */
+#ovLang{z-index:400;background:radial-gradient(circle at 50% 35%,#1d2550,#0b0f1e 70%)}
+.langCard{max-width:330px;width:86%;text-align:center;padding:24px 20px 18px}
+.lgPaw{font-size:34px;margin-bottom:6px}
+.lgT{font-size:18px;font-weight:900;line-height:1.5;margin-bottom:16px}
+.lgT span,.lgNote span{display:block;font-size:13px;font-weight:700;color:var(--mid)}
+.lgBtn{display:block;width:100%;margin:0 0 10px;padding:13px 10px;border-radius:16px;cursor:pointer;
+ font:inherit;color:var(--hi);background:var(--glass);border:1.5px solid var(--line);transition:transform .12s}
+.lgBtn b{display:block;font-size:19px;font-weight:900}
+.lgBtn span{display:block;font-size:11.5px;color:var(--lo);margin-top:1px}
+.lgBtn.pre{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,107,.18)}
+.lgBtn:active{transform:scale(.97)}
+.lgNote{font-size:11px;color:var(--lo);line-height:1.6;margin-top:6px}
+.lgNote span{font-size:10.5px;color:var(--lo);font-weight:600}
 .ovc{width:100%;max-width:400px;max-height:calc(100% - 20px);overflow-y:auto;padding:20px;
  animation:ci .34s cubic-bezier(.2,1.3,.4,1)}
 @keyframes ci{from{opacity:0;transform:translateY(18px) scale(.95)}to{opacity:1;transform:none}}
@@ -1064,6 +1078,13 @@ body.hasAd{--bannerH:var(--adH,50px)}
  <div id="mdDesc" style="font-size:12px;color:var(--mid);margin-top:5px"></div>
  <button class="btn gold wide" id="mdOk" style="margin-top:15px"></button></div></div>
 
+<div class="ov" id="ovLang"><div class="ovc card langCard" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
+ <div class="lgPaw">🐾</div>
+ <div id="lgTitle" class="lgT">言語を選んでください<br><span>Choose your language</span></div>
+ <button class="lgBtn" id="lgJa"><b>日本語</b><span>Japanese</span></button>
+ <button class="lgBtn" id="lgEn"><b>English</b><span>英語</span></button>
+ <div class="lgNote">あとから メニュー →「設定」で変更できます<br><span>You can change this later in Menu → Settings</span></div>
+</div></div>
 <div class="ov" id="ovConsent"><div class="ovc card" style="max-width:400px" role="dialog" aria-modal="true" aria-labelledby="cnTitle">
  <div class="eyebrow" id="cnEye"></div>
  <div id="cnTitle" style="font-size:19px;font-weight:900;margin:4px 0 8px"></div>
@@ -2350,15 +2371,34 @@ try{const bad=IAP.filter(x=>!isAppleYenPoint(x.yen));
 /* The set offer that fits what this player already owns: the full set if
    they own none, "the other n" if they own some, nothing if one or none is
    left (a single item is just a single purchase). */
+/* ------------------------------------------------------------ prices
+   The table above is in yen because that is what App Store Connect is set up
+   with, but a player in another storefront is charged in their own currency
+   at Apple's local price. The native layer asks StoreKit for the real prices
+   (Product.displayPrice / Product.price) and hands them over through
+   window.KingCats.prices(); until then, and in a browser, the yen table is
+   shown. Every price on screen goes through these helpers, so the number the
+   player reads is the number the store sheet will show. */
+let PRICES=null;              /* {id:{display,value}} plus __cur */
+const priceVal=id=>{const q=PRICES&&PRICES[id];
+ return (q&&isFinite(q.value))?+q.value:(IAPBY(id)?IAPBY(id).yen:0);};
+const priceStr=id=>{const q=PRICES&&PRICES[id];
+ return (q&&q.display)?q.display:('¥'+fmt(IAPBY(id)?IAPBY(id).yen:0));};
+function money(v){
+ if(PRICES&&PRICES.__cur){
+  try{return new Intl.NumberFormat(LANG==='en'?'en':'ja-JP',
+   {style:'currency',currency:PRICES.__cur}).format(v);}catch(e){}}
+ return '¥'+fmt(Math.round(v));
+}
 function setOffer(setId){
  const full=IAPBY(setId);if(!full)return null;
  const missing=full.set().filter(x=>!owns(x)), n=missing.length, total=full.set().length;
  if(n<2)return null;
  const it=n===total?full:IAP.find(x=>x.rest&&x.rest.g===setId&&x.rest.n===n);
  if(!it)return null;
- const worth=missing.reduce((a,x)=>a+IAPBY(x).yen,0);
- if(worth<=it.yen)return null;
- return {it,missing,worth,pct:offPct(it.yen,worth)};
+  const worth=missing.reduce((a,x)=>a+priceVal(x),0);
+ if(worth<=priceVal(it.id))return null;
+ return {it,missing,worth,pct:offPct(priceVal(it.id),worth)};
 }
 const offPct=(yen,worth)=>worth>yen?Math.floor((worth-yen)*20/worth+1e-9)*5:0;   /* integer maths: 20% stays 20%, not 19.999…% */
 /* ------------------------------------------------------------------ themes
@@ -3912,7 +3952,7 @@ function showPinch(mode){
      :kn.ja)+'</div>'
    +'<div class="prL">'+PAID_LOOK[cat.id]+'</div>';
   const bb=buyBtn(it,'gold');bb.classList.add('wide');
-  bb.textContent=JE('¥'+fmt(it.yen)+' で仲間にする','Recruit for ¥'+fmt(it.yen));
+  bb.textContent=JE(priceStr(it.id)+' で仲間にする','Recruit for '+priceStr(it.id));
   bb.onclick=()=>{A.click();buy(it,()=>afterCatBuy(cat,mode));};
   pr.appendChild(bb);c.appendChild(pr);acts.appendChild(c);}
  const cos=recoCos();
@@ -5532,8 +5572,13 @@ function owns(id){
    build that grants purchases locally would be both a security hole and
    an immediate rejection. */
 let IAP_BRIDGE=false;
-let BUY_CB=null;
+/* iOS の WKWebView の中で動いているか。Safari の UA には "Safari/" が付くが、
+   アプリ内の WKWebView には付かない。デモ購入はブラウザでだけ動かす。 */
+const IN_APP=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!/Safari\//.test(navigator.userAgent);
+let BUY_CB=null, IAP_GUARD=null;
 function buy(it,onDone){
+ /* 購入の手続き中にもう一度押されても、ストアに二重で依頼しない */
+ if(IAP_BRIDGE){toast(JE('購入の手続き中です','A purchase is already in progress'));return;}
  const kind='nonConsumable';   /* the only kind this game sells */
  BUY_CB=onDone?{id:it.id,fn:onDone}:null;
  /* Sets that contain this item. If StoreKit already lists one of them as
@@ -5543,9 +5588,22 @@ function buy(it,onDone){
      but a single item bought after its set is a different product. */
  const coveredBy=IAP.filter(x=>x.set&&x.id!==it.id&&x.set().includes(it.id)).map(x=>x.id);
  if(native('purchase',{id:it.id,yen:it.yen,kind,coveredBy})){
-  IAP_BRIDGE=true;toast(T('ストアに接続しています…'));return;}
+  IAP_BRIDGE=true;toast(T('ストアに接続しています…'));
+  /* ストアが答えないとき（商品未設定・通信なし）に待たせ続けない。
+     あとから答えが届けば、その時点で反映される。 */
+  clearTimeout(IAP_GUARD);
+  IAP_GUARD=setTimeout(()=>{if(IAP_BRIDGE){IAP_BRIDGE=false;   /* もう一度押せるように戻す */
+   toast(JE('ストアから応答がありません。時間をおいてもう一度お試しください。','No answer from the store. Please try again later.'),4200);}},25000);
+  return;}
+ /* 安全装置：アプリの中（iPhone / iPad の WebView）でネイティブへの橋が
+    見つからないときは、デモ購入に落とさず止める。橋の名前の違いなどで
+    native() が false になっても、無料でアイテムが付くことは絶対にない。 */
+ if(IN_APP){
+  BUY_CB=null;
+  toast(JE('ストアに接続できませんでした。アプリを再起動してお試しください。','Could not reach the store. Please restart the app and try again.'),4200);
+  return;}
  confirmBox(it.t,
-  '<b style="font-size:17px">¥'+fmt(it.yen)+'</b>　'
+  '<b style="font-size:17px">'+priceStr(it.id)+'</b>　'
   +T('（買い切り・非消費型）')+'<br><br>'
   +it.d+'<br><br>'
   +'<span style="font-size:11px;color:var(--lo)">'
@@ -5558,7 +5616,7 @@ function buy(it,onDone){
 function buyBtn(it,cls){
  const own=owns(it.id);
  const btn=el('button','btn '+(own?'ghost':(cls||'gold'))+' sm',
-  own?T('購入済'):'¥'+fmt(it.yen));
+  own?T('購入済'):priceStr(it.id));
  if(own){btn.disabled=true;return btn;}
  btn.onclick=()=>buy(it);
  return btn;
@@ -5580,12 +5638,12 @@ function setShow(b,setId,thumb,tw,th){
   liveDraw(cv,(g,now)=>thumb(g,now,id));}
  sc.appendChild(row);
  sc.appendChild(el('div','s3t','<div class="dn">'+st.t+'</div>'
-  +(offPct(st.yen,worth)>=5
-     ?'<div class="pc"><b>'+offPct(st.yen,worth)+'%</b>OFF</div>'
-     :'<div class="pc"><b>'+fmt(worth-st.yen)+'</b>'+JE('円おトク','yen off')+'</div>')));
- sc.appendChild(el('div','s3d','<s>'+JE('1つずつ買うと ¥'+fmt(worth),'¥'+fmt(worth)+' one by one')+'</s>'));
++(offPct(priceVal(st.id),worth)>=5
+?'<div class="pc"><b>'+offPct(priceVal(st.id),worth)+'%</b>OFF</div>'
+:'<div class="pc"><b>'+money(worth-priceVal(st.id))+'</b>'+JE(' おトク',' off')+'</div>')));
+ sc.appendChild(el('div','s3d','<s>'+JE('1つずつ買うと '+money(worth),money(worth)+' one by one')+'</s>'));
  const bb=buyBtn(st,'gold');bb.classList.add('wide','pbuy');
- bb.textContent=JE('まとめて ¥'+fmt(st.yen),'All for ¥'+fmt(st.yen));
+ bb.textContent=JE('まとめて '+priceStr(st.id),'All for '+priceStr(st.id));
  sc.appendChild(bb);b.appendChild(sc);
 }
 /* canvases that keep moving: in the open sheet, or (always) in an open overlay */
@@ -5686,8 +5744,8 @@ function paintPick(){
    t.appendChild(cv);
    t.appendChild(el('div','n',of.missing.length===st.set().length?SET_NAME[x]
     :JE('残り'+of.missing.length+(x==='cats6'?'匹':'種'),'Other '+of.missing.length)));
-   t.appendChild(el('div','e','<s>¥'+fmt(worth)+'</s>'));
-   t.appendChild(el('div','p','¥'+fmt(st.yen)));
+t.appendChild(el('div','e','<s>'+money(worth)+'</s>'));
+t.appendChild(el('div','p',priceStr(st.id)));
    t.onclick=()=>{A.unlock();A.click();openShopAt(x);};
    strip.appendChild(t);continue;}
   const id=kind==='cat'?x.id:kind==='cos'?x.id:x.buy, it=IAPBY(id);
@@ -5705,17 +5763,17 @@ function paintPick(){
    :(THEME_FX_TX[x.fx]||'');
   t.appendChild(el('div','n',name));
   t.appendChild(el('div','e',eff));
-  t.appendChild(el('div','p','¥'+fmt(it.yen)));
+  t.appendChild(el('div','p',priceStr(it.id)));
   t.onclick=()=>{A.unlock();A.click();openShopAt(id);};
   strip.appendChild(t);}
  const bd=IAPBY('bundle2');
  if(bd&&!owns('bundle2')){
-  const worth=bd.set().filter(x=>!owns(x)).reduce((a,x)=>a+IAPBY(x).yen,0);
-  if(worth>bd.yen){
+const worth=bd.set().filter(x=>!owns(x)).reduce((a,x)=>a+priceVal(x),0);
+if(worth>priceVal(bd.id)){
    const t=el('div','pick bundle');t.setAttribute('role','button');
-   t.innerHTML='<div class="big">'+offPct(bd.yen,worth)+'%<small>OFF</small></div>'
-    +'<div class="n">'+bd.t+'</div><div class="e"><s>¥'+fmt(worth)+'</s></div>'
-    +'<div class="p">¥'+fmt(bd.yen)+'</div>';
+t.innerHTML='<div class="big">'+offPct(priceVal(bd.id),worth)+'%<small>OFF</small></div>'
++'<div class="n">'+bd.t+'</div><div class="e"><s>'+money(worth)+'</s></div>'
++'<div class="p">'+priceStr(bd.id)+'</div>';
    t.onclick=()=>{A.unlock();A.click();openShopAt('bundle2');};
    strip.appendChild(t);}}
  card.appendChild(strip);
@@ -5752,7 +5810,7 @@ function openShop(){sheetPush(()=>openShop());sheet(T('ショップ'),b=>{
    +'<li class="fx">'+PAID_LOOK[p.id]+'</li></ul>';
   if(own)g.appendChild(el('div','pown',JE('✓ 仲間になっています','✓ Already in your squad')));
   else{const bb=buyBtn(it,'gold');bb.classList.add('wide','pbuy');
-   bb.textContent=JE('¥'+fmt(it.yen)+' で仲間にする','Recruit for ¥'+fmt(it.yen));g.appendChild(bb);}
+   bb.textContent=JE(priceStr(it.id)+' で仲間にする','Recruit for '+priceStr(it.id));g.appendChild(bb);}
   c.appendChild(g);b.appendChild(c);}
  setShow(b,'cats6',(g,now,id)=>{const p=PREMIUM.find(x=>x.id===id);
   drawCat(g,60,72,74,p.k,{skin:p.skin,mood:'happy',now});});
@@ -5806,13 +5864,13 @@ function openShop(){sheetPush(()=>openShop());sheet(T('ショップ'),b=>{
  /* ---- 5. everything, priced against what is still missing ---- */
  {const bd=IAPBY('bundle2');
   if(!owns('bundle2')){
-   const worth=bd.set().filter(x=>!owns(x)).reduce((a,x)=>a+IAPBY(x).yen,0);
-   if(worth>bd.yen){
+const worth=bd.set().filter(x=>!owns(x)).reduce((a,x)=>a+priceVal(x),0);
+if(worth>priceVal(bd.id)){
     shopSec(b,T('まとめ買い'));
     const bc=el('div','bundleCard');bc.dataset.iap='bundle2';
-    bc.innerHTML='<div class="hd">'+bd.t+'<span class="off">'+offPct(bd.yen,worth)+'%OFF</span></div>'
+    bc.innerHTML='<div class="hd">'+bd.t+'<span class="off">'+offPct(priceVal(bd.id),worth)+'%OFF</span></div>'
      +'<div class="ds">'+bd.d+'</div>'
-     +'<div class="was">'+JE('持っていない分を1つずつ買うと ¥'+fmt(worth),'¥'+fmt(worth)+' for what you do not own yet, bought singly')+'</div>';
+     +'<div class="was">'+JE('持っていない分を1つずつ買うと '+money(worth),money(worth)+' for what you do not own yet, bought singly')+'</div>';
     const bb2=buyBtn(bd);bb2.classList.add('wide');bb2.style.marginTop='10px';
     bc.appendChild(bb2);b.appendChild(bc);}}}
 
@@ -5827,6 +5885,7 @@ function openShop(){sheetPush(()=>openShop());sheet(T('ショップ'),b=>{
  const rs=el('button','btn ghost wide',T('購入を復元する'));rs.style.marginTop='14px';
  rs.onclick=()=>{
   if(native('restore')){toast(T('復元しています…'));return;}
+  if(IN_APP){toast(JE('ストアに接続できませんでした','Could not reach the store'));return;}
   toast(T('購入を復元しました（デモ）'));};
  b.appendChild(rs);
  if(PUBLISHER.supportUrl||PUBLISHER.email){
@@ -5870,7 +5929,7 @@ function openTheme(){sheet(T('テーマ'),b=>{
       assumed the former and read .yen off IAPBY(null) for every gacha theme,
       which threw the moment the theme list was drawn. */
    if(t.buy&&IAPBY(t.buy)){
-    const bb=el('button','btn gold sm','¥'+fmt(IAPBY(t.buy).yen));
+    const bb=el('button','btn gold sm',priceStr(t.buy));
     bb.onclick=()=>{A.click();buy(IAPBY(t.buy));};r.appendChild(bb);
    }else{
     const bb=el('button','btn ghost sm',T('交換所へ'));
@@ -7144,6 +7203,49 @@ function openAchv(){sheetPush(()=>openAchv());sheet(T('メダルと記録'),b=>{
 });}
 
 window.KingCats={
+ /* ------------------------------------------------------------------
+    ストアの現地価格を受け取る口。native('prices',{ids}) の答えとして
+      window.KingCats.prices([{id, display, value, currency}, ...])
+    を呼ぶ。display = Product.displayPrice（例 "$3.99"）、
+    value = Product.price の数値、currency = 通貨コード（例 "USD"）。
+    ------------------------------------------------------------------ */
+ prices(list){
+  try{
+   const m={};let cur=null;
+   for(const q of (Array.isArray(list)?list:Object.values(list||{}))){
+    if(!q||!q.id||!IAPBY(q.id))continue;
+    m[q.id]={display:String(q.display||''),value:+q.value};
+    if(q.currency)cur=String(q.currency);}
+   if(!Object.keys(m).length)return;
+   m.__cur=cur;PRICES=m;
+   paintTop();try{paintHome();}catch(e){}
+   if($('sheet').classList.contains('on')&&sheetStack.length){
+    const top=sheetStack[sheetStack.length-1];sheetStack.pop();
+    try{top();}catch(e){}}
+  }catch(e){}
+ },
+ /* ------------------------------------------------------------------
+    課金の結果をネイティブ側から受け取る口。
+    native('purchase') を受けたら、Swift 側は必ず 1 回だけ
+      window.KingCats.purchaseDone(商品ID, true/false)
+    を呼ぶこと（true = 検証済みの購入完了、false = キャンセル・保留・失敗）。
+    これが無いと「ストアに接続しています…」のまま先に進まない。
+    ------------------------------------------------------------------ */
+ purchaseDone(id,ok){
+  IAP_BRIDGE=false;clearTimeout(IAP_GUARD);IAP_GUARD=null;
+  if(ok){grantIAP(id);try{A.coin();}catch(e){}toast(T('購入しました'));}
+  else toast(JE('購入は完了しませんでした','The purchase did not go through'));
+  const cb=BUY_CB;BUY_CB=null;
+  if(ok&&cb&&cb.id===id)cb.fn();
+  else if($('sheet').classList.contains('on'))openShop();
+  paintTop();try{paintHome();}catch(e){}
+ },
+ /* native('restore') の答え。AppStore.sync() 後の所持商品IDの配列を渡す */
+ restoreDone(ids){
+  const n=applyEntitlements(ids);
+  toast(n?T('購入を復元しました'):T('復元できる購入はありませんでした'));
+  if($('sheet').classList.contains('on'))openShop();
+ },
  /* Silent version for launch: StoreKit 2's current entitlements are read
     without a password prompt, so purchases come back on their own after a
     wiped save, a reinstall or a new phone — no button needed. */
@@ -8336,7 +8438,7 @@ function paintPromo(){
  box.innerHTML='';
  let c=null;
  if(!adsOff()&&S.cleared>=3)   /* after a few stages, once the ads have been seen */
-  c={ic:'🚫',t:JE('広告を消して遊ぶ　¥'+fmt(IAPBY('noads').yen),'Play without ads · ¥'+fmt(IAPBY('noads').yen)),
+  c={ic:'🚫',t:JE('広告を消して遊ぶ　'+priceStr('noads'),'Play without ads · '+priceStr('noads')),
      s:JE('買い切り。機種変更しても「購入を復元」で戻ります。','One purchase, kept for good — restores on a new phone.'),go:()=>openShopAt('noads')};
  else if(trialOpen()&&(S.trial.day!==today()))
   c={ic:'👑',t:T('今日の王の試練'),s:JE('道具なしのエンドレス。記録に挑戦。','No tools, endless — go for a record.'),go:startTrial};
@@ -8617,7 +8719,7 @@ function openCosPick(catId){sheetPush(()=>openCosPick(catId));
    d.classList.remove('lock');d.classList.add('buy');
    d.appendChild(cv);
    d.appendChild(el('div','nm',pc.ja));
-   d.appendChild(el('div','rr','¥'+fmt(pc.yen)));
+   d.appendChild(el('div','rr',priceStr(pc.id)));
    d.onclick=()=>{A.click();buy(IAPBY(pc.id));};
    grid.appendChild(d);}
   b.appendChild(grid);
@@ -8913,7 +9015,7 @@ function paintParty(){
    表示言語だけは引き継ぎます（消した直後に画面の言語が変わると戸惑うため）。 */
 function wipeAllData(){
  const lang=S.lang||LANG;
- S=DEF();S.lang=lang;save();
+ S=DEF();S.lang=lang;S.langChosen=1;save();
  Store.set(CONSENT_KEY,'');                    /* Store のメモも同時に空にする */
  for(const k of[CONSENT_KEY])
   try{localStorage.removeItem(k);}catch(e){}
@@ -8938,7 +9040,31 @@ function restartInPlace(){
  runBootScreens();
 }
 /* タイトル → スプラッシュ → 同意（未同意なら）→ ゲーム開始 */
+function openLangPick(next){
+ const ov=$('ovLang');
+ /* the language the device suggests is highlighted, nothing more */
+ $('lgJa').classList.toggle('pre',detectLang()==='ja');
+ $('lgEn').classList.toggle('pre',detectLang()==='en');
+ const pick=l=>{
+  try{A.unlock();A.click();}catch(e){}
+  S.langChosen=1;S.lang=l;save();
+  if(l!==LANG){
+   /* every table is built in the boot language, so a reload is the clean
+      switch; the choice is saved, so the picker does not come back */
+   try{location.reload();}catch(e){}
+   setTimeout(()=>{ov.classList.remove('on');LANG=l;document.documentElement.lang=l;
+    try{paintStatic();buildDrawer();paintTop();goHome();}catch(e){}next();},400);
+   return;}
+  ov.classList.remove('on');next();
+ };
+ $('lgJa').onclick=()=>pick('ja');
+ $('lgEn').onclick=()=>pick('en');
+ ov.classList.add('on');
+}
 function runBootScreens(){
+ /* a brand-new player chooses a language before anything else; anyone who
+    has already agreed to the terms has, in effect, already chosen */
+ if(!S.langChosen&&needConsent()){openLangPick(()=>runBootScreens());return;}
  runTitle(()=>splashGo(()=>{
   if(needConsent())setTimeout(openConsent,220);
   else startGame();
@@ -8983,6 +9109,7 @@ checkAchv();
 native('ad_config',{banner:adUnit('banner'),interstitial:adUnit('interstitial'),
  rewarded:adUnit('rewarded'),test:!!ADS.test,testDevices:ADS.testDevices||[]});
 native('entitlements');   /* purchases come back by themselves; see KingCats.entitlements */
+native('prices',{ids:IAP.map(x=>x.id)});   /* local prices; see KingCats.prices */
 runBootScreens();
 /* one local notification a day keeps a puzzle game alive; the shell decides
    whether the OS actually allows it */
