@@ -1,53 +1,55 @@
+# KING CAT — Codemagic の iOS ビルド設定（Capacitor 用）
+
 workflows:
   ios-testflight:
-    name: iOS TestFlight Build
-    max_build_duration: 120
-    instance_type: mac_mini_m1
-
+    name: iOS → TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
     integrations:
-      app_store_connect: Codemagic
-
+      app_store_connect: KINGCAT_ASC_KEY         # Codemagicで登録したAPIキー名
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.reo.kingcat
+        bundle_identifier: com.reo.kingcat        # KING CAT の Bundle ID
       vars:
-        XCODE_PROJECT: "ios/App/App.xcodeproj"
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
-      node: 22
-      xcode: latest
-
+        APP_STORE_APPLE_ID: 6811383615            # KING CAT の Store ID
+      node: 20
     scripts:
-      - name: Install npm dependencies
+      - name: ① 依存関係を入れる
         script: |
-          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+          npm ci
 
-      - name: Verify native project
-        script: |
-          if [ ! -d "ios/App" ]; then echo "ERROR: ios/ がありません。"; exit 1; fi
-
-      - name: Capacitor sync
+      - name: ② Web ファイルをアプリにコピー
         script: |
           npx cap sync ios
+          echo "---- アプリに入る index.html の版 ----"
+          grep -o "HTML_BUILD='[^']*'" ios/App/App/public/index.html || echo "⚠️ HTML_BUILD が見つかりません"
 
-      - name: Set build number
+      - name: CocoaPods
         script: |
-          cd ios/App
-          agvtool new-version -all $(($BUILD_NUMBER + 1))
+          cd ios/App && pod install
 
-      - name: Set up code signing
+      - name: 署名の設定
         script: |
           xcode-project use-profiles
 
-      - name: Build .ipa
+      - name: ③ ビルド番号を上げる
+        script: |
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || echo 0)
+          NEXT=$((LATEST + 1))
+          echo "ビルド番号: $NEXT"
+          cd ios/App && agvtool new-version -all $NEXT
+
+      - name: ④ ビルド
         script: |
           xcode-project build-ipa \
-            --project "$XCODE_PROJECT" \
+            --workspace "$XCODE_WORKSPACE" \
             --scheme "$XCODE_SCHEME"
 
     artifacts:
       - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
 
     publishing:
       app_store_connect:
