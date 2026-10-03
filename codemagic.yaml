@@ -29,7 +29,11 @@ workflows:
 
       - name: CocoaPods
         script: |
-          cd ios/App && pod install
+          if [ -f "ios/App/Podfile" ]; then
+            cd ios/App && pod install
+          else
+            echo "Podfile が見つからないため CocoaPods をスキップします（SPMを使用）"
+          fi
 
       - name: 署名の設定
         script: |
