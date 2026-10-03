@@ -10,11 +10,11 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.reo.kingcat        # KING CAT の Bundle ID
+        bundle_identifier: com.reo.kingcat         # KING CAT の Bundle ID
       vars:
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"     # xcworkspace から xcodeproj に修正
         XCODE_SCHEME: "App"
-        APP_STORE_APPLE_ID: 6811383615            # KING CAT の Store ID
+        APP_STORE_APPLE_ID: 6811383615             # KING CAT の Store ID
       node: 20
     scripts:
       - name: ① 依存関係を入れる
@@ -49,7 +49,7 @@ workflows:
       - name: ④ ビルド
         script: |
           xcode-project build-ipa \
-            --workspace "$XCODE_WORKSPACE" \
+            --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
 
     artifacts:
