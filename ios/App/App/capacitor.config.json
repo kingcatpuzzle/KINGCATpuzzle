@@ -1,6 +1,7 @@
 {
 	"appId": "com.reo.kingcat",
 	"appName": "KING CAT",
+	"version": "1.0.1",
 	"webDir": "www",
 	"packageClassList": [
 		"AdMobPlugin"

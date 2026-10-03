@@ -1209,6 +1209,9 @@ function paintStatic(){
    it cannot quietly ship empty. 特定商取引法 requires the seller block for
    paid apps distributed in Japan, and both stores require reachable privacy
    and support URLs. */
+/* このHTMLの版。差し替えたら日付を変える。メニューの一番下と、課金ブリッジの
+   起動表示に出るので、TestFlight のアプリに新しいHTMLが入っているか確かめられる。 */
+window.HTML_BUILD='2026-10-03a';
 const PUBLISHER={
  appName:T('キングキャッツ'), appNameEn:'KING CAT', version:'1.0.0',
  seller:'kingcat',                 /* 販売事業者名 */
@@ -5888,6 +5891,11 @@ if(worth>priceVal(bd.id)){
   if(IN_APP){toast(JE('ストアに接続できませんでした','Could not reach the store'));return;}
   toast(T('購入を復元しました（デモ）'));};
  b.appendChild(rs);
+ /* 課金の診断（TestFlight での確認用）。原因が分かったら消してよい */
+ const dg=el('button','btn ghost wide','🛠 '+JE('課金の診断','Purchase diagnostics'));
+ dg.style.marginTop='7px';
+ dg.onclick=()=>{A.click();openIapDiag();};
+ b.appendChild(dg);
  if(PUBLISHER.supportUrl||PUBLISHER.email){
   const sp=el('button','btn ghost wide',T('困ったときは（サポート）'));
   sp.style.marginTop='7px';
@@ -5946,6 +5954,39 @@ function openTheme(){sheet(T('テーマ'),b=>{
  sh.style.marginTop='12px';sh.onclick=()=>{A.click();openShop();};
  b.appendChild(sh);
 });}
+/* 課金の診断。TestFlight でスクリーンショットを1枚撮れば、どこで止まって
+   いるかが分かるように、必要な情報を全部ここに並べる。 */
+function openIapDiag(){
+ sheetPush(()=>openIapDiag());
+ sheet(JE('課金の診断','Purchase diagnostics'),b=>{
+  const wk=!!(window.webkit&&webkit.messageHandlers&&webkit.messageHandlers.native);
+  const cap=!!window.Capacitor;
+  const rows=[
+   ['HTMLの版',window.HTML_BUILD||'?'],
+   ['アプリ内で動作 (IN_APP)',String(IN_APP)],
+   ['native の受け口',wk?'あり':'なし'],
+   ['Capacitor',cap?('あり '+(window.Capacitor.getPlatform?window.Capacitor.getPlatform():'')):'なし'],
+   ['課金ブリッジの起動表示',IAP_DIAG.some(x=>x.includes('起動OK'))?'受信済み':'未受信'],
+   ['現地価格',PRICES?(Object.keys(PRICES).filter(k=>k!=='__cur').length+'件 '+(PRICES.__cur||'')):'未受信'],
+   ['購入の手続き中フラグ',String(IAP_BRIDGE)],
+   ['UA',navigator.userAgent.slice(0,90)]];
+  b.appendChild(el('div','',
+   '<table style="width:100%;font-size:11px;border-collapse:collapse">'
+   +rows.map(r=>'<tr><td style="padding:4px 6px;color:var(--lo);white-space:nowrap;vertical-align:top">'+r[0]
+    +'</td><td style="padding:4px 6px;word-break:break-all"><b>'+r[1]+'</b></td></tr>').join('')
+   +'</table>'));
+  b.appendChild(el('div','','<div style="font-size:11px;color:var(--lo);margin:12px 0 4px">'
+   +'送受信の記録（→ アプリへ送信 ／ ← アプリから受信）</div>'
+   +'<pre style="font-size:10.5px;line-height:1.55;white-space:pre-wrap;background:rgba(0,0,0,.3);'
+   +'border-radius:10px;padding:8px 10px;margin:0">'+(IAP_DIAG.slice().reverse().join('\n')||'（まだ何もありません）')+'</pre>'));
+  const t=el('button','btn ghost wide','🧪 テスト：広告オフの購入を依頼する');
+  t.style.marginTop='10px';
+  t.onclick=()=>{A.click();IAP_BRIDGE=false;buy(IAPBY('noads'));setTimeout(()=>openIapDiag(),3000);};
+  b.appendChild(t);
+  const r=el('button','btn ghost wide','↻ 表示を更新');r.style.marginTop='7px';
+  r.onclick=()=>{A.click();openIapDiag();};b.appendChild(r);
+ });
+}
 function openSettings(){sheetPush(()=>openSettings());sheet(T('設定'),b=>{
  const lr=el('div','setR');
  lr.innerHTML='<div class="lb">'+T('言語')+'</div>';
@@ -6857,7 +6898,7 @@ function buildDrawer(){
   if(t===T('メールボックス')&&mailUnclaimed())
    b.appendChild(el('div','bd',String(mailUnclaimed())));
   b.onclick=()=>{A.click();sheetStack=[];fn();};l.appendChild(b);}
- $('drawerFoot').innerHTML=T('キングキャッツ v')+PUBLISHER.version+T(' ／ 全 ')+fmt(TOTAL)+T(' ステージ<br>')
+ $('drawerFoot').innerHTML=T('キングキャッツ v')+PUBLISHER.version+' ('+window.HTML_BUILD+')'+T(' ／ 全 ')+fmt(TOTAL)+T(' ステージ<br>')
   +T('サーバーなし・完全オフライン<br>')
   +(Store.ok?T('記録は端末内に保存されます'):T('※この環境では保存できません'));}
 
@@ -6871,8 +6912,17 @@ function buildDrawer(){
 
 /* Thin bridge the iOS/Android shell can implement. Safe no-op in a browser,
    so the same HTML runs in Safari, in a WKWebView and in a Capacitor build. */
+/* 課金の診断用：ネイティブへ送ったもの・返ってきたものを最後の30件だけ覚える */
+const IAP_DIAG=[];
+function diagNote(dir,what){
+ try{const d=new Date();
+  IAP_DIAG.push(String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'
+   +String(d.getSeconds()).padStart(2,'0')+' '+dir+' '+what);
+  if(IAP_DIAG.length>30)IAP_DIAG.shift();}catch(e){}
+}
 function native(t,d){
  try{
+  if(t!=='bannerRect')diagNote('→',t+(d&&d.id?' '+d.id:''));
   if(window.webkit&&webkit.messageHandlers&&webkit.messageHandlers.native)
    {webkit.messageHandlers.native.postMessage(Object.assign({t},d||{}));return true;}
   if(window.KingCatsNative&&KingCatsNative.post)
@@ -7204,12 +7254,23 @@ function openAchv(){sheetPush(()=>openAchv());sheet(T('メダルと記録'),b=>{
 
 window.KingCats={
  /* ------------------------------------------------------------------
+    課金の診断表示。Swift 側の各段階から呼ばれ、画面に小さく出す。
+    TestFlight では Xcode のコンソールが見られないので、どこで止まって
+    いるかを画面で確かめるためのもの。原因が分かったら Swift 側の
+    呼び出しを消せば、何も表示されなくなる。
+    ------------------------------------------------------------------ */
+ iapLog(msg){
+  diagNote('←','log '+String(msg).slice(0,40));
+  try{console.log('[IAP]',msg);toast('🛠 '+String(msg).slice(0,80),3200);}catch(e){}
+ },
+ /* ------------------------------------------------------------------
     ストアの現地価格を受け取る口。native('prices',{ids}) の答えとして
       window.KingCats.prices([{id, display, value, currency}, ...])
     を呼ぶ。display = Product.displayPrice（例 "$3.99"）、
     value = Product.price の数値、currency = 通貨コード（例 "USD"）。
     ------------------------------------------------------------------ */
  prices(list){
+  diagNote('←','prices '+((Array.isArray(list)?list:Object.values(list||{})).length)+'件');
   try{
    const m={};let cur=null;
    for(const q of (Array.isArray(list)?list:Object.values(list||{}))){
@@ -7232,6 +7293,7 @@ window.KingCats={
     これが無いと「ストアに接続しています…」のまま先に進まない。
     ------------------------------------------------------------------ */
  purchaseDone(id,ok){
+  diagNote('←','purchaseDone '+id+' '+ok);
   IAP_BRIDGE=false;clearTimeout(IAP_GUARD);IAP_GUARD=null;
   if(ok){grantIAP(id);try{A.coin();}catch(e){}toast(T('購入しました'));}
   else toast(JE('購入は完了しませんでした','The purchase did not go through'));
@@ -7242,6 +7304,7 @@ window.KingCats={
  },
  /* native('restore') の答え。AppStore.sync() 後の所持商品IDの配列を渡す */
  restoreDone(ids){
+  diagNote('←','restoreDone '+(ids||[]).length+'件');
   const n=applyEntitlements(ids);
   toast(n?T('購入を復元しました'):T('復元できる購入はありませんでした'));
   if($('sheet').classList.contains('on'))openShop();
@@ -7250,6 +7313,7 @@ window.KingCats={
     without a password prompt, so purchases come back on their own after a
     wiped save, a reinstall or a new phone — no button needed. */
  entitlements(ids){
+  diagNote('←','entitlements '+(ids||[]).length+'件');
   const before=JSON.stringify(S.owned);
   applyEntitlements(ids);
   if(JSON.stringify(S.owned)!==before){paintTop();try{paintHome();}catch(e){}
