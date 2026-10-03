@@ -1211,7 +1211,7 @@ function paintStatic(){
    and support URLs. */
 /* このHTMLの版。差し替えたら日付を変える。メニューの一番下と、課金ブリッジの
    起動表示に出るので、TestFlight のアプリに新しいHTMLが入っているか確かめられる。 */
-window.HTML_BUILD='2026-10-03a';
+window.HTML_BUILD='2026-10-03b';
 const PUBLISHER={
  appName:T('キングキャッツ'), appNameEn:'KING CAT', version:'1.0.0',
  seller:'kingcat',                 /* 販売事業者名 */
@@ -2383,10 +2383,18 @@ try{const bad=IAP.filter(x=>!isAppleYenPoint(x.yen));
    shown. Every price on screen goes through these helpers, so the number the
    player reads is the number the store sheet will show. */
 let PRICES=null;              /* {id:{display,value}} plus __cur */
+/* Once the store has answered, the yen table is no longer used at all — not
+   even for a product the store did not return. Mixing "$3.99" with "¥500"
+   on one screen was exactly the bug: a product missing from the answer is
+   one that is not set up for sale in this storefront, so it is shown as
+   unavailable and cannot be bought, and any deal that includes it is hidden. */
+const priceKnown=id=>!PRICES||!!(PRICES[id]&&isFinite(PRICES[id].value));
 const priceVal=id=>{const q=PRICES&&PRICES[id];
- return (q&&isFinite(q.value))?+q.value:(IAPBY(id)?IAPBY(id).yen:0);};
+ if(PRICES)return (q&&isFinite(q.value))?+q.value:NaN;
+ return IAPBY(id)?IAPBY(id).yen:0;};
 const priceStr=id=>{const q=PRICES&&PRICES[id];
- return (q&&q.display)?q.display:('¥'+fmt(IAPBY(id)?IAPBY(id).yen:0));};
+ if(PRICES)return (q&&q.display)?q.display:JE('準備中','Unavailable');
+ return '¥'+fmt(IAPBY(id)?IAPBY(id).yen:0);};
 function money(v){
  if(PRICES&&PRICES.__cur){
   try{return new Intl.NumberFormat(LANG==='en'?'en':'ja-JP',
@@ -2400,6 +2408,7 @@ function setOffer(setId){
  const it=n===total?full:IAP.find(x=>x.rest&&x.rest.g===setId&&x.rest.n===n);
  if(!it)return null;
   const worth=missing.reduce((a,x)=>a+priceVal(x),0);
+ if(!isFinite(worth)||!priceKnown(it.id))return null;   /* not every price is known here */
  if(worth<=priceVal(it.id))return null;
  return {it,missing,worth,pct:offPct(priceVal(it.id),worth)};
 }
@@ -3955,7 +3964,8 @@ function showPinch(mode){
      :kn.ja)+'</div>'
    +'<div class="prL">'+PAID_LOOK[cat.id]+'</div>';
   const bb=buyBtn(it,'gold');bb.classList.add('wide');
-  bb.textContent=JE(priceStr(it.id)+' で仲間にする','Recruit for '+priceStr(it.id));
+  bb.textContent=priceKnown(it.id)?JE(priceStr(it.id)+' で仲間にする','Recruit for '+priceStr(it.id)):JE('準備中','Unavailable');
+  if(!priceKnown(it.id))bb.disabled=true;
   bb.onclick=()=>{A.click();buy(it,()=>afterCatBuy(cat,mode));};
   pr.appendChild(bb);c.appendChild(pr);acts.appendChild(c);}
  const cos=recoCos();
@@ -5580,6 +5590,8 @@ let IAP_BRIDGE=false;
 const IN_APP=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!/Safari\//.test(navigator.userAgent);
 let BUY_CB=null, IAP_GUARD=null;
 function buy(it,onDone){
+ /* このストアで販売されていない商品（価格が届かなかったもの）は依頼しない */
+ if(!priceKnown(it.id)){toast(JE('この商品は現在ご購入いただけません','This item is not available in your store'));return;}
  /* 購入の手続き中にもう一度押されても、ストアに二重で依頼しない */
  if(IAP_BRIDGE){toast(JE('購入の手続き中です','A purchase is already in progress'));return;}
  const kind='nonConsumable';   /* the only kind this game sells */
@@ -5621,6 +5633,7 @@ function buyBtn(it,cls){
  const btn=el('button','btn '+(own?'ghost':(cls||'gold'))+' sm',
   own?T('購入済'):priceStr(it.id));
  if(own){btn.disabled=true;return btn;}
+ if(!priceKnown(it.id)){btn.disabled=true;return btn;}   /* not sold in this storefront */
  btn.onclick=()=>buy(it);
  return btn;
 }
@@ -5772,7 +5785,7 @@ t.appendChild(el('div','p',priceStr(st.id)));
  const bd=IAPBY('bundle2');
  if(bd&&!owns('bundle2')){
 const worth=bd.set().filter(x=>!owns(x)).reduce((a,x)=>a+priceVal(x),0);
-if(worth>priceVal(bd.id)){
+if(isFinite(worth)&&priceKnown(bd.id)&&worth>priceVal(bd.id)){
    const t=el('div','pick bundle');t.setAttribute('role','button');
 t.innerHTML='<div class="big">'+offPct(priceVal(bd.id),worth)+'%<small>OFF</small></div>'
 +'<div class="n">'+bd.t+'</div><div class="e"><s>'+money(worth)+'</s></div>'
@@ -5813,7 +5826,8 @@ function openShop(){sheetPush(()=>openShop());sheet(T('ショップ'),b=>{
    +'<li class="fx">'+PAID_LOOK[p.id]+'</li></ul>';
   if(own)g.appendChild(el('div','pown',JE('✓ 仲間になっています','✓ Already in your squad')));
   else{const bb=buyBtn(it,'gold');bb.classList.add('wide','pbuy');
-   bb.textContent=JE(priceStr(it.id)+' で仲間にする','Recruit for '+priceStr(it.id));g.appendChild(bb);}
+   bb.textContent=priceKnown(it.id)?JE(priceStr(it.id)+' で仲間にする','Recruit for '+priceStr(it.id)):JE('準備中','Unavailable');
+  if(!priceKnown(it.id))bb.disabled=true;g.appendChild(bb);}
   c.appendChild(g);b.appendChild(c);}
  setShow(b,'cats6',(g,now,id)=>{const p=PREMIUM.find(x=>x.id===id);
   drawCat(g,60,72,74,p.k,{skin:p.skin,mood:'happy',now});});
@@ -5868,7 +5882,7 @@ function openShop(){sheetPush(()=>openShop());sheet(T('ショップ'),b=>{
  {const bd=IAPBY('bundle2');
   if(!owns('bundle2')){
 const worth=bd.set().filter(x=>!owns(x)).reduce((a,x)=>a+priceVal(x),0);
-if(worth>priceVal(bd.id)){
+if(isFinite(worth)&&priceKnown(bd.id)&&worth>priceVal(bd.id)){
     shopSec(b,T('まとめ買い'));
     const bc=el('div','bundleCard');bc.dataset.iap='bundle2';
     bc.innerHTML='<div class="hd">'+bd.t+'<span class="off">'+offPct(priceVal(bd.id),worth)+'%OFF</span></div>'
@@ -5968,6 +5982,7 @@ function openIapDiag(){
    ['Capacitor',cap?('あり '+(window.Capacitor.getPlatform?window.Capacitor.getPlatform():'')):'なし'],
    ['課金ブリッジの起動表示',IAP_DIAG.some(x=>x.includes('起動OK'))?'受信済み':'未受信'],
    ['現地価格',PRICES?(Object.keys(PRICES).filter(k=>k!=='__cur').length+'件 '+(PRICES.__cur||'')):'未受信'],
+   ['ストアに無い商品',PRICES?(IAP.filter(x=>!PRICES[x.id]).map(x=>x.id).join(', ')||'なし（35件すべてOK）'):'—'],
    ['購入の手続き中フラグ',String(IAP_BRIDGE)],
    ['UA',navigator.userAgent.slice(0,90)]];
   b.appendChild(el('div','',
@@ -6891,7 +6906,9 @@ function buildDrawer(){
   ['👑',T('王の試練'),()=>{closeDrawer();startTrial();}],
   ['🏆',T('メダルと記録'),openAchv],
   ['⚙️',T('設定'),openSettings],['❓',T('遊び方'),()=>{closeDrawer();openTut();}],
-  ['📄',T('各種表記'),openLegal]]){
+  ['📄',T('各種表記'),openLegal],
+  /* TestFlight での確認用。課金が直ったら この行を消す */
+  ['🛠',JE('課金の診断','Purchase diagnostics'),openIapDiag]]){
   const b=el('button','di','<div class="ic">'+ic+'</div><div>'+t+'</div>');
   if(t===T('ガチャ')&&S.coins>=COST1)b.appendChild(el('div','bd','!'));
   /* a count rather than a dot: an unopened gift should say how many */
