@@ -5,8 +5,15 @@ workflows:
     name: iOS → TestFlight
     max_build_duration: 60
     instance_type: mac_mini_m2
+    triggering:                           # ← [追加] Push時に自動でビルドを開始する設定
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
     integrations:
-      app_store_connect: Codemagic         # Codemagicで登録したAPIキー名
+      app_store_connect: Codemagic        # Codemagicで登録したAPIキー名
     environment:
       ios_signing:
         distribution_type: app_store
@@ -23,6 +30,8 @@ workflows:
 
       - name: ② Web ファイルをアプリにコピー
         script: |
+          mkdir -p www
+          cp index.html www/index.html            # ← [追加] ルートの index.html を www に確実にコピー
           npx cap sync ios
           echo "---- アプリに入る index.html の版 ----"
           grep -o "HTML_BUILD='[^']*'" ios/App/App/public/index.html || echo "⚠️ HTML_BUILD が見つかりません"
