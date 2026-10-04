@@ -1211,7 +1211,7 @@ function paintStatic(){
    and support URLs. */
 /* このHTMLの版。差し替えたら日付を変える。メニューの一番下と、課金ブリッジの
    起動表示に出るので、TestFlight のアプリに新しいHTMLが入っているか確かめられる。 */
-window.HTML_BUILD='2026-10-04b';
+window.HTML_BUILD='2026-10-04d';
 const PUBLISHER={
  appName:T('キングキャッツ'), appNameEn:'KING CAT', version:'1.0.0',
  seller:'kingcat',                 /* 販売事業者名 */
@@ -6031,7 +6031,7 @@ function openIapDiag(){
    ['HTMLの版',window.HTML_BUILD||'?'],
    ['アプリ内で動作 (IN_APP)',String(IN_APP)],
    ['native の受け口',wk?'あり':'なし'],
-   ['window.native の差し替え',window.native===kcNative?'なし':'あり（外部のコード）'],
+   ['window.native の上書き',IAP_DIAG.some(x=>x.includes('上書きしようとした'))?'あり（止めました。記録を参照）':'なし'],
    ['Capacitor',cap?('あり '+(window.Capacitor.getPlatform?window.Capacitor.getPlatform():'')):'なし'],
    ['課金ブリッジの起動表示',IAP_DIAG.some(x=>x.includes('起動OK'))?'受信済み':'未受信'],
    ['現地価格',PRICES?(Object.keys(PRICES).filter(k=>k!=='__cur').length+'件 '+(PRICES.__cur||'')):'未受信'],
@@ -7010,7 +7010,20 @@ function kcNative(t,d){
  return false;
 }
 /* 以前の名前で呼ぶコードのための窓口（ゲーム自身は使わない） */
-window.native=kcNative;
+/* window.native を固定する。外のコードが上書きしようとしても kcNative のまま変わらず、
+   上書きしようとしたコードの中身を診断の記録に残す（犯人探し用）。 */
+try{
+ Object.defineProperty(window,'native',{
+  configurable:false,enumerable:true,
+  get(){return kcNative;},
+  set(v){
+   diagNote('!','window.native を上書きしようとしたコードを止めました: '
+    +String(v).replace(/\s+/g,' ').slice(0,160));
+  }});
+}catch(e){
+ /* すでに固定されていて変えられない場合 */
+ diagNote('!','window.native を固定できませんでした: '+e);
+}
 /* SKStoreReviewController / In-App Review. Asked ONCE, and only after a
    3-star clear — i.e. at the exact moment the player feels good. Never on
    a loss, never on launch. */
@@ -7362,7 +7375,10 @@ window.KingCats={
     m[gid]={display:String(q.display||''),value:+q.value};
     if(q.currency)cur=String(q.currency);}
    if(!Object.keys(m).length)return;
-   m.__cur=cur;PRICES=m;
+   /* 後から届いた答えが一部だけでも、すでに分かっている価格は消さずに足す
+      （同じ通貨のときだけ。通貨が変わったら、新しい答えで置き換える） */
+   const keep=(PRICES&&PRICES.__cur===cur)?PRICES:{};
+   PRICES=Object.assign({},keep,m,{__cur:cur});
    paintTop();try{paintHome();}catch(e){}
    if($('sheet').classList.contains('on')&&sheetStack.length){
     const top=sheetStack[sheetStack.length-1];sheetStack.pop();
@@ -9259,6 +9275,17 @@ kcNative('ad_config',{banner:adUnit('banner'),interstitial:adUnit('interstitial'
  rewarded:adUnit('rewarded'),test:!!ADS.test,testDevices:ADS.testDevices||[]});
 kcNative('entitlements');   /* purchases come back by themselves; see KingCats.entitlements */
 kcNative('prices',{ids:allStoreIds()});   /* local prices; see KingCats.prices */
+/* 起動直後は、ネイティブ側の受け口が付け替わる途中で依頼が落ちることがある。
+   価格が届くまで 3 秒ごとに最大 6 回、もう一度たずねる。 */
+(function askAgain(n){
+ setTimeout(()=>{
+  if(PRICES||n>=6)return;
+  diagNote('·','価格がまだ届かないので再依頼 ('+(n+1)+'回目)');
+  kcNative('entitlements');
+  kcNative('prices',{ids:allStoreIds()});
+  askAgain(n+1);
+ },3000);
+})(0);
 runBootScreens();
 /* one local notification a day keeps a puzzle game alive; the shell decides
    whether the OS actually allows it */

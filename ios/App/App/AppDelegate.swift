@@ -79,11 +79,15 @@ final class KCNative: NSObject, WKScriptMessageHandler {
             attached = true
             startTransactionListener()
             // 受け口ができる前に HTML が送った依頼を、もう一度送ってもらう
+            // ※ 製品IDはゲーム内IDと違うものがあるので、HTML 側の allStoreIds()
+            //   （App Store Connect の製品ID一覧）でたずねてもらう。
             js("""
                try{
                  window.KingCats && window.KingCats.iapLog && window.KingCats.iapLog('課金ブリッジ 起動OK / HTML '+(window.HTML_BUILD||'旧版'));
-                 native('entitlements');
-                 native('prices',{ids:IAP.map(function(x){return x.id;})});
+                 if (typeof kcNative === 'function' && typeof allStoreIds === 'function') {
+                   kcNative('entitlements');
+                   kcNative('prices',{ids:allStoreIds()});
+                 }
                }catch(e){}
                """)
             return
