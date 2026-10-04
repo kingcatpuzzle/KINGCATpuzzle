@@ -5,7 +5,7 @@ workflows:
     name: iOS → TestFlight
     max_build_duration: 60
     instance_type: mac_mini_m2
-    triggering:                           # ← [追加] Push時に自動でビルドを開始する設定
+    triggering:
       events:
         - push
       branch_patterns:
@@ -13,16 +13,16 @@ workflows:
           include: true
           source: true
     integrations:
-      app_store_connect: Codemagic        # Codemagicで登録したAPIキー名
+      app_store_connect: Codemagic
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.reo.kingcat         # KING CAT の Bundle ID
+        bundle_identifier: com.reo.kingcat
       vars:
-        XCODE_PROJECT: "ios/App/App.xcodeproj"     # xcworkspace から xcodeproj に修正
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
-        APP_STORE_APPLE_ID: 6811383615             # KING CAT の Store ID
-      node: 20
+        APP_STORE_APPLE_ID: 6811383615
+      node: 22                            # ← Node 22 に変更
     scripts:
       - name: ① 依存関係を入れる
         script: |
@@ -31,7 +31,9 @@ workflows:
       - name: ② Web ファイルをアプリにコピー
         script: |
           mkdir -p www
-          cp index.html www/index.html            # ← [追加] ルートの index.html を www に確実にコピー
+          if [ -f "index.html" ]; then
+            cp index.html www/index.html
+          fi
           npx cap sync ios
           echo "---- アプリに入る index.html の版 ----"
           grep -o "HTML_BUILD='[^']*'" ios/App/App/public/index.html || echo "⚠️ HTML_BUILD が見つかりません"
