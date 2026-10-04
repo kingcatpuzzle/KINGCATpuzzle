@@ -1211,7 +1211,7 @@ function paintStatic(){
    and support URLs. */
 /* このHTMLの版。差し替えたら日付を変える。メニューの一番下と、課金ブリッジの
    起動表示に出るので、TestFlight のアプリに新しいHTMLが入っているか確かめられる。 */
-window.HTML_BUILD='2026-10-03b';
+window.HTML_BUILD='2026-10-04a';
 const PUBLISHER={
  appName:T('キングキャッツ'), appNameEn:'KING CAT', version:'1.0.0',
  seller:'kingcat',                 /* 販売事業者名 */
@@ -2359,6 +2359,41 @@ const IAP=[
   t:T('全部入り'), d:JE('広告オフ永久 ＋ 特別な猫6匹 ＋ テーマ6種 ＋ 特別な着せ替え6種。','Remove Ads forever + 6 cats + 6 themes + 6 outfits.')},
 ];
 const IAPBY=id=>IAP.find(x=>x.id===id);
+/* ------------------------------------------------------------------
+   App Store Connect の製品ID。
+   ゲーム内のID（左）はセーブデータに残るので変えず、ストアとのやり取り
+   のときだけ、App Store Connect に登録した製品ID（右）に置き換える。
+   ここに無い商品は、ゲーム内のIDがそのまま製品IDになる。
+   候補が2つあるもの（pc_tiara）は、ストアが返してきた方を使う。
+   ------------------------------------------------------------------ */
+const STORE_IDS={
+ cat_koha:   ['cat_kohaku'],
+ cats_r5:    ['cats5_r5'],
+ pc_cape:    ['pc_mant'],
+ pc_witch:   ['pc_hat'],
+ pc_kanzashi:['pc_kannzasi'],
+ pc_tiara:   ['pc_tiaraa','pc_tiara'],
+ coss_r2:    ['cross_r2'],
+ coss_r4:    ['cross_r4'],
+ coss_r5:    ['cross_r5'],
+ th_sora:    ['th_aosora'],
+ th_hoshi:   ['th_yoru'],
+ th_hotaru:  ['th_kawa'],
+ th_yuki:    ['th_yukiakari'],
+ themes6:    ['th6'],
+ themes_r2:  ['th_r2'],
+ themes_r3:  ['th_r3'],
+ themes_r4:  ['th_r4'],
+ themes_r5:  ['th_r5'],
+};
+const STORE_PICK={};                                   /* ストアが実際に返した製品ID */
+const storeIdsOf=id=>STORE_IDS[id]||[id];
+const storeId=id=>STORE_PICK[id]||storeIdsOf(id)[0];   /* ゲーム内ID → 製品ID */
+const fromStore=sid=>{                                 /* 製品ID → ゲーム内ID */
+ for(const x of IAP)if(x.id===sid||storeIdsOf(x.id).includes(sid))return x.id;
+ return sid;
+};
+const allStoreIds=()=>IAP.reduce((a,x)=>a.concat(storeIdsOf(x.id)),[]);
 /* App Store yen price points: ¥10 steps up to ¥2,000, ¥100 steps from there
    to ¥15,000. A price off those steps cannot be chosen in App Store Connect,
    so the code checks its own list and complains loudly during development. */
@@ -2388,12 +2423,18 @@ let PRICES=null;              /* {id:{display,value}} plus __cur */
    on one screen was exactly the bug: a product missing from the answer is
    one that is not set up for sale in this storefront, so it is shown as
    unavailable and cannot be bought, and any deal that includes it is hidden. */
-const priceKnown=id=>!PRICES||!!(PRICES[id]&&isFinite(PRICES[id].value));
+/* Inside the app the yen table is never shown: until the store has answered
+   a price reads "…" (and cannot be bought), afterwards it is whatever the
+   store said. Only a plain browser, with no store at all, falls back to yen. */
+const STORE_MODE=()=>!!PRICES||(/iPhone|iPad|iPod/.test(navigator.userAgent)&&!/Safari\//.test(navigator.userAgent));
+const priceKnown=id=>!STORE_MODE()||!!(PRICES&&PRICES[id]&&isFinite(PRICES[id].value));
 const priceVal=id=>{const q=PRICES&&PRICES[id];
- if(PRICES)return (q&&isFinite(q.value))?+q.value:NaN;
+ if(STORE_MODE())return (q&&isFinite(q.value))?+q.value:NaN;
  return IAPBY(id)?IAPBY(id).yen:0;};
 const priceStr=id=>{const q=PRICES&&PRICES[id];
- if(PRICES)return (q&&q.display)?q.display:JE('準備中','Unavailable');
+ if(STORE_MODE()){
+  if(q&&q.display)return q.display;
+  return PRICES?JE('準備中','Unavailable'):'…';}
  return '¥'+fmt(IAPBY(id)?IAPBY(id).yen:0);};
 function money(v){
  if(PRICES&&PRICES.__cur){
@@ -2594,8 +2635,19 @@ function grantIAP(id){
   setTimeout(()=>toast(JE('特別な着せ替えは メニュー →「着せ替え」から好きな猫に着せられます。','Put premium outfits on any cat from Menu → Outfits.'),4200),700);
  save();applyTheme();refreshBanner();
 }
+/* The banner waits until the language picker, the title, the splash and the
+   consent screens are gone: a native banner sits on top of the web view, so
+   shown during loading it floated over the title art with cats peeking out
+   below it. A light check once a second turns it on the moment boot is over. */
+function bootDone(){
+ const on=id=>{const e=$(id);return !!(e&&e.classList.contains('on'));};
+ return !$('title')&&!$('splash')&&!on('ovLang')&&!on('ovConsent')&&!needConsent();
+}
+let BANNER_ON=null;
+setInterval(()=>{try{const want=!adsOff()&&bootDone();if(want!==BANNER_ON)refreshBanner();}catch(e){}},1000);
 function refreshBanner(){
- const on=!adsOff();
+ const on=!adsOff()&&bootDone();
+ BANNER_ON=on;
  $('adBanner').classList.toggle('on',on);
  document.body.classList.toggle('hasAd',on);
  native('banner',{show:on,unit:adUnit('banner')});
@@ -5601,8 +5653,8 @@ function buy(it,onDone){
      report it through KingCats.entitlements instead of charging for the
      single item. Buying the SAME product again is never charged by Apple,
      but a single item bought after its set is a different product. */
- const coveredBy=IAP.filter(x=>x.set&&x.id!==it.id&&x.set().includes(it.id)).map(x=>x.id);
- if(native('purchase',{id:it.id,yen:it.yen,kind,coveredBy})){
+ const coveredBy=IAP.filter(x=>x.set&&x.id!==it.id&&x.set().includes(it.id)).map(x=>storeId(x.id));
+ if(native('purchase',{id:storeId(it.id),yen:it.yen,kind,coveredBy})){
   IAP_BRIDGE=true;toast(T('ストアに接続しています…'));
   /* ストアが答えないとき（商品未設定・通信なし）に待たせ続けない。
      あとから答えが届けば、その時点で反映される。 */
@@ -5996,7 +6048,13 @@ function openIapDiag(){
    +'border-radius:10px;padding:8px 10px;margin:0">'+(IAP_DIAG.slice().reverse().join('\n')||'（まだ何もありません）')+'</pre>'));
   const t=el('button','btn ghost wide','🧪 テスト：広告オフの購入を依頼する');
   t.style.marginTop='10px';
-  t.onclick=()=>{A.click();IAP_BRIDGE=false;buy(IAPBY('noads'));setTimeout(()=>openIapDiag(),3000);};
+  t.onclick=()=>{
+   try{A.click();}catch(e){}
+   diagNote('·','テスト開始（手続き中フラグ '+IAP_BRIDGE+' → false）');
+   IAP_BRIDGE=false;
+   try{buy(IAPBY('noads'));}catch(e){diagNote('!','buy でエラー: '+e);}
+   diagNote('·','buy 終了（手続き中フラグ '+IAP_BRIDGE+'）');
+   setTimeout(()=>openIapDiag(),3000);};
   b.appendChild(t);
   const r=el('button','btn ghost wide','↻ 表示を更新');r.style.marginTop='7px';
   r.onclick=()=>{A.click();openIapDiag();};b.appendChild(r);
@@ -7291,8 +7349,11 @@ window.KingCats={
   try{
    const m={};let cur=null;
    for(const q of (Array.isArray(list)?list:Object.values(list||{}))){
-    if(!q||!q.id||!IAPBY(q.id))continue;
-    m[q.id]={display:String(q.display||''),value:+q.value};
+    if(!q||!q.id)continue;
+    const gid=fromStore(q.id);           /* 製品ID → ゲーム内ID */
+    if(!IAPBY(gid))continue;
+    STORE_PICK[gid]=q.id;                 /* 購入はこの製品IDで依頼する */
+    m[gid]={display:String(q.display||''),value:+q.value};
     if(q.currency)cur=String(q.currency);}
    if(!Object.keys(m).length)return;
    m.__cur=cur;PRICES=m;
@@ -7311,6 +7372,7 @@ window.KingCats={
     ------------------------------------------------------------------ */
  purchaseDone(id,ok){
   diagNote('←','purchaseDone '+id+' '+ok);
+  id=fromStore(id);                       /* 製品ID → ゲーム内ID */
   IAP_BRIDGE=false;clearTimeout(IAP_GUARD);IAP_GUARD=null;
   if(ok){grantIAP(id);try{A.coin();}catch(e){}toast(T('購入しました'));}
   else toast(JE('購入は完了しませんでした','The purchase did not go through'));
@@ -7322,7 +7384,7 @@ window.KingCats={
  /* native('restore') の答え。AppStore.sync() 後の所持商品IDの配列を渡す */
  restoreDone(ids){
   diagNote('←','restoreDone '+(ids||[]).length+'件');
-  const n=applyEntitlements(ids);
+  const n=applyEntitlements((ids||[]).map(fromStore));
   toast(n?T('購入を復元しました'):T('復元できる購入はありませんでした'));
   if($('sheet').classList.contains('on'))openShop();
  },
@@ -7332,7 +7394,7 @@ window.KingCats={
  entitlements(ids){
   diagNote('←','entitlements '+(ids||[]).length+'件');
   const before=JSON.stringify(S.owned);
-  applyEntitlements(ids);
+  applyEntitlements((ids||[]).map(fromStore));
   if(JSON.stringify(S.owned)!==before){paintTop();try{paintHome();}catch(e){}
    if($('sheet').classList.contains('on'))openShop();}
  },
@@ -9190,7 +9252,7 @@ checkAchv();
 native('ad_config',{banner:adUnit('banner'),interstitial:adUnit('interstitial'),
  rewarded:adUnit('rewarded'),test:!!ADS.test,testDevices:ADS.testDevices||[]});
 native('entitlements');   /* purchases come back by themselves; see KingCats.entitlements */
-native('prices',{ids:IAP.map(x=>x.id)});   /* local prices; see KingCats.prices */
+native('prices',{ids:allStoreIds()});   /* local prices; see KingCats.prices */
 runBootScreens();
 /* one local notification a day keeps a puzzle game alive; the shell decides
    whether the OS actually allows it */
