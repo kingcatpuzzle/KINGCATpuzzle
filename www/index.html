@@ -1211,7 +1211,7 @@ function paintStatic(){
    and support URLs. */
 /* このHTMLの版。差し替えたら日付を変える。メニューの一番下と、課金ブリッジの
    起動表示に出るので、TestFlight のアプリに新しいHTMLが入っているか確かめられる。 */
-window.HTML_BUILD='2026-10-04a';
+window.HTML_BUILD='2026-10-04b';
 const PUBLISHER={
  appName:T('キングキャッツ'), appNameEn:'KING CAT', version:'1.0.0',
  seller:'kingcat',                 /* 販売事業者名 */
@@ -2650,7 +2650,7 @@ function refreshBanner(){
  BANNER_ON=on;
  $('adBanner').classList.toggle('on',on);
  document.body.classList.toggle('hasAd',on);
- native('banner',{show:on,unit:adUnit('banner')});
+ kcNative('banner',{show:on,unit:adUnit('banner')});
  /* wait for the strip's height transition, then say exactly where it is */
  setTimeout(sendBannerRect,260);
 }
@@ -2662,7 +2662,7 @@ function refreshBanner(){
 function sendBannerRect(){
  const el2=$('adSlot');if(!el2)return;   /* the ad area itself, without the safe-area gap */
  const r=el2.getBoundingClientRect();
- native('bannerRect',{show:$('adBanner').classList.contains('on'),
+ kcNative('bannerRect',{show:$('adBanner').classList.contains('on'),
   top:Math.round(r.top),bottom:Math.round(window.innerHeight-r.bottom),
   height:Math.round(r.height),width:Math.round(r.width)});
 }
@@ -5654,7 +5654,7 @@ function buy(it,onDone){
      single item. Buying the SAME product again is never charged by Apple,
      but a single item bought after its set is a different product. */
  const coveredBy=IAP.filter(x=>x.set&&x.id!==it.id&&x.set().includes(it.id)).map(x=>storeId(x.id));
- if(native('purchase',{id:storeId(it.id),yen:it.yen,kind,coveredBy})){
+ if(kcNative('purchase',{id:storeId(it.id),yen:it.yen,kind,coveredBy})){
   IAP_BRIDGE=true;toast(T('ストアに接続しています…'));
   /* ストアが答えないとき（商品未設定・通信なし）に待たせ続けない。
      あとから答えが届けば、その時点で反映される。 */
@@ -5664,7 +5664,7 @@ function buy(it,onDone){
   return;}
  /* 安全装置：アプリの中（iPhone / iPad の WebView）でネイティブへの橋が
     見つからないときは、デモ購入に落とさず止める。橋の名前の違いなどで
-    native() が false になっても、無料でアイテムが付くことは絶対にない。 */
+    kcNative() が false になっても、無料でアイテムが付くことは絶対にない。 */
  if(IN_APP){
   BUY_CB=null;
   toast(JE('ストアに接続できませんでした。アプリを再起動してお試しください。','Could not reach the store. Please restart the app and try again.'),4200);
@@ -5953,7 +5953,7 @@ if(isFinite(worth)&&priceKnown(bd.id)&&worth>priceVal(bd.id)){
   r.appendChild(bt);b.appendChild(r);}
  const rs=el('button','btn ghost wide',T('購入を復元する'));rs.style.marginTop='14px';
  rs.onclick=()=>{
-  if(native('restore')){toast(T('復元しています…'));return;}
+  if(kcNative('restore')){toast(T('復元しています…'));return;}
   if(IN_APP){toast(JE('ストアに接続できませんでした','Could not reach the store'));return;}
   toast(T('購入を復元しました（デモ）'));};
  b.appendChild(rs);
@@ -5967,7 +5967,7 @@ if(isFinite(worth)&&priceKnown(bd.id)&&worth>priceVal(bd.id)){
   sp.style.marginTop='7px';
   sp.onclick=()=>{
    const u=PUBLISHER.supportUrl||('mailto:'+PUBLISHER.email);
-   if(!native('openUrl',{url:u}))try{window.open(u,'_blank');}catch(e){}};
+   if(!kcNative('openUrl',{url:u}))try{window.open(u,'_blank');}catch(e){}};
   b.appendChild(sp);}
  buildExchange(b);
  b.appendChild(el('div','','<div style="font-size:10.5px;color:var(--lo);margin-top:13px;line-height:1.7">'
@@ -6031,6 +6031,7 @@ function openIapDiag(){
    ['HTMLの版',window.HTML_BUILD||'?'],
    ['アプリ内で動作 (IN_APP)',String(IN_APP)],
    ['native の受け口',wk?'あり':'なし'],
+   ['window.native の差し替え',window.native===kcNative?'なし':'あり（外部のコード）'],
    ['Capacitor',cap?('あり '+(window.Capacitor.getPlatform?window.Capacitor.getPlatform():'')):'なし'],
    ['課金ブリッジの起動表示',IAP_DIAG.some(x=>x.includes('起動OK'))?'受信済み':'未受信'],
    ['現地価格',PRICES?(Object.keys(PRICES).filter(k=>k!=='__cur').length+'件 '+(PRICES.__cur||'')):'未受信'],
@@ -6141,13 +6142,13 @@ function openSettings(){sheetPush(()=>openSettings());sheet(T('設定'),b=>{
   +'<div class="s">'+(S.consent.ads?T('許可しています'):T('許可していません'))+'</div></div>';
  const adb=el('button','btn ghost sm',T('変更'));
  adb.onclick=()=>{S.consent.ads=!S.consent.ads;save();
-  native('adConsent',{personalized:!!S.consent.ads});openSettings();};
+  kcNative('adConsent',{personalized:!!S.consent.ads});openSettings();};
  ad.appendChild(adb);b.appendChild(ad);
  const tr=el('div','row');
  tr.innerHTML=T('<div class="g"><div class="t">トラッキングの許可</div>')
   +T('<div class="s">端末の「設定」アプリから変更できます</div></div>');
  const trb=el('button','btn ghost sm',T('開く'));
- trb.onclick=()=>{if(!native('attSettings'))toast(T('この環境では開けません'));};
+ trb.onclick=()=>{if(!kcNative('attSettings'))toast(T('この環境では開けません'));};
  tr.appendChild(trb);b.appendChild(tr);
  b.appendChild(el('div','','<div style="height:10px"></div>'));
  const rs=el('button','btn ghost wide',T('データを消す'));
@@ -6720,7 +6721,7 @@ function playAd(done){
     same bonus handed over without a video. */
  if(adsOff()){toast(JE('広告オフ特典：そのまま受け取りました','Ad-free: reward granted'));done&&done();return;}
  $('adOv').classList.add('on');
- if(native('showRewarded',{placement:'reward',unit:adUnit('rewarded')})){
+ if(kcNative('showRewarded',{placement:'reward',unit:adUnit('rewarded')})){
   adCb=done; adKind='rewarded';
   /* if the native side never answers (no fill, crash), never leave the
      player stuck behind the overlay */
@@ -6740,7 +6741,7 @@ function maybeAd(next){
  adN++;if(adN%3!==0){next();return;}
  lastAdAt=Date.now();
  $('adOv').classList.add('on');
- if(native('showInterstitial',{placement:'stage_end',unit:adUnit('interstitial')})){
+ if(kcNative('showInterstitial',{placement:'stage_end',unit:adUnit('interstitial')})){
   adCb=next; adKind='interstitial';
   adGuard=setTimeout(()=>{adFinish(true);},30000);   /* an interstitial has
      no reward to withhold, so a timeout should let the player continue */
@@ -6995,7 +6996,10 @@ function diagNote(dir,what){
    +String(d.getSeconds()).padStart(2,'0')+' '+dir+' '+what);
   if(IAP_DIAG.length>30)IAP_DIAG.shift();}catch(e){}
 }
-function native(t,d){
+/* ネイティブへの橋。名前を native から kcNative に変えてあるのは、外のコードが
+   window.native を差し替えても、ゲーム側の呼び出しが乗っ取られないようにするため。
+   実機で、起動後に購入の依頼だけが届かない現象が起きていた。 */
+function kcNative(t,d){
  try{
   if(t!=='bannerRect')diagNote('→',t+(d&&d.id?' '+d.id:''));
   if(window.webkit&&webkit.messageHandlers&&webkit.messageHandlers.native)
@@ -7005,6 +7009,8 @@ function native(t,d){
  }catch(e){}
  return false;
 }
+/* 以前の名前で呼ぶコードのための窓口（ゲーム自身は使わない） */
+window.native=kcNative;
 /* SKStoreReviewController / In-App Review. Asked ONCE, and only after a
    3-star clear — i.e. at the exact moment the player feels good. Never on
    a loss, never on launch. */
@@ -7012,7 +7018,7 @@ function maybeAskReview(){
  if(S.rev)return;
  if((S.stat.plays||0)<25)return;
  S.rev=1;save();
- setTimeout(()=>native('review'),1400);
+ setTimeout(()=>kcNative('review'),1400);
 }
 
 /* ---------------------------------------------------------- login bonus */
@@ -7339,7 +7345,7 @@ window.KingCats={
   try{console.log('[IAP]',msg);toast('🛠 '+String(msg).slice(0,80),3200);}catch(e){}
  },
  /* ------------------------------------------------------------------
-    ストアの現地価格を受け取る口。native('prices',{ids}) の答えとして
+    ストアの現地価格を受け取る口。kcNative('prices',{ids}) の答えとして
       window.KingCats.prices([{id, display, value, currency}, ...])
     を呼ぶ。display = Product.displayPrice（例 "$3.99"）、
     value = Product.price の数値、currency = 通貨コード（例 "USD"）。
@@ -7365,7 +7371,7 @@ window.KingCats={
  },
  /* ------------------------------------------------------------------
     課金の結果をネイティブ側から受け取る口。
-    native('purchase') を受けたら、Swift 側は必ず 1 回だけ
+    kcNative('purchase') を受けたら、Swift 側は必ず 1 回だけ
       window.KingCats.purchaseDone(商品ID, true/false)
     を呼ぶこと（true = 検証済みの購入完了、false = キャンセル・保留・失敗）。
     これが無いと「ストアに接続しています…」のまま先に進まない。
@@ -7381,7 +7387,7 @@ window.KingCats={
   else if($('sheet').classList.contains('on'))openShop();
   paintTop();try{paintHome();}catch(e){}
  },
- /* native('restore') の答え。AppStore.sync() 後の所持商品IDの配列を渡す */
+ /* kcNative('restore') の答え。AppStore.sync() 後の所持商品IDの配列を渡す */
  restoreDone(ids){
   diagNote('←','restoreDone '+(ids||[]).length+'件');
   const n=applyEntitlements((ids||[]).map(fromStore));
@@ -7518,7 +7524,7 @@ function openConsent(){
   A.click();
   const u=PUBLISHER.termsUrl;
   if(!u||navigator.onLine===false){showFullInside();return;}
-  if(native('openUrl',{url:u}))return;          /* iOS / Android shell */
+  if(kcNative('openUrl',{url:u}))return;          /* iOS / Android shell */
   let w=null;
   try{w=window.open(u,'_blank');}catch(e){}
   if(w){try{w.opener=null;}catch(e){}}
@@ -7555,10 +7561,10 @@ function askAdsConsent(){
   +T('<b>興味に合わせた広告</b>を許可すると、開発を続けやすくなります。')
   +T('許可しなくてもゲームの内容は変わりません。')
   +T('あとから「設定」でいつでも変えられます。'),
-  T('許可する'),()=>{S.consent.ads=true;save();native('adConsent',{personalized:true});afterAds();});
+  T('許可する'),()=>{S.consent.ads=true;save();kcNative('adConsent',{personalized:true});afterAds();});
  $('cNo').textContent=T('許可しない');
  $('cNo').onclick=()=>{$('ovConfirm').classList.remove('on');
-  S.consent.ads=false;save();native('adConsent',{personalized:false});afterAds();};
+  S.consent.ads=false;save();kcNative('adConsent',{personalized:false});afterAds();};
 }
 function afterAds(){
  $('cNo').textContent=T('いいえ');
@@ -7566,7 +7572,7 @@ function afterAds(){
   /* App Tracking Transparency. NSUserTrackingUsageDescription must be filled
      in on the native side or the build is rejected. */
   S.consent.att=1;save();
-  setTimeout(()=>native('att'),400);
+  setTimeout(()=>kcNative('att'),400);
  }
  if(musicLevel())MUSIC.start();   /* no-op if already playing */
  if(!S.tut)setTimeout(openTut,420);
@@ -9249,14 +9255,14 @@ requestAnimationFrame(frame);
 checkAchv();
 /* the ad units, the test-device list and which set to use, before the first
    request goes out */
-native('ad_config',{banner:adUnit('banner'),interstitial:adUnit('interstitial'),
+kcNative('ad_config',{banner:adUnit('banner'),interstitial:adUnit('interstitial'),
  rewarded:adUnit('rewarded'),test:!!ADS.test,testDevices:ADS.testDevices||[]});
-native('entitlements');   /* purchases come back by themselves; see KingCats.entitlements */
-native('prices',{ids:allStoreIds()});   /* local prices; see KingCats.prices */
+kcNative('entitlements');   /* purchases come back by themselves; see KingCats.entitlements */
+kcNative('prices',{ids:allStoreIds()});   /* local prices; see KingCats.prices */
 runBootScreens();
 /* one local notification a day keeps a puzzle game alive; the shell decides
    whether the OS actually allows it */
-native('schedule',{hour:20,body:T('今日の一問が届いています🐟')});
+kcNative('schedule',{hour:20,body:T('今日の一問が届いています🐟')});
 
 </script>
 <script type="module" src="ads.js"></script>
