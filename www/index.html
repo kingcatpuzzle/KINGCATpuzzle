@@ -1211,7 +1211,10 @@ function paintStatic(){
    and support URLs. */
 /* このHTMLの版。差し替えたら日付を変える。メニューの一番下と、課金ブリッジの
    起動表示に出るので、TestFlight のアプリに新しいHTMLが入っているか確かめられる。 */
-window.HTML_BUILD='2026-10-04d';
+window.HTML_BUILD='2026-10-05a';
+/* 課金の診断画面をメニューとショップに出すか。審査・公開版は false。
+   TestFlight で課金を調べ直したいときだけ true にする。 */
+const SHOW_IAP_DIAG=false;
 const PUBLISHER={
  appName:T('キングキャッツ'), appNameEn:'KING CAT', version:'1.0.0',
  seller:'kingcat',                 /* 販売事業者名 */
@@ -1246,7 +1249,7 @@ const ADS={
        interstitial:'ca-app-pub-3940256099942544/4411468910',
        rewarded:'ca-app-pub-3940256099942544/1712485313'},
  test:false,
- testDevices:['0F45FC0C-DDA5-4170-8DD8-2C6BDA702240']
+ testDevices:[]   /* 公開版は空。テスト端末で確認するときだけ ['端末ID'] を入れる */
 };
 const adUnit=k=>(ADS.test?ADS.demo:ADS)[k];
 const $=i=>document.getElementById(i);
@@ -1530,19 +1533,28 @@ function drawCat(g,cx,cy,size,kind,o){
  const doGlow=fx?fx>=4:!!o.glow, doRays=fx?fx>=5:!!o.rays, doSpark=fx?fx>=5:!!o.sparkle;
  if(doGlow){
   const au=K.aura||(fx?RARC[Math.min(fx,5)]:K.ring);
+  /* How far the light may reach before it hits the edge of this canvas.
+     Rays and glow used to run straight into the border of small cards and
+     stop in a hard square; now they fade out just inside it, whatever the
+     card size. */
+  let room=Infinity;
+  try{const m=g.getTransform(), sc=Math.hypot(m.a,m.b)||1, cv=g.canvas;
+   room=Math.min(m.e,m.f,cv.width-m.e,cv.height-m.f)/sc;}catch(e){}
   if(doRays){const t=(o.now||0)/2600;
+   const L=Math.max(S*.5,Math.min(S*1.15,room*.96));
    g.save();g.globalCompositeOperation='lighter';g.globalAlpha=.15;g.rotate(t);
    for(let i=0;i<12;i++){g.rotate(Math.PI/6);
-    const gr=g.createLinearGradient(0,0,0,-S*1.15);
+    const gr=g.createLinearGradient(0,0,0,-L);
     gr.addColorStop(0,au);gr.addColorStop(1,'rgba(255,255,255,0)');
     g.fillStyle=gr;g.beginPath();
-    g.moveTo(-S*.055,0);g.lineTo(0,-S*1.15);g.lineTo(S*.055,0);g.closePath();g.fill();}
+    g.moveTo(-S*.055,0);g.lineTo(0,-L);g.lineTo(S*.055,0);g.closePath();g.fill();}
    g.restore();}
   g.save();g.globalCompositeOperation='lighter';
-  const hg=g.createRadialGradient(0,0,hh*.4,0,0,hw*1.75);
+  const gk=Math.min(1,Math.max(.55,room*.96/(hh*1.85)));
+  const hg=g.createRadialGradient(0,0,hh*.4*gk,0,0,hw*1.75*gk);
   hg.addColorStop(0,au);hg.addColorStop(1,'rgba(0,0,0,0)');
   g.globalAlpha=.4;g.fillStyle=hg;
-  g.beginPath();g.ellipse(0,0,hw*1.75,hh*1.85,0,0,7);g.fill();g.restore();}
+  g.beginPath();g.ellipse(0,0,hw*1.75*gk,hh*1.85*gk,0,0,7);g.fill();g.restore();}
 
  if(fx)drawRarBack(g,K,fx,hw,hh,S,o.now||0);
  /* contact shadow — without it the cats look like stickers */
@@ -5957,11 +5969,12 @@ if(isFinite(worth)&&priceKnown(bd.id)&&worth>priceVal(bd.id)){
   if(IN_APP){toast(JE('ストアに接続できませんでした','Could not reach the store'));return;}
   toast(T('購入を復元しました（デモ）'));};
  b.appendChild(rs);
- /* 課金の診断（TestFlight での確認用）。原因が分かったら消してよい */
- const dg=el('button','btn ghost wide','🛠 '+JE('課金の診断','Purchase diagnostics'));
- dg.style.marginTop='7px';
- dg.onclick=()=>{A.click();openIapDiag();};
- b.appendChild(dg);
+ /* 課金の診断（TestFlight での確認用。SHOW_IAP_DIAG が true のときだけ出る） */
+ if(SHOW_IAP_DIAG){
+  const dg=el('button','btn ghost wide','🛠 '+JE('課金の診断','Purchase diagnostics'));
+  dg.style.marginTop='7px';
+  dg.onclick=()=>{A.click();openIapDiag();};
+  b.appendChild(dg);}
  if(PUBLISHER.supportUrl||PUBLISHER.email){
   const sp=el('button','btn ghost wide',T('困ったときは（サポート）'));
   sp.style.marginTop='7px';
@@ -6966,8 +6979,8 @@ function buildDrawer(){
   ['🏆',T('メダルと記録'),openAchv],
   ['⚙️',T('設定'),openSettings],['❓',T('遊び方'),()=>{closeDrawer();openTut();}],
   ['📄',T('各種表記'),openLegal],
-  /* TestFlight での確認用。課金が直ったら この行を消す */
-  ['🛠',JE('課金の診断','Purchase diagnostics'),openIapDiag]]){
+  /* TestFlight での確認用（SHOW_IAP_DIAG が true のときだけ出る） */
+  ...(SHOW_IAP_DIAG?[['🛠',JE('課金の診断','Purchase diagnostics'),openIapDiag]]:[])]){
   const b=el('button','di','<div class="ic">'+ic+'</div><div>'+t+'</div>');
   if(t===T('ガチャ')&&S.coins>=COST1)b.appendChild(el('div','bd','!'));
   /* a count rather than a dot: an unopened gift should say how many */
@@ -7355,7 +7368,7 @@ window.KingCats={
     ------------------------------------------------------------------ */
  iapLog(msg){
   diagNote('←','log '+String(msg).slice(0,40));
-  try{console.log('[IAP]',msg);toast('🛠 '+String(msg).slice(0,80),3200);}catch(e){}
+  try{console.log('[IAP]',msg);if(SHOW_IAP_DIAG)toast('🛠 '+String(msg).slice(0,80),3200);}catch(e){}
  },
  /* ------------------------------------------------------------------
     ストアの現地価格を受け取る口。kcNative('prices',{ids}) の答えとして

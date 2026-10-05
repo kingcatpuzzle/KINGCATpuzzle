@@ -58,7 +58,7 @@ final class KCNative: NSObject, WKScriptMessageHandler {
     static let shared = KCNative()
 
     /// 画面に「🛠 …」で各段階を表示する。原因が分かったら false に。
-    var showDiagnostics = true
+    var showDiagnostics = false
 
     private weak var webView: WKWebView?
     private var updatesTask: Task<Void, Never>?
