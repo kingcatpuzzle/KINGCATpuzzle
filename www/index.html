@@ -1211,7 +1211,7 @@ function paintStatic(){
    and support URLs. */
 /* このHTMLの版。差し替えたら日付を変える。メニューの一番下と、課金ブリッジの
    起動表示に出るので、TestFlight のアプリに新しいHTMLが入っているか確かめられる。 */
-window.HTML_BUILD='2026-10-05a';
+window.HTML_BUILD='2026-10-06a';
 /* 課金の診断画面をメニューとショップに出すか。審査・公開版は false。
    TestFlight で課金を調べ直したいときだけ true にする。 */
 const SHOW_IAP_DIAG=false;
@@ -1555,6 +1555,50 @@ function drawCat(g,cx,cy,size,kind,o){
   hg.addColorStop(0,au);hg.addColorStop(1,'rgba(0,0,0,0)');
   g.globalAlpha=.4;g.fillStyle=hg;
   g.beginPath();g.ellipse(0,0,hw*1.75*gk,hh*1.85*gk,0,0,7);g.fill();g.restore();}
+
+ /* Outfit light. Whatever a cat wears tints the light behind it in that
+    outfit's own two colours, and the rarer the outfit the more of it there
+    is: ★3 a soft glow, ★4 adds a turning ring, ★5 adds rays, a shop outfit
+    adds orbiting sparks on top. Faded inside the canvas like the rarity glow. */
+ if(o.cos&&!o.plain){const CA=COSBY(o.cos);
+  if(CA){
+   const cr=PCOSBY(o.cos)?6:(CA.r||3), t=(o.now||0)/1000;
+   const c1=CA.c1||'#FFFFFF', c2=CA.c2||c1;
+   let rm=Infinity;
+   try{const m=g.getTransform(),sc=Math.hypot(m.a,m.b)||1,cv=g.canvas;
+    rm=Math.min(m.e,m.f,cv.width-m.e,cv.height-m.f)/sc;}catch(e){}
+   const R=Math.max(hw*1.05,Math.min(hw*(1.45+.13*(cr-3)),rm*.95));
+   const pulse=.85+.15*Math.sin(t*2);
+   g.save();g.globalCompositeOperation='lighter';
+   const ag=g.createRadialGradient(0,-hh*.1,hh*.25,0,-hh*.1,R);
+   ag.addColorStop(0,hexA(c1,(cr>=6?.9:cr>=5?.78:cr>=4?.62:.46)*pulse));
+   ag.addColorStop(.6,hexA(c2,(cr>=6?.5:cr>=5?.4:cr>=4?.3:.2)*pulse));
+   ag.addColorStop(1,hexA(c1,0));
+   g.fillStyle=ag;g.beginPath();g.arc(0,-hh*.1,R,0,7);g.fill();
+   if(cr>=4){
+    /* a dashed ring turning slowly around the cat */
+    g.save();g.rotate(t*.5);
+    g.setLineDash([S*.06,S*.05]);
+    g.strokeStyle=hexA(c2,.6+.25*Math.sin(t*2.4));
+    g.lineWidth=Math.max(1,S*.022);
+    g.beginPath();g.arc(0,-hh*.1,R*.86,0,7);g.stroke();
+    g.setLineDash([]);g.restore();}
+   if(cr>=5){
+    const RL=Math.min(R*1.08,rm*.95);
+    g.save();g.rotate(-t*.25);
+    for(let i=0;i<8;i++){g.rotate(Math.PI/4);
+     const rg=g.createLinearGradient(0,0,0,-RL);
+     rg.addColorStop(0,hexA(i%2?c1:c2,.35));rg.addColorStop(1,hexA(c1,0));
+     g.fillStyle=rg;g.beginPath();
+     g.moveTo(-S*.05,0);g.lineTo(0,-RL);g.lineTo(S*.05,0);g.closePath();g.fill();}
+    g.restore();}
+   if(cr>=6){
+    g.fillStyle='#ffffff';
+    for(let i=0;i<4;i++){const a=t*1.1+i*Math.PI/2;
+     g.globalAlpha=.7+.3*Math.sin(t*3+i);
+     star4(g,Math.cos(a)*R*.78,-hh*.1+Math.sin(a)*R*.62,S*.06,a);}
+   }
+   g.restore();}}
 
  if(fx)drawRarBack(g,K,fx,hw,hh,S,o.now||0);
  /* contact shadow — without it the cats look like stickers */
@@ -2108,35 +2152,37 @@ function drawCos(g,art,hw,hh,S,lw,K,C){
 /* Movement that only the paid outfits have. */
 function drawCosFx(g,fx,hw,hh,S,now){
  const t=(now||0)/1000;g.save();
+ /* every particle carries a soft halo, so it stands out on light and dark */
+ g.shadowColor='rgba(255,255,255,.85)';g.shadowBlur=Math.max(2,S*.05);
  if(fx==='glint'){g.fillStyle='#fff';
   [[-.28,-1.13],[0,-1.13],[.28,-1.13],[0,-1.78]].forEach((q,i)=>{
-   const a=Math.max(0,Math.sin(t*3.2+i*1.7));g.globalAlpha=a;star4(g,hw*q[0],hh*q[1],S*.07*a+.01);});
+   const a=Math.max(0,Math.sin(t*3.2+i*1.7));g.globalAlpha=a;star4(g,hw*q[0],hh*q[1],S*.11*a+.01);});
   g.globalCompositeOperation='lighter';g.globalAlpha=.3+.15*Math.sin(t*2);
-  const gr=g.createRadialGradient(0,-hh*1.78,0,0,-hh*1.78,S*.24);
+  const gr=g.createRadialGradient(0,-hh*1.78,0,0,-hh*1.78,S*.32);
   gr.addColorStop(0,'rgba(255,230,150,.9)');gr.addColorStop(1,'rgba(255,230,150,0)');
-  g.fillStyle=gr;g.beginPath();g.arc(0,-hh*1.78,S*.24,0,7);g.fill();}
+  g.fillStyle=gr;g.beginPath();g.arc(0,-hh*1.78,S*.32,0,7);g.fill();}
  else if(fx==='feather'){
-  for(let i=0;i<4;i++){const ph=(t*.35+i/4)%1,s2=i%2?1:-1;
+  for(let i=0;i<6;i++){const ph=(t*.35+i/6)%1,s2=i%2?1:-1;
    const x=s2*hw*(1.25+.2*Math.sin(t*1.5+i)),y=-hh*.5+ph*hh*1.9;
    g.globalAlpha=Math.sin(ph*Math.PI)*.95;g.save();g.translate(x,y);g.rotate(Math.sin(t*2+i)*.7);
-   g.fillStyle='#fff';g.beginPath();g.ellipse(0,0,S*.03,S*.08,0,0,7);g.fill();
+   g.fillStyle='#fff';g.beginPath();g.ellipse(0,0,S*.045,S*.12,0,0,7);g.fill();
    g.strokeStyle='rgba(140,170,225,.9)';g.lineWidth=Math.max(.5,S*.007);
-   g.beginPath();g.moveTo(0,-S*.075);g.lineTo(0,S*.075);g.stroke();g.restore();}}
+   g.beginPath();g.moveTo(0,-S*.11);g.lineTo(0,S*.11);g.stroke();g.restore();}}
  else if(fx==='stardust'){g.fillStyle='#FFE9A8';
-  for(let i=0;i<6;i++){const ph=(t*.5+i/6)%1;
-   g.globalAlpha=(1-ph)*.95;star4(g,(i/5-.5)*hw*1.6+Math.sin(t+i)*hw*.08,hh*1.12+ph*hh*.7,S*.04*(1-ph*.5));}}
+  for(let i=0;i<9;i++){const ph=(t*.5+i/9)%1;
+   g.globalAlpha=(1-ph);star4(g,(i/8-.5)*hw*1.7+Math.sin(t+i)*hw*.08,hh*1.1+ph*hh*.75,S*.065*(1-ph*.5));}}
  else if(fx==='magic'){const cx=hw*.24,cy=-hh*2.06;
-  for(let i=0;i<6;i++){const a=t*2.2+i*Math.PI/3,r=S*.14;
+  for(let i=0;i<6;i++){const a=t*2.2+i*Math.PI/3,r=S*.19;
    g.globalAlpha=.55+.45*Math.sin(t*4+i);g.fillStyle=i%2?'#8FE6FF':'#D8A8FF';
-   star4(g,cx+Math.cos(a)*r,cy+Math.sin(a)*r*.5,S*.032);}}
+   star4(g,cx+Math.cos(a)*r,cy+Math.sin(a)*r*.5,S*.052);}}
  else if(fx==='petal'){
-  for(let i=0;i<5;i++){const ph=(t*.3+i/5)%1;
+  for(let i=0;i<7;i++){const ph=(t*.3+i/7)%1;
    const x=hw*.62+Math.sin(t*1.3+i*2)*hw*.35+ph*hw*.3,y=-hh*.95+ph*hh*2.2;
    g.globalAlpha=Math.sin(ph*Math.PI);g.save();g.translate(x,y);g.rotate(t*2+i);
-   g.fillStyle='#FFB3CF';g.beginPath();g.ellipse(0,0,S*.036,S*.022,0,0,7);g.fill();g.restore();}}
+   g.fillStyle='#FFB3CF';g.beginPath();g.ellipse(0,0,S*.056,S*.034,0,0,7);g.fill();g.restore();}}
  else if(fx==='prism'){const cols=['#FF8AE0','#FFD76B','#8FF0C8','#8FC4FF','#C9A8FF'];
   for(let i=0;i<5;i++){const u=(t*.6+i/5)%1,xx=(u*2-1)*hw*.6,yy=-hh*.9-(1-(u*2-1)**2)*hh*.16;
-   g.globalAlpha=Math.sin(u*Math.PI);g.fillStyle=cols[i];star4(g,xx,yy-hh*.08,S*.045);}}
+   g.globalAlpha=Math.sin(u*Math.PI);g.fillStyle=cols[i];star4(g,xx,yy-hh*.08,S*.07);}}
  g.restore();
 }
 function drawCrown(g,cx,cy,w,lw){
@@ -5976,7 +6022,7 @@ if(isFinite(worth)&&priceKnown(bd.id)&&worth>priceVal(bd.id)){
   dg.onclick=()=>{A.click();openIapDiag();};
   b.appendChild(dg);}
  if(PUBLISHER.supportUrl||PUBLISHER.email){
-  const sp=el('button','btn ghost wide',T('困ったときは（サポート）'));
+  const sp=el('button','btn ghost wide',JE('サポート','Support'));
   sp.style.marginTop='7px';
   sp.onclick=()=>{
    const u=PUBLISHER.supportUrl||('mailto:'+PUBLISHER.email);
@@ -8795,8 +8841,8 @@ function openWardrobe(){sheetPush(()=>openWardrobe());sheet(T('着せ替え'),b=
   const have=own.length>0, on=cosOf(p.id);
   const r=el('div','wardRow');
   const cv=el('canvas');cv.width=cv.height=110;
-  drawCat(cv.getContext('2d'),110*.47,110*.60,110*.62,p.k,
-   {cos:on||null,skin:catSkin(p),glow:!!catSkin(p),now:performance.now()});
+  liveDraw(cv,(g,now)=>drawCat(g,110*.47,110*.60,110*.62,p.k,
+   {cos:on||null,skin:catSkin(p),glow:!!catSkin(p),now}));
   r.appendChild(cv);
   r.appendChild(el('div','g','<div class="t">'+catName(p)
    +'<span style="color:'+RCOL[p.r]+';font-size:9px;margin-left:5px">'+'★'.repeat(p.r)+'</span>'
@@ -8821,8 +8867,8 @@ function openWardrobe(){sheetPush(()=>openWardrobe());sheet(T('着せ替え'),b=
   const own=owns(pc.id);
   const r=el('div','wardRow');
   const cv=el('canvas');cv.width=cv.height=110;
-  drawCat(cv.getContext('2d'),110*.47,110*.60,110*.62,model.k,
-   {cos:pc.id,skin:catSkin(model),now:performance.now()});
+  liveDraw(cv,(g,now)=>drawCat(g,110*.47,110*.60,110*.62,model.k,
+   {cos:pc.id,skin:catSkin(model),now}));
   r.appendChild(cv);
   const wr=own?pcosWearer(pc.id):null, wc=wr?allCats().find(x=>x.id===wr):null;
   r.appendChild(el('div','g','<div class="t">'+pc.ja
@@ -8857,8 +8903,8 @@ function openCosPick(catId){sheetPush(()=>openCosPick(catId));
   const mk=(id,label,rr,tag)=>{
    const d=el('div','cosCell'+(worn===id?' on':''));
    const cv=el('canvas');cv.width=cv.height=140;
-   drawCat(cv.getContext('2d'),140*.47,140*.60,140*.62,p.k,
-    {cos:id||null,skin:catSkin(p),glow:!!catSkin(p),now:performance.now()});
+   liveDraw(cv,(g,now)=>drawCat(g,140*.47,140*.60,140*.62,p.k,
+    {cos:id||null,skin:catSkin(p),glow:!!catSkin(p),now}));
    d.appendChild(cv);
    d.appendChild(el('div','nm',label));
    if(rr)d.appendChild(el('div','rr','★'.repeat(rr)));
@@ -8891,8 +8937,8 @@ function openCosPick(catId){sheetPush(()=>openCosPick(catId));
        :T('🐟＋')+Math.round(PCOS_COIN[pc.id]*100)+'%'));continue;}
    const d=el('div','cosCell lock');
    const cv=el('canvas');cv.width=cv.height=140;
-   drawCat(cv.getContext('2d'),140*.47,140*.60,140*.62,p.k,
-    {cos:pc.id,skin:catSkin(p),now:performance.now()});
+   liveDraw(cv,(g,now)=>drawCat(g,140*.47,140*.60,140*.62,p.k,
+    {cos:pc.id,skin:catSkin(p),now}));
    cv.style.opacity='.55';
    d.classList.remove('lock');d.classList.add('buy');
    d.appendChild(cv);
