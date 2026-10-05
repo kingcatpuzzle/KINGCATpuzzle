@@ -1211,7 +1211,7 @@ function paintStatic(){
    and support URLs. */
 /* このHTMLの版。差し替えたら日付を変える。メニューの一番下と、課金ブリッジの
    起動表示に出るので、TestFlight のアプリに新しいHTMLが入っているか確かめられる。 */
-window.HTML_BUILD='2026-10-06a';
+window.HTML_BUILD='2026-10-07a';
 /* 課金の診断画面をメニューとショップに出すか。審査・公開版は false。
    TestFlight で課金を調べ直したいときだけ true にする。 */
 const SHOW_IAP_DIAG=false;
@@ -1523,6 +1523,23 @@ function drawCat(g,cx,cy,size,kind,o){
  g.save();
  if(o.alpha!==undefined)g.globalAlpha=o.alpha;
  g.translate(cx,cy);
+ /* Never cut off. On a small card the ears, a halo, a hat or wings used to
+    run past the edge of the canvas and get sliced flat. Measured against the
+    canvas itself, the whole cat shrinks just enough to fit, so it holds on
+    every screen (shop, results, login bonus, yard, dex …) without each of
+    them having to get its sizes right. Big canvases — the board, the yard,
+    the reveal stage — are left alone. */
+ if(!o.noFit){try{
+  const cv=g.canvas;
+  if(cv&&cv.width<=480&&cv.height<=480){
+   const m=g.getTransform(), sc=Math.hypot(m.a,m.b)||1;
+   const up=m.f/sc, dn=(cv.height-m.f)/sc, lf=m.e/sc, rt=(cv.width-m.e)/sc;
+   const w=o.cos?COSBY(o.cos):null, art=w?String(w.art||''):'';
+   const tall=(K.paid||o.king||/halo|cap|crown|hat|tiara/.test(art))?2.3:1.9;
+   const side=/wing/.test(art)?1.9:1.55;
+   const k=Math.min(1,up/(hh*tall),dn/(hh*1.32),lf/(hw*side),rt/(hw*side));
+   if(k<1){const kk=Math.max(.55,k);g.scale(kk,kk);}
+  }}catch(e){}}
  if(o.tilt)g.rotate(o.tilt);
  g.lineJoin='round';g.lineCap='round';
 
@@ -1576,13 +1593,12 @@ function drawCat(g,cx,cy,size,kind,o){
    ag.addColorStop(1,hexA(c1,0));
    g.fillStyle=ag;g.beginPath();g.arc(0,-hh*.1,R,0,7);g.fill();
    if(cr>=4){
-    /* a dashed ring turning slowly around the cat */
-    g.save();g.rotate(t*.5);
-    g.setLineDash([S*.06,S*.05]);
-    g.strokeStyle=hexA(c2,.6+.25*Math.sin(t*2.4));
-    g.lineWidth=Math.max(1,S*.022);
-    g.beginPath();g.arc(0,-hh*.1,R*.86,0,7);g.stroke();
-    g.setLineDash([]);g.restore();}
+    /* a second, wider breath of the outfit's other colour */
+    const ag2=g.createRadialGradient(0,-hh*.1,R*.45,0,-hh*.1,R);
+    ag2.addColorStop(0,hexA(c2,0));
+    ag2.addColorStop(.7,hexA(c2,(.22+.12*Math.sin(t*1.6))));
+    ag2.addColorStop(1,hexA(c2,0));
+    g.fillStyle=ag2;g.beginPath();g.arc(0,-hh*.1,R,0,7);g.fill();}
    if(cr>=5){
     const RL=Math.min(R*1.08,rm*.95);
     g.save();g.rotate(-t*.25);
@@ -2596,7 +2612,7 @@ function adsOff(){return owns('noads');}
    they give the ad and the shop something to offer. Nothing about them is a
    wall: a stuck player still has the timer, three ad refills a day, sardines,
    and the letters the game sends every ten stages. */
-const LIFE_MAX=10, LIFE_REGEN_MS=8*60*1000, LIFE_AD_CAP=3, LIFE_FISH=200;
+const LIFE_MAX=10, LIFE_REGEN_MS=8*60*1000, LIFE_AD_CAP=3, LIFE_FISH=100, LIFE_FISH_GAIN=10;
 function lifeTick(){
  const L=S.life||(S.life={n:LIFE_MAX,at:0});
  if(L.n>=LIFE_MAX){L.at=0;return L.n;}
@@ -2649,10 +2665,10 @@ function openLifeGate(){
     :JE('📺 広告を見て ♥ ＋1（今日あと'+lifeAdLeft()+'）','📺 Watch an ad for ♥ +1 ('+lifeAdLeft()+' left today)'));
    a.onclick=()=>{A.click();playAd(()=>{noteLifeAd();lifeAdd(1);paint();});};
    acts.appendChild(a);}
-  const f=el('button','btn gold wide',JE('🐟'+LIFE_FISH+' で ♥ ＋1','🐟'+LIFE_FISH+' for ♥ +1'));
+  const f=el('button','btn gold wide',JE('🐟'+LIFE_FISH+' で ♥ ＋'+LIFE_FISH_GAIN,'🐟'+LIFE_FISH+' for ♥ +'+LIFE_FISH_GAIN));
   if(S.coins<LIFE_FISH)f.disabled=true;
   f.onclick=()=>{A.click();if(S.coins<LIFE_FISH)return;
-   S.coins-=LIFE_FISH;lifeAdd(1);paintTop();paint();};
+   S.coins-=LIFE_FISH;lifeAdd(LIFE_FISH_GAIN);save();paintTop();paint();};
   acts.appendChild(f);
   const no=el('button','pkNo',JE('とじる','Close'));
   no.onclick=()=>{A.click();clearInterval(tmr);ov.classList.remove('on');};
@@ -4382,11 +4398,10 @@ function result(won,stars,rw,best,coins){
  const ks=$('kingStage');ks.innerHTML='';
  const cv=el('canvas');cv.width=cv.height=300;
  cv.style.width='150px';cv.style.height='150px';
- const g=cv.getContext('2d');
- if(won)drawCat(g,142,182,200,0,{king:true,glow:true,rays:true,sparkle:true,
-   mood:'happy',now:performance.now()});
- else drawCat(g,142,178,190,1,{mood:'shock'});
- ks.appendChild(cv);
+ liveDraw(cv,(g,now)=>{
+  if(won)drawCat(g,142,182,200,0,{king:true,glow:true,rays:true,sparkle:true,mood:'happy',now});
+  else drawCat(g,142,178,190,1,{mood:'shock',now});},true);
+ ks.appendChild(cv);bleed(cv,.2);
  const sc=$('rStars');sc.style.display=won?'flex':'none';
  [...sc.children].forEach((s,i)=>{s.classList.remove('lit');
   void s.offsetWidth;   /* restart the fill even if the same slot was lit last time */
@@ -4633,13 +4648,17 @@ function closeSheet(){
    cat drawn at 0.74 of the canvas loses its crown off the top edge. 0.62
    with the centre pushed down keeps ears, crown, tail and paws inside. */
 function catCv(kind,px,king,skin,cos,silhouette){const cv=el('canvas');cv.width=cv.height=px||170;
- const g=cv.getContext('2d');
- drawCat(g,(px||170)*.47,(px||170)*.60,(px||170)*.62,kind,
-  {king:!!king,skin:skin||null,cos:cos||null,glow:!!skin&&!silhouette,rays:!!skin&&!silhouette,sparkle:!!skin&&!silhouette,
-   plain:!!silhouette,now:performance.now()});
- /* a cat you have not met yet shows as its own shape, not someone else's art */
- if(silhouette){g.save();g.globalCompositeOperation='source-atop';
-  g.fillStyle='rgba(26,30,58,.92)';g.fillRect(0,0,cv.width,cv.height);g.restore();}
+ const P=px||170;
+ const draw=(g,now)=>{
+  drawCat(g,P*.47,P*.60,P*.62,kind,
+   {king:!!king,skin:skin||null,cos:cos||null,glow:!!skin&&!silhouette,rays:!!skin&&!silhouette,sparkle:!!skin&&!silhouette,
+    plain:!!silhouette,now:now||performance.now()});
+  /* a cat you have not met yet shows as its own shape, not someone else's art */
+  if(silhouette){g.save();g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='source-atop';
+   g.fillStyle='rgba(26,30,58,.92)';g.fillRect(0,0,g.canvas.width,g.canvas.height);g.restore();}
+ };
+ draw(cv.getContext('2d'));
+ bleed(cv,.16,draw);
  return cv;}
 
 /* ------------------------------------------------------------------ 広場
@@ -4915,7 +4934,7 @@ function openYardCat(id){
  sheet(catName(p),b=>{
   const cv=el('canvas');cv.width=cv.height=260;cv.className='yardBig';
   liveDraw(cv,(g,now)=>drawCat(g,130,158,190,p.k,{cos:cosOf(p.id),skin:catSkin(p),mood:'happy',now}));
-  b.appendChild(cv);
+  b.appendChild(cv);bleed(cv,.24);
   b.appendChild(el('div','','<div style="text-align:center;font-size:11.5px;color:var(--lo);margin-bottom:10px">'
    +p.job+'　'+KNACK[p.a].ja+'</div>'));
   const eq=S.equip.includes(p.id);
@@ -5656,8 +5675,9 @@ function tenSummary(){
   c.appendChild(el('div','nw',T('NEW')));
   const cv=el('canvas');cv.width=cv.height=120;
   const cp=COSCAT(c2)||PARTNERS[0];
-  drawCat(cv.getContext('2d'),120*.47,120*.60,120*.62,cp.k,
-   {cos:c2.id,skin:catSkin(cp),mood:'happy',now:performance.now()});
+  const dr=(g,now)=>drawCat(g,120*.47,120*.60,120*.62,cp.k,
+   {cos:c2.id,skin:catSkin(cp),mood:'happy',now:now||performance.now()});
+  dr(cv.getContext('2d'));bleed(cv,.16,dr);
   c.appendChild(cv);
   c.appendChild(el('div','nm',c2.ja));
   const rr=el('div','rr','★'.repeat(c2.r));rr.style.color=RCOL[c2.r];
@@ -5784,6 +5804,40 @@ function liveVisible(cv){
  if(!LIVE_VIS.has(cv)){LIVE_IO.observe(cv);LIVE_VIS.set(cv,true);}
  return LIVE_VIS.get(cv);
 }
+/* Bleed: let a cat's canvas reach past its box, so halos, hats, wings and
+   light are drawn in full and simply overlap the text around them instead
+   of being cut at the box edge. The box the layout sees stays the same size
+   (negative margins); only the drawing area grows. Text that comes after the
+   canvas in the page still paints on top. */
+function bleed(cv,p,redraw){
+ p=p||.18;
+ if(redraw)cv.__draw=redraw;
+ let tries=0;
+ const go=()=>{
+  if(cv.__pad)return;
+  const r=cv.isConnected?cv.getBoundingClientRect():null;
+  if(!r||!r.width||!r.height){if(++tries<40)requestAnimationFrame(go);return;}
+  const cs=getComputedStyle(cv);
+  const W=cv.width,H=cv.height, px=Math.round(W*p), py=Math.round(H*p);
+  const ex=r.width*p, ey=r.height*p;
+  const ml=parseFloat(cs.marginLeft)||0, mr=parseFloat(cs.marginRight)||0;
+  const centred=cs.display==='block'&&ml>0&&Math.abs(ml-mr)<1;
+  cv.style.width=(r.width+ex*2)+'px';cv.style.height=(r.height+ey*2)+'px';
+  cv.style.maxWidth='none';cv.style.maxHeight='none';cv.style.flexShrink='0';
+  cv.style.marginTop=((parseFloat(cs.marginTop)||0)-ey)+'px';
+  cv.style.marginBottom=((parseFloat(cs.marginBottom)||0)-ey)+'px';
+  cv.style.marginLeft=centred?'auto':(ml-ex)+'px';
+  cv.style.marginRight=centred?'auto':(mr-ex)+'px';
+  cv.style.pointerEvents='none';
+  cv.width=W+px*2;cv.height=H+py*2;cv.__pad={x:px,y:py};
+  const g=cv.getContext('2d');
+  g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height);g.translate(px,py);
+  const L=LIVE.find(x=>x.cv===cv);
+  if(L)L.fn(g,performance.now());else if(cv.__draw)cv.__draw(g,performance.now());
+ };
+ requestAnimationFrame(go);
+ return cv;
+}
 function liveDraw(cv,fn,always){
  LIVE.push({cv,fn,always:always==='home'?false:!!always,home:always==='home'});
  if(LIVE_IO){LIVE_IO.observe(cv);LIVE_VIS.set(cv,true);}
@@ -5799,7 +5853,10 @@ function animLive(now){
   if(!L.cv.isConnected){LIVE.splice(i,1);if(LIVE_IO)LIVE_IO.unobserve(L.cv);continue;}
   if(!(L.home?home:L.always?!!L.cv.closest('.ov.on'):open))continue;
   if(LIVE_IO&&LIVE_VIS.get(L.cv)===false)continue;
-  const g=L.cv.getContext('2d');g.clearRect(0,0,L.cv.width,L.cv.height);L.fn(g,now);}
+  const g=L.cv.getContext('2d');
+  g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,L.cv.width,L.cv.height);
+  if(L.cv.__pad)g.translate(L.cv.__pad.x,L.cv.__pad.y);
+  L.fn(g,now);}
 }
 /* Open the shop scrolled to one product, with a brief highlight so the eye
    lands on the thing that was tapped on the home screen. */
@@ -5881,7 +5938,7 @@ t.appendChild(el('div','p',priceStr(st.id)));
    liveDraw(cv,(g,now)=>drawThemePreview(g,200,150,x,now),'home');}
   else{cv.width=cv.height=192;
    if(kind==='cat')liveDraw(cv,(g,now)=>drawCat(g,96,116,118,x.k,{skin:x.skin,mood:'happy',now}),'home');
-   else liveDraw(cv,(g,now)=>drawCat(g,96,120,110,model.k,{skin:catSkin(model),cos:x.id,mood:'happy',now}),'home');}
+   else liveDraw(cv,(g,now)=>drawCat(g,96,120,110,model.k,{skin:catSkin(model),cos:x.id,mood:'happy',now}),'home');bleed(cv,.14);}
   t.appendChild(cv);
   const name=kind==='cat'?catName(x):x.ja;
   const eff=kind==='cat'?KNACK[x.a].ja.split('／')[0].trim()
@@ -5927,7 +5984,7 @@ function openShop(){sheetPush(()=>openShop());sheet(T('ショップ'),b=>{
   const c=el('div','pcShow'+(own?' own':''));c.dataset.iap=p.id;
   c.style.setProperty('--au',K.aura||'#ffd76b');
   const art=el('div','pa');const cv=el('canvas');cv.width=cv.height=280;art.appendChild(cv);
-  liveDraw(cv,(g,now)=>drawCat(g,140,164,176,p.k,{skin:p.skin,mood:'happy',now}));
+  liveDraw(cv,(g,now)=>drawCat(g,140,164,176,p.k,{skin:p.skin,mood:'happy',now}));bleed(cv,.16);
   c.appendChild(art);
   const g=el('div','pg');
   g.innerHTML='<div class="pbx"><span class="bx r5">★★★★★</span></div>'
@@ -5951,7 +6008,7 @@ function openShop(){sheetPush(()=>openShop());sheet(T('ショップ'),b=>{
   const it=IAPBY(pc.id), own=owns(pc.id);
   const c=el('div','gItem'+(own?' own':''));c.dataset.iap=pc.id;
   const cv=el('canvas');cv.width=cv.height=220;c.appendChild(cv);
-  liveDraw(cv,(g,now)=>drawCat(g,110,140,124,cmodel.k,{cos:pc.id,skin:catSkin(cmodel),mood:'happy',now}));
+  liveDraw(cv,(g,now)=>drawCat(g,110,140,124,cmodel.k,{cos:pc.id,skin:catSkin(cmodel),mood:'happy',now}));bleed(cv,.16);
   const pct=Math.round((PCOS_COIN[pc.id]||0)*100);
   c.appendChild(el('div','gn',pc.ja));
   if(pct)c.appendChild(el('div','gb',JE('煮干し ＋'+pct+'%','Sardines +'+pct+'%')));
@@ -6090,7 +6147,7 @@ function openIapDiag(){
    ['HTMLの版',window.HTML_BUILD||'?'],
    ['アプリ内で動作 (IN_APP)',String(IN_APP)],
    ['native の受け口',wk?'あり':'なし'],
-   ['window.native の上書き',IAP_DIAG.some(x=>x.includes('上書きしようとした'))?'あり（止めました。記録を参照）':'なし'],
+   ['window.native の上書き',(typeof EXT_NATIVE==='function')?'あり（広告の依頼だけ ads.js へ）':'なし'],
    ['Capacitor',cap?('あり '+(window.Capacitor.getPlatform?window.Capacitor.getPlatform():'')):'なし'],
    ['課金ブリッジの起動表示',IAP_DIAG.some(x=>x.includes('起動OK'))?'受信済み':'未受信'],
    ['現地価格',PRICES?(Object.keys(PRICES).filter(k=>k!=='__cur').length+'件 '+(PRICES.__cur||'')):'未受信'],
@@ -7058,9 +7115,18 @@ function diagNote(dir,what){
 /* ネイティブへの橋。名前を native から kcNative に変えてあるのは、外のコードが
    window.native を差し替えても、ゲーム側の呼び出しが乗っ取られないようにするため。
    実機で、起動後に購入の依頼だけが届かない現象が起きていた。 */
+/* Ad messages go to ads.js when it is present. ads.js (loaded at the end of
+   this file) installs its own window.native to drive the AdMob plugin; it
+   used to swallow every message, purchases included. Now the game keeps its
+   own bridge for purchases, and hands only the ad messages to ads.js. */
+const AD_MSGS={banner:1,bannerRect:1,showRewarded:1,showInterstitial:1,ad_config:1,adConsent:1,att:1,attSettings:1};
+let EXT_NATIVE=null;
 function kcNative(t,d){
  try{
   if(t!=='bannerRect')diagNote('→',t+(d&&d.id?' '+d.id:''));
+  if(AD_MSGS[t]&&typeof EXT_NATIVE==='function'){
+   const r=EXT_NATIVE(t,d||{});
+   return r===undefined?true:!!r;}
   if(window.webkit&&webkit.messageHandlers&&webkit.messageHandlers.native)
    {webkit.messageHandlers.native.postMessage(Object.assign({t},d||{}));return true;}
   if(window.KingCatsNative&&KingCatsNative.post)
@@ -7076,8 +7142,11 @@ try{
   configurable:false,enumerable:true,
   get(){return kcNative;},
   set(v){
-   diagNote('!','window.native を上書きしようとしたコードを止めました: '
-    +String(v).replace(/\s+/g,' ').slice(0,160));
+   /* the game's bridge stays in place; the newcomer (ads.js) gets the ad
+      messages only — see kcNative */
+   if(typeof v==='function'&&v!==kcNative)EXT_NATIVE=v;
+   diagNote('!','window.native の上書きを受け止めました（広告の依頼だけをそちらへ）: '
+    +String(v).replace(/\s+/g,' ').slice(0,120));
   }});
 }catch(e){
  /* すでに固定されていて変えられない場合 */
@@ -7133,8 +7202,9 @@ function showLogin(){
  $('dTitle').textContent=S.login.streak+T('日目');
  const art=$('dArt');art.innerHTML='';
  const cv=el('canvas');cv.width=cv.height=230;cv.style.width='112px';cv.style.height='112px';
- drawCat(cv.getContext('2d'),115,124,180,S.login.streak%6,{mood:'happy',glow:S.login.streak>=7});
- art.appendChild(cv);
+ const lk=S.login.streak%6, lg=S.login.streak>=7;
+ liveDraw(cv,(g,now)=>drawCat(g,115,124,180,lk,{mood:'happy',glow:lg,now}),true);
+ art.appendChild(cv);bleed(cv,.22);
  $('dRew').innerHTML=loginNames(r).map(x=>'<span class="rwPill">'+x+'</span>').join('');
  /* the whole week, with what each day gives */
  const g=$('dStreak');g.innerHTML='';
@@ -8842,7 +8912,7 @@ function openWardrobe(){sheetPush(()=>openWardrobe());sheet(T('着せ替え'),b=
   const r=el('div','wardRow');
   const cv=el('canvas');cv.width=cv.height=110;
   liveDraw(cv,(g,now)=>drawCat(g,110*.47,110*.60,110*.62,p.k,
-   {cos:on||null,skin:catSkin(p),glow:!!catSkin(p),now}));
+   {cos:on||null,skin:catSkin(p),glow:!!catSkin(p),now}));bleed(cv,.16);
   r.appendChild(cv);
   r.appendChild(el('div','g','<div class="t">'+catName(p)
    +'<span style="color:'+RCOL[p.r]+';font-size:9px;margin-left:5px">'+'★'.repeat(p.r)+'</span>'
@@ -8868,7 +8938,7 @@ function openWardrobe(){sheetPush(()=>openWardrobe());sheet(T('着せ替え'),b=
   const r=el('div','wardRow');
   const cv=el('canvas');cv.width=cv.height=110;
   liveDraw(cv,(g,now)=>drawCat(g,110*.47,110*.60,110*.62,model.k,
-   {cos:pc.id,skin:catSkin(model),now}));
+   {cos:pc.id,skin:catSkin(model),now}));bleed(cv,.16);
   r.appendChild(cv);
   const wr=own?pcosWearer(pc.id):null, wc=wr?allCats().find(x=>x.id===wr):null;
   r.appendChild(el('div','g','<div class="t">'+pc.ja
@@ -8904,7 +8974,7 @@ function openCosPick(catId){sheetPush(()=>openCosPick(catId));
    const d=el('div','cosCell'+(worn===id?' on':''));
    const cv=el('canvas');cv.width=cv.height=140;
    liveDraw(cv,(g,now)=>drawCat(g,140*.47,140*.60,140*.62,p.k,
-    {cos:id||null,skin:catSkin(p),glow:!!catSkin(p),now}));
+    {cos:id||null,skin:catSkin(p),glow:!!catSkin(p),now}));bleed(cv,.16);
    d.appendChild(cv);
    d.appendChild(el('div','nm',label));
    if(rr)d.appendChild(el('div','rr','★'.repeat(rr)));
@@ -8938,7 +9008,7 @@ function openCosPick(catId){sheetPush(()=>openCosPick(catId));
    const d=el('div','cosCell lock');
    const cv=el('canvas');cv.width=cv.height=140;
    liveDraw(cv,(g,now)=>drawCat(g,140*.47,140*.60,140*.62,p.k,
-    {cos:pc.id,skin:catSkin(p),now}));
+    {cos:pc.id,skin:catSkin(p),now}));bleed(cv,.16);
    cv.style.opacity='.55';
    d.classList.remove('lock');d.classList.add('buy');
    d.appendChild(cv);
